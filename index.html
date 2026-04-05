@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kimoup - Official App</title>
     
-    <!-- CSS Frameworks -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
@@ -33,13 +31,11 @@
         .app-container { width: 100%; height: 100%; background: #ffffff; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 8px solid #1e293b; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); } }
 
-        /* منطقة الشات */
         #messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #f0f2f5; scroll-behavior: smooth; }
         .msg-bubble { max-width: 80%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .msg-out { background-color: #dcf8c6; border-radius: 12px 12px 0 12px; align-self: flex-end; }
         .msg-in { background-color: #ffffff; border-radius: 12px 12px 12px 0; align-self: flex-start; }
 
-        /* إخفاء سكرول بار */
         ::-webkit-scrollbar { width: 0px; }
         .hidden-view { display: none !important; }
         audio { height: 35px; width: 220px; outline: none; }
@@ -47,7 +43,6 @@
 </head>
 <body>
 
-    <!-- 0. Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center shadow-xl animate-pulse mb-4 relative overflow-hidden">
             <i class="fas fa-bolt text-5xl text-sky-400"></i>
@@ -58,15 +53,14 @@
 
     <div class="app-container">
 
-        <!-- 1. شاشة الدخول (نظام الرقم والـ PIN) -->
+        <!-- 1. شاشة الدخول المباشر -->
         <div id="auth-view" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 hidden-view">
-            
             <div class="w-full max-w-sm text-center">
                 <div class="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                     <i class="fas fa-bolt text-4xl text-sky-400"></i>
                 </div>
                 <h2 class="text-2xl font-black text-slate-800 mb-1">Kimoup</h2>
-                <p id="auth-title" class="text-gray-400 text-sm mb-8 font-bold">تسجيل الدخول برقم الهاتف</p>
+                <p class="text-gray-400 text-sm mb-8 font-bold">تسجيل الدخول برقم الهاتف</p>
 
                 <!-- خطوة فحص الرقم -->
                 <div id="check-step" class="space-y-4">
@@ -74,91 +68,71 @@
                         <span class="text-gray-400 font-bold ml-3 border-l pl-3">+20</span>
                         <input type="tel" id="phone-input" placeholder="1112215950" class="w-full bg-transparent outline-none font-bold text-lg dir-ltr text-right">
                     </div>
-                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">تحقق من الرقم</button>
+                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">متابعة</button>
                 </div>
 
-                <!-- خطوة الانتظار -->
-                <div id="waiting-step" class="hidden-view space-y-4">
-                    <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-clock text-2xl animate-spin"></i></div>
-                    <h3 class="font-bold text-lg">طلبك قيد المراجعة</h3>
-                    <p class="text-sm text-gray-500">تم تسجيل رقمك وينتظر موافقة الإدارة.</p>
-                </div>
-
-                <!-- خطوة كود الدخول -->
+                <!-- خطوة كود الدخول المباشر -->
                 <div id="pin-step" class="hidden-view space-y-4">
                     <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-2xl"></i></div>
-                    <h3 class="font-bold text-lg">الرقم جاهز</h3>
-                    <input type="password" id="pin-input" placeholder="الباسورد (PIN)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-2xl tracking-[0.3em] focus:border-green-500 border-2 border-transparent">
+                    <h3 class="font-bold text-lg">أدخل كود الدخول</h3>
+                    <p class="text-xs text-gray-400 mb-2">الكود الافتراضي هو 000000</p>
+                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-2xl tracking-[0.3em] focus:border-green-500 border-2 border-transparent">
                     <button onclick="verifyAccess()" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">دخول</button>
                 </div>
-
             </div>
         </div>
 
-        <!-- 2. الواجهة الرئيسية (التصميم القديم) -->
+        <!-- 2. الواجهة الرئيسية -->
         <div id="main-view" class="w-full h-full flex flex-col hidden-view bg-white">
             
-            <!-- الهيدر -->
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.05)] z-20">
                 <div class="flex items-center gap-3">
                     <button id="logout-btn" onclick="logout()" class="hidden-view text-red-400 text-xl p-2 active:scale-90"><i class="fas fa-power-off"></i></button>
-                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90 relative">
-                        <i class="fas fa-users"></i>
-                        <span id="admin-badge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white hidden-view"></span>
-                    </button>
-                    <button onclick="openSettingsModal()" class="text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-user-shield"></i></button>
+                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90"><i class="fas fa-user-shield"></i></button>
+                    <button onclick="openSettingsModal()" class="text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-id-card"></i></button>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <h1 class="font-black text-lg text-slate-800 leading-none tracking-wide">Kimoup</h1>
-                        <p class="text-[8px] text-gray-400 font-bold tracking-widest lowercase">we here to help you with any think</p>
+                        <p class="text-[8px] text-gray-400 font-bold tracking-widest lowercase">we here to help you</p>
                     </div>
-                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md border-2 border-yellow-400 relative">
+                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md border-2 border-yellow-400">
                         <i class="fas fa-bolt text-sky-400 text-xl"></i>
-                        <i class="fas fa-sync-alt absolute -bottom-1 -right-1 text-yellow-500 text-[10px] bg-white rounded-full"></i>
                     </div>
                 </div>
             </div>
 
             <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                <!-- زر إضافة صديق -->
                 <button onclick="openAddFriendModal()" class="w-full py-3.5 bg-gray-50 border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
                     <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة صديق
                 </button>
-
-                <!-- قائمة الأصدقاء -->
                 <div id="contacts-list" class="space-y-1 mt-4"></div>
             </div>
         </div>
 
         <!-- 3. شاشة الشات -->
         <div id="chat-view" class="absolute inset-0 bg-[#f0f2f5] z-[60] flex flex-col hidden-view animate-fade-in">
-            <!-- هيدر الشات -->
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-sm z-20">
                 <button onclick="closeChat()" class="p-2 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
-                
                 <div class="flex-1 flex flex-col items-end justify-center mr-3">
                     <div class="flex items-center gap-1">
                         <i id="active-chat-verified" class="fas fa-check-circle text-sky-500 hidden-view text-[10px]"></i>
                         <h3 id="active-chat-name" class="font-bold text-sm text-slate-800"></h3>
                     </div>
-                    <p id="active-chat-status" class="text-[10px] text-sky-500 font-bold">اهلا بكم</p>
+                    <p id="active-chat-status" class="text-[10px] text-sky-500 font-bold"></p>
                 </div>
-
                 <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-sm relative">
                     <img id="active-chat-img" src="" class="w-full h-full rounded-full object-cover">
-                    <i class="fas fa-bolt text-sky-400 absolute opacity-50"></i>
                 </div>
             </div>
             
             <div id="messages-container"><div id="msg-wrapper" class="flex flex-col gap-2"></div></div>
             
-            <!-- إدخال الرسائل -->
             <div class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3">
                 <button id="btn-voice" onmousedown="startVoice()" onmouseup="stopVoice()" ontouchstart="startVoice(event)" ontouchend="stopVoice(event)" class="w-11 h-11 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition">
                     <i class="fas fa-microphone text-lg"></i>
                 </button>
-                <div class="flex-1 bg-white rounded-[20px] px-4 py-2.5 flex items-center shadow-sm">
+                <div class="flex-1 bg-white rounded-full px-4 py-2.5 flex items-center shadow-sm">
                     <input type="text" id="m-input" placeholder="اكتب رسالة..." class="w-full bg-transparent outline-none font-semibold text-sm">
                     <button class="text-gray-400 ml-2"><i class="fas fa-paperclip text-lg"></i></button>
                 </div>
@@ -185,7 +159,7 @@
             </div>
         </div>
 
-        <!-- إعدادات الحساب (مثل الصورة 1000083301 بالظبط) -->
+        <!-- إعدادات الحساب -->
         <div id="settings-modal" class="hidden-view fixed inset-0 bg-gray-50 z-[100] flex flex-col animate-slide-up">
             <div class="bg-sky-500 h-[65px] flex items-center justify-between px-4 text-white relative shadow-md shrink-0">
                 <div class="w-8"></div>
@@ -228,15 +202,14 @@
             </div>
         </div>
 
-        <!-- لوحة طلبات التوثيق (مطابقة للصورة 1000083305) -->
+        <!-- لوحة التحكم بالتوثيقات للأدمن -->
         <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/50 z-[110] flex items-center justify-center p-4">
             <div class="bg-[#1e2330] w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col">
                 <div class="p-4 text-white flex justify-between items-center border-b border-gray-700">
                     <button onclick="closeAdminModal()"><i class="fas fa-times text-lg"></i></button>
-                    <h3 class="font-bold text-lg">طلبات التوثيق</h3>
+                    <h3 class="font-bold text-lg">إدارة التوثيق 🔵</h3>
                 </div>
-                <div class="p-6 bg-white min-h-[30vh] max-h-[60vh] overflow-y-auto space-y-3" id="admin-requests">
-                    <p class="text-center text-gray-400 font-bold mt-10">لا يوجد طلبات.</p>
+                <div class="p-6 bg-white min-h-[40vh] max-h-[60vh] overflow-y-auto space-y-3" id="admin-requests">
                 </div>
             </div>
         </div>
@@ -244,7 +217,6 @@
     </div>
 
     <script>
-        // إعدادات Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
             authDomain: "whatsapp-fcd3c.firebaseapp.com",
@@ -261,7 +233,6 @@
         let activeChatId = null, uCache = {}, tempPhone = "";
         let mediaRec, audioChunks = [], profileBase64 = '';
 
-        // Splash
         setTimeout(() => {
             document.getElementById('splash-screen').classList.add('opacity-0');
             setTimeout(() => { 
@@ -270,7 +241,7 @@
             }, 500);
         }, 1500);
 
-        // --- 1. Login Logic (بدون SMS) ---
+        // --- 1. Login Logic (مباشر بدون انتظار) ---
         async function checkNumberReady() {
             let p = document.getElementById('phone-input').value.trim();
             if(!p) return alert("أدخل رقم الهاتف!");
@@ -278,35 +249,27 @@
             tempPhone = "+20" + p;
 
             document.getElementById('btn-check').innerText = "جاري الفحص...";
-            const doc = await db.collection('users').doc(tempPhone).get();
+            const userRef = db.collection('users').doc(tempPhone);
+            const doc = await userRef.get();
 
-            if(doc.exists) {
-                monitorStatus(tempPhone);
-            } else {
-                await db.collection('users').doc(tempPhone).set({
+            if(!doc.exists) {
+                // إنشاء مستخدم وموافق عليه فوراً
+                await userRef.set({
                     phone: tempPhone, displayName: "مستخدم " + tempPhone.slice(-4), bio: 'اهلا بكم',
-                    status: tempPhone === ADMIN_PHONE ? 'approved' : 'pending', 
-                    loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE,
+                    status: 'approved', loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE,
                     contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                monitorStatus(tempPhone);
+            } else if (doc.data().status === 'pending') {
+                // لو كان في حد قديم متعلق في المراجعة، وافق عليه فوراً
+                await userRef.update({ status: 'approved' });
             }
-            document.getElementById('btn-check').innerText = "تحقق من الرقم";
-        }
-
-        function monitorStatus(phone) {
-            db.collection('users').doc(phone).onSnapshot(snap => {
-                if(snap.data().status === 'approved') {
-                    showStep('pin-step');
-                } else {
-                    showStep('waiting-step');
-                    document.getElementById('pending-phone-display').innerText = phone;
-                }
-            });
+            
+            showStep('pin-step');
+            document.getElementById('btn-check').innerText = "متابعة";
         }
 
         function showStep(id) {
-            ['check-step', 'waiting-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view'));
+            ['check-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view'));
             document.getElementById(id).classList.remove('hidden-view');
         }
 
@@ -325,14 +288,10 @@
             document.getElementById('auth-view').classList.add('hidden-view');
             document.getElementById('main-view').classList.remove('hidden-view');
 
-            // قفل الجهاز (Device Lock)
+            // قفل الجهاز
             if (currentUser === ADMIN_PHONE) {
                 document.getElementById('logout-btn').classList.remove('hidden-view');
                 document.getElementById('admin-panel-btn').classList.remove('hidden-view');
-                // Badge requests
-                db.collection('users').where('status', '==', 'pending').onSnapshot(s => {
-                    document.getElementById('admin-badge').classList.toggle('hidden-view', s.empty);
-                });
             }
 
             db.collection('users').doc(currentUser).onSnapshot(s => {
@@ -352,7 +311,7 @@
         function renderContacts() {
             const list = document.getElementById('contacts-list'); list.innerHTML = '';
             Object.values(uCache).forEach(u => {
-                if(u.phone === currentUser || u.status !== 'approved') return;
+                if(u.phone === currentUser) return;
                 list.innerHTML += `
                     <div onclick="openChat('${u.phone}')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-xl transition">
                         <div class="w-[50px] h-[50px] bg-sky-500 rounded-full shrink-0 flex items-center justify-center text-white font-bold text-xl overflow-hidden shadow-sm">
@@ -443,13 +402,12 @@
             if(p.startsWith('0')) p = p.substring(1); p = "+20"+p;
             
             const doc = await db.collection('users').doc(p).get();
-            if(doc.exists && doc.data().status === 'approved') {
+            if(doc.exists) {
                 closeAddFriendModal();
                 openChat(p);
-            } else alert("الرقم ده لسه مسجلش أو متفعلش!");
+            } else alert("الرقم ده لسه مسجلش في الأبلكيشن!");
         }
 
-        // Settings (Profile)
         function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
         function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
         
@@ -475,26 +433,21 @@
 
         function requestVerification() { alert("تم إرسال طلب التوثيق للإدارة."); }
 
-        // Admin Panel
+        // لوحة الأدمن للتوثيق فقط
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden-view');
             const list = document.getElementById('admin-requests');
             db.collection('users').onSnapshot(snap => {
                 list.innerHTML = '';
-                let hasRequests = false;
+                let hasUsers = false;
                 snap.forEach(doc => {
                     const u = doc.data();
                     if(u.phone === ADMIN_PHONE) return; 
-                    hasRequests = true;
+                    hasUsers = true;
                     
-                    let btn = '';
-                    if(u.status === 'pending') {
-                        btn = `<button onclick="updateUser('${u.phone}', 'approved', false)" class="bg-green-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm">تفعيل</button>`;
-                    } else {
-                        btn = u.isVerified 
-                            ? `<button onclick="updateUser('${u.phone}', 'approved', false)" class="bg-red-100 text-red-600 px-3 py-1.5 rounded text-xs font-bold">إزالة التوثيق</button>`
-                            : `<button onclick="updateUser('${u.phone}', 'approved', true)" class="bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm">توثيق 🔵</button>`;
-                    }
+                    const btn = u.isVerified 
+                        ? `<button onclick="updateVerify('${u.phone}', false)" class="bg-red-100 text-red-600 px-3 py-1.5 rounded text-xs font-bold shadow-sm">إزالة التوثيق</button>`
+                        : `<button onclick="updateVerify('${u.phone}', true)" class="bg-sky-500 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm">توثيق 🔵</button>`;
 
                     list.innerHTML += `
                         <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex justify-between items-center shadow-sm">
@@ -505,10 +458,10 @@
                             <div>${btn}</div>
                         </div>`;
                 });
-                if(!hasRequests) list.innerHTML = '<p class="text-center text-gray-400 font-bold mt-10">لا يوجد مستخدمين.</p>';
+                if(!hasUsers) list.innerHTML = '<p class="text-center text-gray-400 font-bold mt-10">لا يوجد مستخدمين.</p>';
             });
         }
-        async function updateUser(phone, status, isVerified) { await db.collection('users').doc(phone).update({ status, isVerified }); }
+        async function updateVerify(phone, isVerified) { await db.collection('users').doc(phone).update({ isVerified }); }
         function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden-view'); }
         
         function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); }
