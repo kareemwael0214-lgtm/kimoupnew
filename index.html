@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KIMO APP - Master Edition</title>
+    <title>KIMO CHAT - النسخة الرسمية</title>
     
-    <!-- CSS & Icons -->
+    <!-- Tailwind CSS لجمال التصميم -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- خطوط جوجل -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Lalezar&display=swap" rel="stylesheet">
+    <!-- أيقونات FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs -->
+    <!-- مكتبات Firebase (نسخة الـ Compat للعمل في ملف واحد) -->
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
@@ -29,140 +31,138 @@
 
     <style>
         * { -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background-color: #f1f5f9; font-family: 'Cairo', sans-serif; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        body { background-color: #f1f5f9; font-family: 'Cairo', sans-serif; height: 100vh; width: 100vw; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         
         .app-container { width: 100%; height: 100%; background: white; position: relative; display: flex; overflow: hidden; }
-        @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); } }
+        @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2rem; border: 12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); } }
 
-        /* حل مشكلة السكرول */
+        /* منطقة الرسائل مع حل السكرول */
         #messages-container { 
             flex: 1; 
             overflow-y: auto; 
             display: flex; 
             flex-direction: column; 
-            padding: 15px; 
+            padding: 20px; 
             gap: 12px; 
             background-color: #efeae2; 
-            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
             scroll-behavior: smooth;
         }
 
-        .msg-bubble { max-width: 80%; padding: 10px 14px; font-weight: 600; font-size: 14.5px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .msg-out { background-color: #dcf8c6; border-radius: 18px 18px 0 18px; align-self: flex-end; }
-        .msg-in { background-color: #ffffff; border-radius: 18px 18px 18px 0; align-self: flex-start; }
+        .msg-bubble { max-width: 80%; padding: 10px 15px; border-radius: 18px; font-weight: 600; font-size: 14.5px; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .msg-out { background-color: #dcf8c6; border-bottom-right-radius: 2px; align-self: flex-end; border: 1px solid #cce8b5; }
+        .msg-in { background-color: #ffffff; border-bottom-left-radius: 2px; align-self: flex-start; border: 1px solid #e2e8f0; }
 
         .font-lalezar { font-family: 'Lalezar', cursive; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
         
-        audio { height: 35px; width: 220px; border-radius: 20px; }
+        #recaptcha-container { position: absolute; bottom: 10px; right: 10px; opacity: 0.01; pointer-events: none; }
+        
+        /* زر الفويس النباض */
+        .voice-btn-active { background-color: #ef4444 !important; animation: pulse-red 1s infinite; }
+        @keyframes pulse-red { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
 
-    <!-- Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-kimo-main z-[999] flex flex-col items-center justify-center transition-opacity duration-500 text-white">
-        <i class="fas fa-bolt-lightning text-7xl mb-4 animate-pulse"></i>
-        <h1 class="text-4xl font-bold font-lalezar tracking-widest">KIMO APP</h1>
-    </div>
+    <!-- حاوية التحقق من جوجل (ضرورية لعمل الـ SMS) -->
+    <div id="recaptcha-container"></div>
 
     <div class="app-container shadow-2xl">
 
-        <!-- 1. شاشة الدخول بنظام "الجاهز" -->
-        <div id="auth-screen" class="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center p-10 text-center hidden">
+        <!-- 1. شاشة الدخول (نظام الـ SMS الحقيقي) -->
+        <div id="auth-screen" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 text-center hidden">
             
-            <div id="login-step-1">
-                <div class="w-24 h-24 bg-kimo-main rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-2xl text-white">
-                    <i class="fas fa-shield-halved text-5xl"></i>
+            <!-- مرحلة إدخال الرقم -->
+            <div id="phone-entry-step" class="w-full">
+                <div class="w-24 h-24 bg-kimo-main rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-xl text-white">
+                    <i class="fas fa-paper-plane text-5xl"></i>
                 </div>
-                <h2 class="text-3xl font-bold font-lalezar text-kimo-text mb-2">KIMO PRO</h2>
-                <p class="text-gray-400 text-sm mb-10 font-bold uppercase tracking-widest">Standalone Access</p>
+                <h2 class="text-3xl font-bold font-lalezar text-kimo-text mb-2">KIMO CHAT</h2>
+                <p class="text-gray-400 text-sm mb-10 font-bold tracking-widest uppercase">Verified Registration</p>
+                
                 <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center mb-6 focus-within:border-kimo-main transition-all">
                     <span class="text-gray-400 font-bold ml-3 border-l pl-3">+20</span>
                     <input type="tel" id="phone-input" placeholder="1112215950" class="w-full bg-transparent outline-none font-bold text-lg dir-ltr">
                 </div>
-                <button onclick="checkAccess()" id="btn-login" class="w-full bg-kimo-main text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">تحقق من الرقم</button>
-            </div>
-
-            <!-- شاشة الانتظار (لو مش جاهز) -->
-            <div id="waiting-step" class="hidden animate-fade-in">
-                <div class="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fas fa-hourglass-half text-3xl animate-spin"></i></div>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">طلبك قيد المراجعة</h2>
-                <p class="text-gray-500 text-xs mb-8 px-4 leading-relaxed">أهلاً بك. رقمك مسجل في قائمة الانتظار. سيقوم "كيمو" بتفعيل حسابك فوراً بمجرد رؤية الطلب.</p>
-                <div class="p-4 bg-gray-50 rounded-2xl border border-dashed border-gray-200 mb-8"><p id="pending-display" class="font-bold text-kimo-main text-lg tracking-widest"></p></div>
-                <p class="text-[10px] text-gray-300 animate-pulse font-bold">ستفتح الواجهة تلقائياً عند قبولك...</p>
-            </div>
-
-            <!-- شاشة الكود (لو جاهز) -->
-            <div id="otp-step" class="hidden">
-                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"><i class="fas fa-key text-3xl"></i></div>
-                <h2 class="text-xl font-bold text-gray-800 mb-2">تم القبول!</h2>
-                <p class="text-gray-400 text-xs mb-8 font-bold">أدخل كود المرور (PIN) للدخول</p>
-                <input type="password" id="otp-input" placeholder="••••••" class="w-full p-4 border-2 border-gray-100 rounded-2xl mb-6 text-center text-3xl font-bold tracking-[0.5em] bg-gray-50 outline-none">
-                <button onclick="finalLogin()" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl shadow-lg transition">دخول آمن</button>
-            </div>
-        </div>
-
-        <!-- 2. واجهة التطبيق الرئيسية -->
-        <div id="app-content" class="w-full h-full flex flex-col hidden">
-            
-            <div class="h-[75px] border-b flex items-center justify-between px-6 bg-white shrink-0 shadow-sm z-30">
-                <h1 class="font-lalezar text-xl text-kimo-main">KIMO PRO</h1>
-                <div class="flex gap-2">
-                    <button id="admin-btn" onclick="openAdmin()" class="hidden w-10 h-10 bg-yellow-50 text-yellow-600 rounded-xl flex items-center justify-center relative shadow-sm"><i class="fas fa-users-gear"></i><span id="badge" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white hidden"></span></button>
-                    <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-400 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-power-off"></i></button>
-                </div>
-            </div>
-
-            <div id="contacts-list" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white"></div>
-            
-            <div class="p-4 border-t bg-gray-50/50 z-30">
-                <button onclick="startChat()" class="w-full bg-kimo-main text-white py-3.5 rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">
-                    <i class="fas fa-plus text-xs"></i> إضافة محادثة جديدة
+                <button onclick="requestSMS()" id="btn-request-sms" class="w-full bg-kimo-main text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
+                    <span id="btn-text">إرسال كود التفعيل</span>
+                    <i id="loader-sms" class="fas fa-circle-notch fa-spin hidden"></i>
                 </button>
             </div>
 
-            <!-- شاشة الشات الفعلي -->
-            <div id="chat-page" class="absolute inset-0 bg-white z-[60] flex flex-col hidden">
+            <!-- مرحلة إدخال كود الـ SMS -->
+            <div id="otp-entry-step" class="w-full hidden">
+                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl text-white">
+                    <i class="fas fa-comment-sms text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">تحقق من الرمز</h2>
+                <p class="text-gray-400 text-xs mb-8 font-bold">أدخل الكود المستلم في رسالة SMS</p>
+                <input type="text" id="otp-input" placeholder="000000" class="w-full p-4 border-2 border-gray-100 rounded-2xl mb-6 text-center text-3xl font-bold tracking-[0.5em] bg-gray-50 outline-none focus:border-green-500">
+                <button onclick="verifySMSCode()" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">تأكيد ودخول</button>
+                <button onclick="location.reload()" class="mt-8 text-xs text-gray-400 underline font-bold">تغيير الرقم</button>
+            </div>
+        </div>
+
+        <!-- 2. واجهة التطبيق الرئيسية (تظهر بعد تسجيل الدخول) -->
+        <div id="main-app" class="w-full h-full flex flex-col hidden">
+            
+            <!-- هيدر الشات -->
+            <div class="h-[75px] border-b flex items-center justify-between px-6 bg-white shrink-0 shadow-sm z-30">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-kimo-main rounded-xl flex items-center justify-center text-white"><i class="fas fa-bolt"></i></div>
+                    <h1 class="font-lalezar text-xl text-kimo-text">KIMO CHAT</h1>
+                </div>
+                <button onclick="logout()" class="w-10 h-10 bg-red-50 text-red-400 rounded-xl flex items-center justify-center active:scale-90 transition"><i class="fas fa-power-off"></i></button>
+            </div>
+
+            <!-- قائمة المحادثات -->
+            <div id="contacts-view" class="flex-1 overflow-y-auto p-4 space-y-3 bg-white">
+                <div id="contacts-container" class="space-y-3"></div>
+            </div>
+            
+            <div class="p-4 border-t bg-gray-50/50 z-30">
+                <button onclick="startNewChatPrompt()" class="w-full bg-kimo-main text-white py-3.5 rounded-2xl font-bold shadow-md flex justify-center items-center gap-2">
+                    <i class="fas fa-plus"></i> محادثة جديدة
+                </button>
+            </div>
+
+            <!-- صفحة المحادثة النشطة (تفتح فوق المحادثات) -->
+            <div id="chat-window" class="absolute inset-0 bg-white z-[80] flex flex-col hidden">
                 <div class="h-[75px] border-b flex items-center px-4 shrink-0 shadow-sm bg-white">
-                    <button onclick="closeChat()" class="p-2 text-gray-400 active:scale-125 transition"><i class="fas fa-arrow-right text-xl"></i></button>
-                    <div id="active-title" class="font-bold text-sm text-kimo-text mr-2 flex-1 truncate"></div>
-                    <div class="status-dot w-2 h-2 bg-green-500 rounded-full animate-pulse ml-2"></div>
+                    <button onclick="closeChatWindow()" class="p-2 text-gray-400 active:scale-125 transition"><i class="fas fa-arrow-right text-xl"></i></button>
+                    <div id="active-chat-title" class="font-bold text-sm text-kimo-text mr-2 flex-1 truncate"></div>
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse ml-2"></div>
                 </div>
                 
                 <div id="messages-container">
-                    <div id="msg-wrapper" class="flex flex-col gap-3"></div>
+                    <div id="messages-wrapper" class="flex flex-col gap-3"></div>
                 </div>
 
-                <div class="p-3 bg-white border-t flex gap-2 items-center z-30">
-                    <button id="btn-voice-trigger" onclick="toggleVoiceOverlay(true)" class="text-gray-400 hover:text-kimo-main p-2 transition"><i class="fas fa-microphone text-2xl"></i></button>
-                    <input type="text" id="m-input" placeholder="اكتب رسالتك..." class="flex-1 bg-gray-100 rounded-[25px] px-5 py-3 outline-none font-semibold text-sm">
-                    <button onclick="sendText()" class="w-12 h-12 bg-kimo-main text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+                <div class="p-4 bg-white border-t flex gap-3 items-center z-[90]">
+                    <!-- زر الفويس مسدج -->
+                    <button id="voice-btn" onmousedown="startVoiceRecord()" onmouseup="stopVoiceRecord()" ontouchstart="startVoiceRecord(event)" ontouchend="stopVoiceRecord(event)" class="w-11 h-11 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center transition active:scale-90">
+                        <i class="fas fa-microphone text-xl"></i>
+                    </button>
+                    
+                    <input type="text" id="chat-input" placeholder="اكتب رسالة..." class="flex-1 bg-gray-100 rounded-[25px] px-5 py-3 outline-none font-semibold text-sm focus:bg-gray-200 transition-all">
+                    
+                    <button onclick="sendMessageText()" class="w-11 h-11 bg-kimo-main text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
                         <i class="fas fa-paper-plane rotate-[225deg] text-lg"></i>
                     </button>
                 </div>
-
-                <!-- واجهة الفويس -->
-                <div id="voice-overlay" class="absolute inset-x-0 bottom-0 bg-white p-8 border-t shadow-2xl z-[70] hidden flex flex-col items-center gap-6 animate-slide-up">
-                    <div class="flex items-center gap-4 text-red-500 font-bold text-xl"><i class="fas fa-circle animate-pulse"></i> <span id="v-timer">00:00</span></div>
-                    <div class="flex gap-4 w-full">
-                        <button onclick="toggleVoiceOverlay(false)" class="flex-1 text-gray-400 font-bold py-3 border rounded-2xl">إلغاء</button>
-                        <button onclick="stopAndSendVoice()" class="flex-[2] bg-red-500 text-white font-bold py-3 rounded-2xl shadow-lg">إرسال الفويس</button>
-                    </div>
+                
+                <!-- تنبيه التسجيل الصوتي -->
+                <div id="recording-alert" class="hidden absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-500 text-white px-4 py-2 rounded-full font-bold text-xs shadow-xl animate-bounce">
+                    <i class="fas fa-circle mr-1"></i> جاري التسجيل الآن...
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- لوحة الأدمن -->
-    <div id="admin-panel" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-6 backdrop-blur-md">
-        <div class="bg-white w-full max-w-sm rounded-[2rem] overflow-hidden shadow-2xl">
-            <div class="bg-gray-900 p-5 text-white flex justify-between items-center font-bold"><h3>طلبات التفعيل</h3><button onclick="closeAdmin()"><i class="fas fa-times"></i></button></div>
-            <div id="req-list" class="p-5 max-h-[50vh] overflow-y-auto space-y-3"></div>
         </div>
     </div>
 
     <script>
+        // --- إعدادات Firebase الخاصة بمشروعك (Kimo Settings) ---
         const firebaseConfig = {
             apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
             authDomain: "whatsapp-fcd3c.firebaseapp.com",
@@ -171,158 +171,194 @@
             messagingSenderId: "369090984748",
             appId: "1:369090984748:web:cba013025b108578cd0a89"
         };
+
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(), auth = firebase.auth();
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
-        const ADMIN = "+201112215950";
-        let user = localStorage.getItem('kimo_u'), activeId = null, uCache = {};
-        let mediaRec, audioChunks = [], timerInt, secs = 0;
+        let currentUserId = localStorage.getItem('kimo_user_id'), activeChatId = null, usersList = {}, confirmationResult = null;
+        let mediaRecorder, audioChunks = [];
 
-        // Splash
-        setTimeout(() => {
-            document.getElementById('splash-screen').classList.add('opacity-0');
-            setTimeout(() => { 
-                document.getElementById('splash-screen').classList.add('hidden'); 
-                if(user) init(); else document.getElementById('auth-screen').classList.remove('hidden');
-            }, 500);
-        }, 1500);
+        // 1. تهيئة الـ Recaptcha للـ SMS
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => { console.log("Recaptcha resolved"); }
+        });
 
-        // --- نظام الفحص الذكي (Standalone Approval) ---
-        async function checkAccess() {
+        // تشغيل التطبيق
+        if(currentUserId) startApp(); else document.getElementById('auth-screen').classList.remove('hidden');
+
+        // --- نظام إرسال الـ SMS الحقيقي ---
+        async function requestSMS() {
             let p = document.getElementById('phone-input').value.trim();
-            if(!p) return alert("أدخل رقمك!");
+            if(!p) return alert("من فضلك أدخل رقم الموبايل!");
             if(p.startsWith('0')) p = p.substring(1);
-            const fullP = "+20" + p;
+            const fullPhoneNumber = "+20" + p;
 
-            document.getElementById('btn-login').innerText = "جاري التحقق...";
-            const doc = await db.collection('users').doc(fullP).get();
+            document.getElementById('loader-sms').classList.remove('hidden');
+            document.getElementById('btn-text').innerText = "جاري الإرسال...";
 
-            if (fullP === ADMIN) {
-                showStep('otp-step');
-                localStorage.setItem('temp_p', fullP);
-            } else if (doc.exists && doc.data().status === 'active') {
-                showStep('otp-step');
-                localStorage.setItem('temp_p', fullP);
-            } else {
-                if(!doc.exists) await db.collection('users').doc(fullP).set({ phone: fullP, displayName: "مستخدم جديد", status: "pending", loginCode: "000000", createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                monitorActivation(fullP);
-            }
+            auth.signInWithPhoneNumber(fullPhoneNumber, window.recaptchaVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('phone-entry-step').classList.add('hidden');
+                    document.getElementById('otp-entry-step').classList.remove('hidden');
+                }).catch((error) => {
+                    alert("خطأ: تأكد من تفعيل Phone Auth في Firebase وإضافة الدومين الخاص بك.");
+                    console.error(error);
+                    location.reload();
+                });
         }
 
-        function monitorActivation(phone) {
-            db.collection('users').doc(phone).onSnapshot(s => {
-                const d = s.data();
-                if(d.status === 'active') {
-                    showStep('otp-step');
-                    localStorage.setItem('temp_p', phone);
-                } else {
-                    showStep('waiting-step');
-                    document.getElementById('pending-display').innerText = phone;
-                }
+        async function verifySMSCode() {
+            const code = document.getElementById('otp-input').value.trim();
+            if(!code) return;
+
+            confirmationResult.confirm(code).then(async (result) => {
+                const user = result.user;
+                currentUserId = user.phoneNumber;
+                localStorage.setItem('kimo_user_id', currentUserId);
+                
+                // حفظ المستخدم في Firestore
+                await db.collection('users').doc(currentUserId).set({
+                    phone: currentUserId,
+                    displayName: "مستخدم جديد",
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                }, {merge: true});
+                
+                startApp();
+            }).catch((error) => {
+                alert("الكود غير صحيح، حاول مرة أخرى.");
             });
         }
 
-        function showStep(id) {
-            ['login-step-1', 'waiting-step', 'otp-step'].forEach(i => document.getElementById(i).classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
+        // --- وظائف التطبيق الرئيسية ---
+        function startApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
 
-        async function finalLogin() {
-            const pin = document.getElementById('otp-input').value;
-            const tempP = localStorage.getItem('temp_p');
-            const s = await db.collection('users').doc(tempP).get();
-            if(s.data().loginCode === pin || pin === '123456') {
-                user = tempP;
-                localStorage.setItem('kimo_u', user);
-                init();
-            } else alert("PIN غير صحيح!");
-        }
-
-        // --- وظائف الأدمن ---
-        function openAdmin() {
-            document.getElementById('admin-panel').classList.remove('hidden');
-            db.collection('users').where('status','==','pending').onSnapshot(snap => {
-                const l = document.getElementById('req-list');
-                l.innerHTML = snap.empty ? '<p class="text-center text-gray-400 font-bold">لا توجد طلبات</p>' : '';
+            // جلب قائمة المستخدمين
+            db.collection('users').onSnapshot(snap => {
+                const list = document.getElementById('contacts-container');
+                list.innerHTML = '';
                 snap.forEach(doc => {
                     const u = doc.data();
-                    l.innerHTML += `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100 shadow-sm"><div><p class="font-bold text-sm text-gray-700">${u.phone}</p><p class="text-[9px] text-blue-500 font-bold uppercase">طلب دخول</p></div><button onclick="approveUser('${u.phone}')" class="bg-green-500 text-white px-5 py-2 rounded-xl text-[10px] font-bold shadow-md">قبول</button></div>`;
+                    usersList[doc.id] = u;
+                    if(doc.id !== currentUserId) {
+                        list.innerHTML += `
+                            <div onclick="openChat('${doc.id}')" class="bg-white p-4 rounded-3xl flex items-center shadow-sm border border-gray-50 active:scale-95 transition">
+                                <img src="https://ui-avatars.com/api/?name=${u.displayName}&background=0ea5e9&color=fff" class="w-12 h-12 rounded-2xl ml-3">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-700 text-sm">${u.displayName}</h3>
+                                    <p class="text-[10px] text-gray-400">متصل الآن</p>
+                                </div>
+                                <i class="fas fa-chevron-left text-gray-200 text-xs"></i>
+                            </div>`;
+                    }
                 });
             });
         }
-        async function approveUser(p) { await db.collection('users').doc(p).update({ status: 'active' }); }
-        function closeAdmin() { document.getElementById('admin-panel').classList.add('hidden'); }
 
-        // --- تهيئة الشات ---
-        function init() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-content').classList.remove('hidden');
-            if(user === ADMIN) {
-                document.getElementById('admin-btn').classList.remove('hidden');
-                db.collection('users').where('status','==','pending').onSnapshot(s => document.getElementById('badge').classList.toggle('hidden', s.empty));
-            }
-            db.collection('users').onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); render(); });
+        function openChat(id) {
+            activeChatId = id;
+            document.getElementById('chat-window').classList.remove('hidden');
+            document.getElementById('active-chat-title').innerText = usersList[id].displayName;
+            loadMessages();
         }
 
-        function render() {
-            const list = document.getElementById('contacts-list'); list.innerHTML = '';
-            Object.values(uCache).forEach(u => {
-                if(u.phone === user || u.status !== 'active') return;
-                list.innerHTML += `<div onclick="openChat('${u.phone}')" class="bg-white p-4 rounded-3xl flex items-center shadow-sm border border-gray-50 active:scale-95 transition"><img src="https://ui-avatars.com/api/?name=${u.displayName}&background=0ea5e9&color=fff" class="w-12 h-12 rounded-2xl ml-4 shadow-sm"><div class="flex-1 overflow-hidden"><h3 class="font-bold text-sm text-gray-700 truncate">${u.displayName}</h3><p class="text-[10px] text-green-500 font-bold uppercase">متصل الآن</p></div><i class="fas fa-chevron-left text-gray-200 text-xs"></i></div>`;
-            });
-        }
+        function loadMessages() {
+            const chatId = [currentUserId, activeChatId].sort().join('_');
+            const container = document.getElementById('messages-container');
+            const wrapper = document.getElementById('messages-wrapper');
 
-        function openChat(id) { activeId = id; document.getElementById('chat-page').classList.remove('hidden'); document.getElementById('active-title').innerText = uCache[id].displayName; load(); }
-        
-        function load() {
-            const cid = [user, activeId].sort().join('_'), cont = document.getElementById('messages-container');
-            db.collection('messages').where('chatId', '==', cid).onSnapshot(s => {
-                const w = document.getElementById('msg-wrapper');
-                let msgs = []; s.forEach(d => msgs.push(d.data()));
-                msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                w.innerHTML = '';
+            db.collection('messages').where('chatId', '==', chatId).onSnapshot(snap => {
+                let msgs = [];
+                snap.forEach(d => msgs.push(d.data()));
+                msgs.sort((a,b) => (a.time?.toMillis() || 0) - (b.time?.toMillis() || 0));
+
+                wrapper.innerHTML = '';
                 msgs.forEach(m => {
-                    const isMe = m.s === user;
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    w.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${content}</div></div>`);
+                    const isMe = m.sender === currentUserId;
+                    let content = m.type === 'voice' ? `<audio controls src="${m.data}" class="h-8 w-48"></audio>` : `<p>${m.text}</p>`;
+                    wrapper.insertAdjacentHTML('beforeend', `
+                        <div class="flex flex-col ${isMe?'items-end':'items-start'} w-full">
+                            <div class="msg-bubble ${isMe?'msg-out':'msg-in'}">
+                                ${content}
+                            </div>
+                        </div>`);
                 });
-                cont.scrollTop = cont.scrollHeight;
+                // أوتو سكرول للأسفل
+                container.scrollTop = container.scrollHeight;
             });
         }
 
-        async function sendText() {
-            const i = document.getElementById('m-input'), txt = i.value.trim(); if(!txt) return;
-            const cid = [user, activeId].sort().join('_'); i.value = '';
-            await db.collection('messages').add({ chatId: cid, txt, s: user, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+        async function sendMessageText() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text) return;
+            const chatId = [currentUserId, activeChatId].sort().join('_');
+            input.value = '';
+            await db.collection('messages').add({
+                chatId: chatId,
+                text: text,
+                sender: currentUserId,
+                type: 'text',
+                time: firebase.firestore.FieldValue.serverTimestamp()
+            });
         }
 
-        // --- نظام الفويس مسدج ---
-        async function toggleVoiceOverlay(show) {
-            if(!show) { if(mediaRec) mediaRec.stop(); clearInterval(timerInt); document.getElementById('voice-overlay').classList.add('hidden'); return; }
+        // --- نظام الفويس مسدج الاحترافي ---
+        async function startVoiceRecord(e) {
+            if(e) e.preventDefault();
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRec = new MediaRecorder(stream); audioChunks = [];
-                mediaRec.ondataavailable = e => audioChunks.push(e.data);
-                mediaRec.onstop = async () => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
                     if(audioChunks.length === 0) return;
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
                     reader.onloadend = async () => {
-                        const cid = [user, activeId].sort().join('_');
-                        await db.collection('messages').add({ chatId: cid, text: '', data: reader.result, type: 'voice', s: user, t: firebase.firestore.FieldValue.serverTimestamp() });
+                        const chatId = [currentUserId, activeChatId].sort().join('_');
+                        await db.collection('messages').add({
+                            chatId: chatId,
+                            data: reader.result,
+                            sender: currentUserId,
+                            type: 'voice',
+                            time: firebase.firestore.FieldValue.serverTimestamp()
+                        });
                     };
                     reader.readAsDataURL(audioBlob);
                 };
-                mediaRec.start();
-                document.getElementById('voice-overlay').classList.remove('hidden');
-                secs = 0; timerInt = setInterval(() => { secs++; let m=Math.floor(secs/60).toString().padStart(2,'0'), s=(secs%60).toString().padStart(2,'0'); document.getElementById('v-timer').innerText=`${m}:${s}`; }, 1000);
-            } catch(e) { alert("يرجى تفعيل المايك من إعدادات المتصفح!"); }
+                mediaRecorder.start();
+                document.getElementById('voice-btn').classList.add('voice-btn-active');
+                document.getElementById('recording-alert').classList.remove('hidden');
+            } catch(err) { alert("من فضلك اسمح بالوصول للمايكروفون."); }
         }
-        function stopAndSendVoice() { toggleVoiceOverlay(false); }
 
-        function closeChat() { document.getElementById('chat-page').classList.add('hidden'); }
+        function stopVoiceRecord(e) {
+            if(e) e.preventDefault();
+            if(mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                document.getElementById('voice-btn').classList.remove('voice-btn-active');
+                document.getElementById('recording-alert').classList.add('hidden');
+                // إغلاق المايكروفون تماماً بعد التسجيل
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // باقي وظائف الواجهة
+        function closeChatWindow() { document.getElementById('chat-window').classList.add('hidden'); }
         function logout() { localStorage.clear(); location.reload(); }
-        async function startChat() { let p = prompt("أدخل رقم الموبايل (مثال 01112215950):"); if(p) { if(p.startsWith('0')) p = p.substring(1); p = "+20"+p; await db.collection('users').doc(user).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) }); openChat(p); } }
+        async function startNewChatPrompt() {
+            let p = prompt("أدخل رقم الموبايل الجديد:");
+            if(p) {
+                if(p.startsWith('0')) p = p.substring(1);
+                p = "+20" + p;
+                openChat(p);
+            }
+        }
     </script>
 </body>
 </html>
