@@ -3,417 +3,1213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>KIMO APP - Royal Edition</title>
-    
-    <!-- CSS Frameworks -->
+    <title>Kimoup - كيموب</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Lalezar&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Firebase Compat SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        kimo: { main: '#0ea5e9', dark: '#0284c7', light: '#f0f9ff', admin: '#fbbf24' }
-                    }
-                }
-            }
-        }
-    </script>
-
+    
     <style>
-        * { -webkit-tap-highlight-color: transparent; outline: none; }
-        body { background-color: #cbd5e1; font-family: 'Cairo', sans-serif; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        
-        .app-container { width: 100%; height: 100%; background: white; position: relative; display: flex; overflow: hidden; }
-        @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); } }
-
-        /* ستايل الأدمن الملكي */
-        .royal-glow { 
-            position: relative;
-            padding: 3px;
-            background: linear-gradient(45deg, #fbbf24, #fef08a, #fbbf24);
-            background-size: 200% 200%;
-            animation: shimmer 2s infinite linear;
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+        /* Custom Styles & WhatsApp-like Colors */
+        :root {
+            --primary: #075E54;
+            --primary-light: #128C7E;
+            --secondary: #25D366;
+            --bg-chat: #efeae2;
+            --msg-out: #d9fdd3;
+            --msg-in: #ffffff;
         }
-        @keyframes shimmer { 0% {background-position: 0% 0%;} 100% {background-position: 200% 0%;} }
 
-        /* فقاعات الشات */
-        #messages-container { 
-            flex: 1; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 15px; 
-            gap: 10px; 
-            background-color: #efeae2; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        .bg-chat-pattern {
+            background-color: var(--bg-chat);
             background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
-            scroll-behavior: smooth;
+            background-repeat: repeat;
+            opacity: 0.9;
         }
-        .msg-bubble { max-width: 80%; padding: 10px 14px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .msg-out { background-color: #dcf8c6; border-radius: 15px 15px 0 15px; align-self: flex-end; }
-        .msg-in { background-color: #ffffff; border-radius: 15px 15px 15px 0; align-self: flex-start; }
 
-        .font-lalezar { font-family: 'Lalezar', cursive; }
-        .hidden-view { display: none !important; }
-        
-        audio { height: 35px; width: 200px; border-radius: 20px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .premium-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Story Circle */
+        .story-circle {
+            border: 3px solid var(--secondary);
+            padding: 2px;
+            border-radius: 50%;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body>
+<body class="h-screen w-screen flex items-center justify-center text-gray-800">
 
-    <!-- Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-kimo-main z-[999] flex flex-col items-center justify-center transition-opacity duration-500 text-white">
-        <i class="fas fa-crown text-7xl mb-4 animate-bounce text-yellow-400"></i>
-        <h1 class="text-4xl font-bold font-lalezar">KIMO APP</h1>
-        <p class="text-xs font-bold opacity-80 mt-2 uppercase tracking-widest">Locked System</p>
+    <!-- ==================== AUTH SCREEN ==================== -->
+    <div id="auth-screen" class="w-full h-full flex flex-col items-center justify-center bg-white fade-in z-50 absolute top-0 left-0">
+        <div class="text-center mb-8">
+            <i class="fa-brands fa-kickstarter text-6xl text-[#128C7E] mb-2"></i>
+            <h1 class="text-4xl font-bold text-[#075E54]">Kimoup</h1>
+            <p class="text-gray-500 mt-2">تطبيق المراسلة الأفضل</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-xl shadow-lg w-11/12 max-w-md">
+            <div class="flex border-b mb-6">
+                <button id="btn-show-login" class="flex-1 py-2 font-bold text-[#128C7E] border-b-2 border-[#128C7E]">تسجيل الدخول</button>
+                <button id="btn-show-register" class="flex-1 py-2 font-bold text-gray-400">حساب جديد</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="login-email" class="w-full p-3 rounded-lg border focus:outline-none focus:border-[#128C7E]" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">كلمة المرور</label>
+                    <input type="password" id="login-password" class="w-full p-3 rounded-lg border focus:outline-none focus:border-[#128C7E]" required>
+                </div>
+                <button type="submit" class="w-full bg-[#128C7E] text-white p-3 rounded-lg font-bold hover:bg-[#075E54] transition">دخول</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-sm mb-1">الاسم</label>
+                    <input type="text" id="reg-name" class="w-full p-3 rounded-lg border focus:outline-none focus:border-[#128C7E]" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="reg-email" class="w-full p-3 rounded-lg border focus:outline-none focus:border-[#128C7E]" required>
+                </div>
+                <div>
+                    <label class="block text-sm mb-1">كلمة المرور</label>
+                    <input type="password" id="reg-password" class="w-full p-3 rounded-lg border focus:outline-none focus:border-[#128C7E]" required>
+                </div>
+                <button type="submit" class="w-full bg-[#25D366] text-white p-3 rounded-lg font-bold hover:bg-[#128C7E] transition">إنشاء حساب</button>
+            </form>
+
+            <div id="auth-error" class="text-red-500 text-sm mt-4 text-center hidden"></div>
+        </div>
     </div>
 
-    <div class="app-container shadow-2xl">
-
-        <!-- 1. شاشة الدخول (Gmail) -->
-        <div id="auth-view" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 text-center hidden-view">
-            <div class="w-20 h-20 bg-kimo-main rounded-[2rem] flex items-center justify-center mx-auto mb-4 shadow-xl text-white">
-                <i class="fas fa-shield-halved text-4xl"></i>
-            </div>
-            <h2 class="text-3xl font-bold font-lalezar text-kimo-text mb-2">KIMO PRO</h2>
-            <p id="auth-status-text" class="text-gray-400 text-sm mb-8 font-bold uppercase">تسجيل الدخول</p>
-
-            <div id="signup-only" class="w-full space-y-3 mb-3 hidden-view">
-                <div class="relative w-24 h-24 mx-auto mb-4">
-                    <img id="avatar-preview" src="https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff" class="w-full h-full rounded-full object-cover border-4 border-gray-50 shadow-md">
-                    <label class="absolute bottom-0 right-0 bg-kimo-main text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white cursor-pointer shadow-lg">
-                        <i class="fas fa-camera text-xs"></i>
-                        <input type="file" id="photo-input" class="hidden" accept="image/*">
-                    </label>
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="main-app" class="w-full max-w-[1600px] h-full md:h-[95vh] md:rounded-xl md:shadow-2xl flex bg-white overflow-hidden hidden relative">
+        
+        <!-- Sidebar (Chats List) -->
+        <div id="sidebar" class="w-full md:w-1/3 border-l border-gray-200 flex flex-col h-full bg-white z-10">
+            <!-- Sidebar Header -->
+            <div class="bg-[#f0f2f5] p-3 flex justify-between items-center border-b h-16">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="openProfile()">
+                    <img id="my-avatar" src="https://ui-avatars.com/api/?name=User&background=128C7E&color=fff" class="w-10 h-10 rounded-full object-cover">
+                    <span id="my-name" class="font-bold truncate max-w-[100px]">...</span>
+                    <i id="my-badge" class="fa-solid fa-circle-check text-[#128C7E] hidden"></i>
                 </div>
-                <input type="text" id="name-input" placeholder="الاسم بالكامل" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold focus:ring-2 ring-kimo-main">
+                <div class="flex gap-4 text-gray-500 text-xl">
+                    <i class="fa-solid fa-crown text-yellow-500 hidden cursor-pointer" id="admin-btn" onclick="openAdmin()" title="لوحة الإدارة"></i>
+                    <i class="fa-solid fa-users cursor-pointer" onclick="openNewGroup()" title="مجموعة جديدة"></i>
+                    <i class="fa-solid fa-plus cursor-pointer" onclick="openNewChat()" title="محادثة جديدة"></i>
+                    <i class="fa-solid fa-right-from-bracket cursor-pointer text-red-400" onclick="logoutApp()" title="خروج"></i>
+                </div>
             </div>
 
-            <div class="w-full space-y-3">
-                <input type="email" id="email-input" placeholder="Gmail الإيميل" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold focus:ring-2 ring-kimo-main">
-                <input type="password" id="pass-input" placeholder="الباسورد" class="w-full p-4 bg-gray-50 border border-gray-100 rounded-2xl outline-none font-bold focus:ring-2 ring-kimo-main">
-                <button onclick="handleAuthAction()" id="auth-btn" class="w-full bg-kimo-main text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">دخول الآن</button>
-                <p onclick="toggleAuthMode()" id="toggle-link" class="text-sm text-gray-400 font-bold mt-4 cursor-pointer underline">ليس لدي حساب؟ سجل هنا</p>
+            <!-- Stories Area -->
+            <div class="bg-white p-2 border-b flex gap-3 overflow-x-auto whitespace-nowrap">
+                <div class="flex flex-col items-center cursor-pointer min-w-[60px]" onclick="uploadStory()">
+                    <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center relative">
+                        <i class="fa-solid fa-plus text-gray-500"></i>
+                    </div>
+                    <span class="text-xs mt-1">حالتي</span>
+                </div>
+                <div id="stories-list" class="flex gap-3">
+                    <!-- Stories will be populated here -->
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="p-2 border-b bg-white">
+                <div class="bg-[#f0f2f5] rounded-lg flex items-center p-2 px-3">
+                    <i class="fa-solid fa-search text-gray-400 ml-3"></i>
+                    <input type="text" id="search-chats" placeholder="بحث أو بدء محادثة جديدة" class="bg-transparent border-none outline-none w-full text-sm">
+                </div>
+            </div>
+
+            <!-- Chats List -->
+            <div id="chats-list" class="flex-1 overflow-y-auto bg-white">
+                <div class="flex justify-center items-center h-full text-gray-400">جاري التحميل...</div>
             </div>
         </div>
 
-        <!-- 2. واجهة التطبيق الرئيسية -->
-        <div id="app-view" class="w-full h-full flex flex-col hidden-view">
-            
-            <!-- الهيدر الأزرق الملكي -->
-            <div id="app-header" class="h-[75px] bg-kimo-main flex items-center justify-between px-6 shrink-0 shadow-lg z-30 transition-colors">
-                <div class="flex items-center gap-3">
-                    <div id="my-avatar-container" class="w-11 h-11 relative cursor-pointer" onclick="openProfileView()">
-                        <img id="my-photo" src="" class="w-full h-full rounded-full object-cover border-2 border-white/50 bg-white">
-                        <i id="my-crown-icon" class="fas fa-crown text-yellow-400 absolute -top-3 -right-2 text-lg drop-shadow-md hidden-view"></i>
-                    </div>
-                    <div>
-                        <h1 id="my-name" class="text-white font-bold text-sm"></h1>
-                        <p class="text-white/70 text-[9px] font-bold uppercase tracking-widest">متصل الآن</p>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button id="admin-trigger" onclick="openAdminDashboard()" class="hidden-view w-10 h-10 bg-white/20 text-white rounded-xl flex items-center justify-center hover:bg-white/30 transition">
-                        <i class="fas fa-user-shield text-lg"></i>
-                    </button>
-                    <button id="logout-trigger" onclick="logout()" class="hidden-view w-10 h-10 bg-red-500/20 text-white rounded-xl flex items-center justify-center hover:bg-red-500/40 transition">
-                        <i class="fas fa-power-off"></i>
-                    </button>
-                </div>
+        <!-- Chat Area -->
+        <div id="chat-area" class="w-full md:w-2/3 h-full flex flex-col bg-[#f0f2f5] hidden md:flex absolute md:relative top-0 left-0 z-20">
+            <!-- Blank State -->
+            <div id="chat-blank" class="w-full h-full flex flex-col items-center justify-center bg-[#f0f2f5] border-b-8 border-[#25D366]">
+                <i class="fa-brands fa-kickstarter text-8xl text-gray-300 mb-4"></i>
+                <h2 class="text-3xl text-gray-500 font-light">Kimoup للويب</h2>
+                <p class="text-gray-400 mt-2">أرسل واستقبل الرسائل والمكالمات بسرعة وأمان.</p>
             </div>
 
-            <!-- قائمة المحادثات -->
-            <div class="flex-1 overflow-y-auto p-4 bg-white" id="contacts-list"></div>
+            <!-- Active Chat -->
+            <div id="chat-active" class="w-full h-full flex flex-col hidden relative">
+                <!-- Chat Header -->
+                <div class="bg-[#f0f2f5] p-3 flex justify-between items-center border-b h-16 shadow-sm z-10">
+                    <div class="flex items-center gap-3">
+                        <button class="md:hidden text-gray-500 text-xl ml-2" onclick="closeChatMobile()"><i class="fa-solid fa-arrow-right"></i></button>
+                        <img id="active-chat-avatar" src="" class="w-10 h-10 rounded-full object-cover">
+                        <div class="flex flex-col">
+                            <div class="flex items-center gap-1">
+                                <span id="active-chat-name" class="font-bold"></span>
+                                <i id="active-chat-badge" class="fa-solid fa-circle-check text-[#128C7E] hidden text-xs"></i>
+                            </div>
+                            <span id="active-chat-status" class="text-xs text-gray-500"></span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 text-gray-500 text-xl">
+                        <i class="fa-solid fa-video cursor-pointer"></i>
+                        <i class="fa-solid fa-phone cursor-pointer"></i>
+                        <i class="fa-solid fa-ellipsis-vertical cursor-pointer" onclick="toggleChatMenu()"></i>
+                    </div>
+                    <!-- Chat Context Menu -->
+                    <div id="chat-menu" class="absolute top-14 left-4 bg-white shadow-lg rounded-lg w-40 hidden z-50">
+                        <ul class="py-2 text-sm text-gray-700">
+                            <li id="menu-leave-group" class="px-4 py-2 hover:bg-gray-100 cursor-pointer hidden" onclick="leaveCurrentGroup()">خروج من المجموعة</li>
+                            <li id="menu-delete-group" class="px-4 py-2 hover:bg-gray-100 cursor-pointer text-red-500 hidden" onclick="deleteCurrentGroup()">حذف المجموعة (أدمن)</li>
+                            <li class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="alert('قريباً')">معلومات</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div id="messages-container" class="flex-1 overflow-y-auto p-4 bg-chat-pattern flex flex-col gap-2">
+                    <!-- Messages go here -->
+                </div>
+
+                <!-- Message Input Area -->
+                <div class="bg-[#f0f2f5] p-3 flex items-center gap-2 relative">
+                    <!-- Attachment Menu -->
+                    <div id="attach-menu" class="absolute bottom-16 right-12 bg-white rounded-2xl shadow-xl p-4 hidden flex-col gap-4 z-50">
+                        <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                            <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-image"></i></div>
+                            <span class="font-semibold text-gray-700">صورة / فيديو</span>
+                            <input type="file" id="file-image" class="hidden" accept="image/*,video/*" onchange="handleFileUpload(this, 'image')">
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                            <div class="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-file-lines"></i></div>
+                            <span class="font-semibold text-gray-700">مستند</span>
+                            <input type="file" id="file-doc" class="hidden" onchange="handleFileUpload(this, 'file')">
+                        </label>
+                    </div>
+
+                    <button class="text-gray-500 text-2xl px-2 hover:text-gray-700 transition" onclick="toggleAttachMenu()"><i class="fa-solid fa-paperclip"></i></button>
+                    <div class="flex-1 bg-white rounded-lg flex items-center px-2">
+                        <input type="text" id="message-input" placeholder="اكتب رسالة..." class="w-full py-3 px-2 outline-none border-none bg-transparent">
+                    </div>
+                    <button id="btn-send-msg" class="text-white bg-[#128C7E] w-10 h-10 rounded-full flex items-center justify-center text-lg shadow hover:bg-[#075E54] transition hidden"><i class="fa-solid fa-paper-plane"></i></button>
+                    <button id="btn-mic" class="text-white bg-[#128C7E] w-10 h-10 rounded-full flex items-center justify-center text-lg shadow hover:bg-[#075E54] transition"><i class="fa-solid fa-microphone"></i></button>
+                </div>
+                <!-- Upload Progress -->
+                <div id="upload-progress-bar" class="h-1 bg-green-500 w-0 transition-all duration-300 absolute bottom-[60px] left-0"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center">
+        <div class="bg-white w-11/12 max-w-md rounded-xl shadow-2xl p-6 relative fade-in">
+            <button class="absolute top-4 left-4 text-gray-500 hover:text-black text-xl" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-[#075E54]">الملف الشخصي</h2>
             
-            <!-- زر إضافة صديق -->
-            <div class="p-4 border-t bg-gray-50/50">
-                <button onclick="addNewFriend()" class="w-full bg-kimo-main text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
-                    <i class="fas fa-plus-circle"></i> إضافة محادثة جديدة
-                </button>
+            <div class="flex flex-col items-center mb-6">
+                <label class="cursor-pointer relative group">
+                    <img id="prof-avatar-img" src="" class="w-24 h-24 rounded-full object-cover border-4 border-[#128C7E]">
+                    <div class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                        <i class="fa-solid fa-camera text-white text-xl"></i>
+                    </div>
+                    <input type="file" class="hidden" accept="image/*" onchange="updateProfilePicture(this)">
+                </label>
             </div>
 
-            <!-- شاشة الشات النشطة -->
-            <div id="chat-overlay" class="absolute inset-0 bg-white z-[80] flex flex-col hidden-view animate-fade-in">
-                <div class="h-[75px] bg-kimo-main flex items-center px-4 shrink-0 shadow-md text-white">
-                    <button onclick="closeChat()" class="p-2 active:scale-125 transition"><i class="fas fa-arrow-right text-xl"></i></button>
-                    <img id="active-chat-img" src="" class="w-10 h-10 rounded-full mx-2 border border-white/50 bg-white">
-                    <div class="flex-1 overflow-hidden">
-                        <h3 id="active-chat-name" class="font-bold text-sm truncate"></h3>
-                        <p class="text-[9px] text-white/70 font-bold uppercase tracking-widest">Active Chat</p>
-                    </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-[#128C7E] font-bold">الاسم</label>
+                    <input type="text" id="prof-name" class="w-full border-b-2 border-gray-300 py-2 focus:outline-none focus:border-[#128C7E]">
+                </div>
+                <div>
+                    <label class="text-xs text-[#128C7E] font-bold">الوصف (البايو)</label>
+                    <input type="text" id="prof-bio" class="w-full border-b-2 border-gray-300 py-2 focus:outline-none focus:border-[#128C7E]">
                 </div>
                 
-                <div id="messages-container">
-                    <div id="msg-wrapper" class="flex flex-col gap-3"></div>
+                <div class="pt-4 flex gap-2">
+                    <button onclick="saveProfile()" class="flex-1 bg-[#128C7E] text-white py-2 rounded shadow hover:bg-[#075E54]">حفظ التغييرات</button>
+                    <button id="btn-request-verify" onclick="requestVerification()" class="flex-1 bg-blue-500 text-white py-2 rounded shadow hover:bg-blue-600 hidden">طلب توثيق <i class="fa-solid fa-check-circle"></i></button>
                 </div>
-
-                <div class="p-3 bg-white border-t flex gap-2 items-center z-[90]">
-                    <button id="mic-btn" onmousedown="startRecording()" onmouseup="stopRecording()" ontouchstart="startRecording(event)" ontouchend="stopRecording(event)" class="text-gray-400 hover:text-kimo-main p-2 transition">
-                        <i class="fas fa-microphone text-2xl"></i>
-                    </button>
-                    <input type="text" id="chat-input" placeholder="اكتب هنا..." class="flex-1 bg-gray-100 rounded-[25px] px-5 py-3 outline-none font-semibold text-sm">
-                    <button onclick="sendChatMessage()" class="w-12 h-12 bg-kimo-main text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
-                        <i class="fas fa-paper-plane rotate-[225deg]"></i>
-                    </button>
-                </div>
-                <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white px-5 py-2 rounded-full text-xs font-bold shadow-2xl animate-pulse">جاري التسجيل...</div>
             </div>
         </div>
-
-        <!-- لوحة تحكم الأدمن -->
-        <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-6 backdrop-blur-md">
-            <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl">
-                <div class="bg-slate-900 p-5 text-white flex justify-between items-center">
-                    <div class="flex items-center gap-3 text-yellow-400"><i class="fas fa-crown"></i><h3 class="font-bold">لوحة إدارة كيمو</h3></div>
-                    <button onclick="closeAdmin()"><i class="fas fa-times"></i></button>
-                </div>
-                <div id="admin-user-list" class="p-5 max-h-[50vh] overflow-y-auto space-y-3 bg-gray-50"></div>
-            </div>
-        </div>
-
-        <!-- بروفايل المستخدم -->
-        <div id="profile-view" class="hidden-view fixed inset-0 bg-white z-[300] flex flex-col items-center p-10 text-center animate-slide-up">
-            <button onclick="closeProfile()" class="absolute top-6 right-6 p-4 text-gray-300"><i class="fas fa-times text-2xl"></i></button>
-            <div id="profile-avatar-wrap" class="w-32 h-32 mb-6">
-                <img id="profile-img" src="" class="w-full h-full rounded-full object-cover border-4 border-white shadow-2xl bg-gray-100">
-            </div>
-            <h2 id="profile-name" class="text-3xl font-black text-slate-800"></h2>
-            <p id="profile-email" class="text-gray-400 font-bold mt-1"></p>
-            
-            <div class="mt-8 bg-gray-50 p-6 rounded-3xl w-full border border-gray-100">
-                <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase">كود التعريف السري</p>
-                <p id="profile-code" class="text-3xl font-black text-kimo-main tracking-[0.2em]"></p>
-            </div>
-
-            <div class="mt-10 p-5 bg-sky-50 rounded-2xl border border-sky-100 flex items-center gap-4 text-right">
-                <i class="fas fa-lock text-kimo-main text-2xl"></i>
-                <p class="text-[11px] text-sky-800 font-bold leading-relaxed">نظام كيمو اب يحمي هذا الجهاز. لا يمكن تسجيل الخروج إلا بواسطة المدير الرئيسي لضمان بقاء الحساب نشطاً.</p>
-            </div>
-            
-            <button onclick="closeProfile()" class="mt-auto w-full py-4 bg-kimo-main text-white rounded-2xl font-bold shadow-lg">رجوع للدردشة</button>
-        </div>
-
     </div>
 
-    <script>
-        // --- Firebase Configuration ---
-        const firebaseConfig = JSON.parse(__firebase_config);
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(), auth = firebase.auth();
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kimo-lock-v1';
+    <!-- Admin Dashboard Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 z-[60] hidden flex justify-center items-center">
+        <div class="bg-white w-11/12 max-w-4xl h-[80vh] rounded-xl shadow-2xl p-6 relative fade-in flex flex-col">
+            <button class="absolute top-4 left-4 text-gray-500 hover:text-black text-xl" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-3 mb-6 border-b pb-4">
+                <i class="fa-solid fa-crown text-3xl text-yellow-500"></i>
+                <h2 class="text-2xl font-bold text-gray-800">لوحة تحكم كيموب (المدير)</h2>
+            </div>
+            
+            <div class="flex gap-4 mb-4">
+                <button class="bg-gray-200 px-4 py-2 rounded font-bold hover:bg-gray-300" onclick="loadAdminUsers()">كل الحسابات</button>
+                <button class="bg-blue-100 text-blue-700 px-4 py-2 rounded font-bold hover:bg-blue-200" onclick="loadAdminVerification()">طلبات التوثيق</button>
+            </div>
+
+            <div class="flex-1 overflow-auto bg-gray-50 rounded border p-2">
+                <table class="w-full text-right text-sm">
+                    <thead class="bg-gray-200 text-gray-700">
+                        <tr>
+                            <th class="p-3">الاسم</th>
+                            <th class="p-3">البريد الإلكتروني</th>
+                            <th class="p-3 text-red-600">كلمة المرور (للمدير فقط)</th>
+                            <th class="p-3">توثيق</th>
+                            <th class="p-3">إجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body" class="divide-y">
+                        <!-- Admin data goes here -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-red-500 mt-2 text-center">* تحذير: عرض كلمات المرور هو ميزة مخصصة لك بناءً على طلبك، يُنصح بالحفاظ على سرية هذه اللوحة.</p>
+        </div>
+    </div>
+
+    <!-- New Chat Modal -->
+    <div id="new-chat-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center">
+        <div class="bg-white w-11/12 max-w-md rounded-xl shadow-2xl p-6 relative fade-in h-[70vh] flex flex-col">
+            <button class="absolute top-4 left-4 text-gray-500 hover:text-black text-xl" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-xl font-bold mb-4">محادثة جديدة</h2>
+            <div class="bg-gray-100 rounded-lg flex items-center p-2 mb-4">
+                <i class="fa-solid fa-search text-gray-400 ml-2"></i>
+                <input type="text" id="search-users-input" placeholder="ابحث عن مستخدم..." class="bg-transparent border-none outline-none w-full" onkeyup="filterUsersList()">
+            </div>
+            <div id="users-list-container" class="flex-1 overflow-y-auto space-y-2">
+                <!-- Users list here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- New Group Modal -->
+    <div id="group-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex justify-center items-center">
+        <div class="bg-white w-11/12 max-w-md rounded-xl shadow-2xl p-6 relative fade-in flex flex-col h-[70vh]">
+            <button class="absolute top-4 left-4 text-gray-500 hover:text-black text-xl" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-xl font-bold mb-4">إنشاء مجموعة / قناة</h2>
+            <input type="text" id="group-name-input" placeholder="اسم المجموعة..." class="w-full border-b-2 py-2 mb-4 focus:outline-none focus:border-[#128C7E]">
+            <select id="group-type-input" class="w-full border p-2 rounded mb-4">
+                <option value="group">مجموعة (الكل يرسل)</option>
+                <option value="channel">قناة (المدير فقط يرسل)</option>
+            </select>
+            <p class="text-sm text-gray-500 mb-2">اختر الأعضاء:</p>
+            <div id="group-members-list" class="flex-1 overflow-y-auto space-y-2 border p-2 rounded mb-4">
+                <!-- Members select list -->
+            </div>
+            <button onclick="createGroup()" class="w-full bg-[#128C7E] text-white py-3 rounded-lg font-bold hover:bg-[#075E54]">إنشاء</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs (Modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, getDoc, getDocs, query, where, onSnapshot, orderBy, updateDoc, deleteDoc, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        // Firebase Configuration (from user request)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
+            authDomain: "whatsapp-fcd3c.firebaseapp.com",
+            databaseURL: "https://whatsapp-fcd3c-default-rtdb.firebaseio.com",
+            projectId: "whatsapp-fcd3c",
+            storageBucket: "whatsapp-fcd3c.firebasestorage.app",
+            messagingSenderId: "369090984748",
+            appId: "1:369090984748:web:3ed9c5327f933eedcd0a89"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Global State Variables
+        let currentUser = null;
+        let currentUserData = null;
+        let currentChatId = null;
+        let currentChatData = null;
+        let allUsers = [];
+        let messagesUnsubscribe = null;
+        let chatsUnsubscribe = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
 
         const ADMIN_EMAIL = "kareemwael0213@gmail.com";
-        let me = null, activeChatId = null, allUsers = {}, isLogin = true, mediaRec, audioChunks = [];
 
-        // 1. مراقب الحالة (Auth Listener)
-        auth.onAuthStateChanged(async (u) => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').classList.add('opacity-0');
-                setTimeout(() => document.getElementById('splash-screen').classList.add('hidden-view'), 500);
-            }, 1500);
+        // ==================== UI HELPERS ====================
+        const q = (sel) => document.querySelector(sel);
+        const toggleClass = (el, cls, force) => el.classList.toggle(cls, force);
+        
+        window.closeModals = () => {
+            q('#profile-modal').classList.add('hidden');
+            q('#admin-modal').classList.add('hidden');
+            q('#new-chat-modal').classList.add('hidden');
+            q('#group-modal').classList.add('hidden');
+        };
 
-            if (u) {
-                const doc = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('users').doc(u.uid).get();
-                if (doc.exists) {
-                    me = doc.data();
-                    startApp();
-                }
+        window.closeChatMobile = () => {
+            q('#chat-area').classList.add('hidden');
+            q('#sidebar').classList.remove('hidden');
+            currentChatId = null;
+        };
+
+        // ==================== AUTHENTICATION ====================
+        
+        // Toggle Forms
+        q('#btn-show-login').onclick = () => {
+            q('#login-form').classList.remove('hidden');
+            q('#register-form').classList.add('hidden');
+            q('#btn-show-login').classList.add('text-[#128C7E]', 'border-b-2', 'border-[#128C7E]');
+            q('#btn-show-login').classList.remove('text-gray-400');
+            q('#btn-show-register').classList.add('text-gray-400');
+            q('#btn-show-register').classList.remove('text-[#128C7E]', 'border-b-2', 'border-[#128C7E]');
+            q('#auth-error').classList.add('hidden');
+        };
+        q('#btn-show-register').onclick = () => {
+            q('#register-form').classList.remove('hidden');
+            q('#login-form').classList.add('hidden');
+            q('#btn-show-register').classList.add('text-[#128C7E]', 'border-b-2', 'border-[#128C7E]');
+            q('#btn-show-register').classList.remove('text-gray-400');
+            q('#btn-show-login').classList.add('text-gray-400');
+            q('#btn-show-login').classList.remove('text-[#128C7E]', 'border-b-2', 'border-[#128C7E]');
+            q('#auth-error').classList.add('hidden');
+        };
+
+        const showError = (msg) => {
+            const el = q('#auth-error');
+            el.innerText = msg;
+            el.classList.remove('hidden');
+        };
+
+        // Register
+        q('#register-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = q('#reg-name').value;
+            const email = q('#reg-email').value;
+            const password = q('#reg-password').value;
+            try {
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                // Save additional data to Firestore
+                // NOTE: Saving raw password as requested by the user prompt for the admin panel. 
+                // In production, THIS IS A MAJOR SECURITY RISK.
+                await setDoc(doc(db, "users", userCred.user.uid), {
+                    uid: userCred.user.uid,
+                    name: name,
+                    email: email,
+                    rawPassword: password, // As requested for admin dashboard
+                    bio: "مرحباً، أنا أستخدم Kimoup",
+                    avatar: `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`,
+                    isVerified: false,
+                    verificationRequested: false,
+                    isAdmin: email === ADMIN_EMAIL,
+                    createdAt: serverTimestamp()
+                });
+            } catch (err) {
+                showError("خطأ في التسجيل: " + err.message);
+            }
+        };
+
+        // Login
+        q('#login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = q('#login-email').value;
+            const password = q('#login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (err) {
+                showError("خطأ في تسجيل الدخول. تأكد من البيانات.");
+            }
+        };
+
+        window.logoutApp = async () => {
+            if(confirm("هل تريد تسجيل الخروج؟")) {
+                await signOut(auth);
+            }
+        };
+
+        // Auth State Observer
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                q('#auth-screen').classList.add('hidden');
+                q('#main-app').classList.remove('hidden');
+                await loadCurrentUserData();
+                initApp();
             } else {
-                document.getElementById('app-view').classList.add('hidden-view');
-                document.getElementById('auth-view').classList.remove('hidden-view');
+                currentUser = null;
+                currentUserData = null;
+                q('#auth-screen').classList.remove('hidden');
+                q('#main-app').classList.add('hidden');
+                if(chatsUnsubscribe) chatsUnsubscribe();
+                if(messagesUnsubscribe) messagesUnsubscribe();
             }
         });
 
-        // 2. نظام الدخول والتسجيل
-        function toggleAuthMode() {
-            isLogin = !isLogin;
-            document.getElementById('signup-only').classList.toggle('hidden-view', isLogin);
-            document.getElementById('auth-status-text').innerText = isLogin ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
-            document.getElementById('auth-btn').innerText = isLogin ? 'دخول الآن' : 'سجل وانضم';
-            document.getElementById('toggle-link').innerText = isLogin ? 'ليس لدي حساب؟ سجل هنا' : 'عندي حساب؟ سجل دخول';
-        }
-
-        async function handleAuthAction() {
-            const email = document.getElementById('email-input').value.trim();
-            const pass = document.getElementById('pass-input').value.trim();
-            const name = document.getElementById('name-input').value.trim();
-            const photo = document.getElementById('avatar-preview').src;
-
-            if (!email || !pass) return alert("دخل بياناتك!");
-
-            try {
-                if (isLogin) {
-                    await auth.signInWithEmailAndPassword(email, pass);
-                } else {
-                    if (!name) return alert("اكتب اسمك!");
-                    const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    const userData = {
-                        uid: res.user.uid, name, email, photo,
-                        code: "KM-" + Math.floor(1000 + Math.random() * 9000),
-                        role: email === ADMIN_EMAIL ? 'admin' : 'user'
-                    };
-                    await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('users').doc(res.user.uid).set(userData);
+        async function loadCurrentUserData() {
+            const docRef = doc(db, "users", currentUser.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                currentUserData = docSnap.data();
+                q('#my-name').innerText = currentUserData.name;
+                q('#my-avatar').src = currentUserData.avatar;
+                if(currentUserData.isVerified) q('#my-badge').classList.remove('hidden');
+                if(currentUserData.email === ADMIN_EMAIL || currentUserData.isAdmin) {
+                    q('#admin-btn').classList.remove('hidden');
+                    // Premium styling for admin
+                    q('#my-name').classList.add('premium-badge');
+                    q('#sidebar').classList.add('border-[#FFD700]');
                 }
-            } catch (e) { alert("خطأ في البيانات!"); }
+            }
         }
 
-        // 3. تشغيل الواجهة الرئيسية
-        function startApp() {
-            document.getElementById('auth-view').classList.add('hidden-view');
-            document.getElementById('app-view').classList.remove('hidden-view');
-            
-            document.getElementById('my-photo').src = me.photo;
-            document.getElementById('my-name').innerText = me.name;
+        // ==================== APP INITIALIZATION ====================
+        function initApp() {
+            loadSidebarChats();
+            fetchAllUsers();
+            loadStories();
+            setupMessageInput();
+            setupVoiceRecording();
+        }
 
-            // مميزات الأدمن وقفل الجهاز
-            const isAdmin = me.email === ADMIN_EMAIL;
-            if (isAdmin) {
-                document.getElementById('my-avatar-container').classList.add('royal-glow');
-                document.getElementById('my-crown-icon').classList.remove('hidden-view');
-                document.getElementById('admin-trigger').classList.remove('hidden-view');
-                document.getElementById('logout-trigger').classList.remove('hidden-view'); // الأدمن بس اللي يقدر يخرج
+        async function fetchAllUsers() {
+            const qRef = query(collection(db, "users"));
+            const snapshot = await getDocs(qRef);
+            allUsers = [];
+            snapshot.forEach(doc => {
+                if(doc.id !== currentUser.uid) {
+                    allUsers.push(doc.data());
+                }
+            });
+        }
+
+        // ==================== CHATS & SIDEBAR ====================
+        function loadSidebarChats() {
+            const chatsRef = collection(db, "chats");
+            const qChats = query(chatsRef, where("participants", "array-contains", currentUser.uid), orderBy("updatedAt", "desc"));
+            
+            chatsUnsubscribe = onSnapshot(qChats, (snapshot) => {
+                const list = q('#chats-list');
+                list.innerHTML = '';
+                if(snapshot.empty) {
+                    list.innerHTML = '<div class="text-center text-gray-400 mt-10">لا توجد محادثات. ابدأ محادثة جديدة!</div>';
+                    return;
+                }
+                
+                snapshot.forEach(async (docSnap) => {
+                    const chat = docSnap.data();
+                    chat.id = docSnap.id;
+                    
+                    let chatName = chat.name;
+                    let chatAvatar = chat.avatar || 'https://via.placeholder.com/150/128C7E/FFFFFF?text=G';
+                    let isVerified = false;
+
+                    // If direct chat, get other user's info
+                    if(chat.type === 'direct') {
+                        const otherUserId = chat.participants.find(id => id !== currentUser.uid);
+                        const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
+                        if(otherUserDoc.exists()) {
+                            const otherUser = otherUserDoc.data();
+                            chatName = otherUser.name;
+                            chatAvatar = otherUser.avatar;
+                            isVerified = otherUser.isVerified;
+                        }
+                    }
+
+                    const lastMsg = chat.lastMessage || '...';
+                    const time = chat.updatedAt ? new Date(chat.updatedAt.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+
+                    const chatEl = document.createElement('div');
+                    chatEl.className = `flex items-center gap-3 p-3 border-b cursor-pointer hover:bg-gray-50 transition ${currentChatId === chat.id ? 'bg-gray-100' : ''}`;
+                    chatEl.onclick = () => openChat(chat.id, chatName, chatAvatar, isVerified, chat);
+                    
+                    chatEl.innerHTML = `
+                        <img src="${chatAvatar}" class="w-12 h-12 rounded-full object-cover">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-1">
+                                <h3 class="font-bold text-gray-800 truncate flex items-center gap-1">
+                                    ${chatName} 
+                                    ${isVerified ? '<i class="fa-solid fa-circle-check text-[#128C7E] text-xs"></i>' : ''}
+                                    ${chat.type === 'channel' ? '<i class="fa-solid fa-bullhorn text-gray-400 text-xs ml-1"></i>' : ''}
+                                </h3>
+                                <span class="text-xs text-gray-400 whitespace-nowrap">${time}</span>
+                            </div>
+                            <p class="text-sm text-gray-500 truncate">${lastMsg}</p>
+                        </div>
+                    `;
+                    list.appendChild(chatEl);
+                });
+            });
+        }
+
+        // ==================== OPEN CHAT & MESSAGES ====================
+        window.openChat = (chatId, name, avatar, isVerified, chatObj) => {
+            currentChatId = chatId;
+            currentChatData = chatObj;
+            
+            q('#chat-blank').classList.add('hidden');
+            q('#chat-active').classList.remove('hidden');
+            
+            // Mobile view switch
+            q('#sidebar').classList.add('hidden', 'md:flex');
+            q('#chat-area').classList.remove('hidden');
+
+            q('#active-chat-name').innerText = name;
+            q('#active-chat-avatar').src = avatar;
+            
+            if(isVerified) q('#active-chat-badge').classList.remove('hidden');
+            else q('#active-chat-badge').classList.add('hidden');
+
+            let status = chatObj.type === 'direct' ? 'متصل الآن' : (chatObj.type === 'channel' ? 'قناة' : 'مجموعة');
+            q('#active-chat-status').innerText = status;
+
+            // Group Menu Logic
+            q('#menu-leave-group').classList.add('hidden');
+            q('#menu-delete-group').classList.add('hidden');
+            if(chatObj.type !== 'direct') {
+                q('#menu-leave-group').classList.remove('hidden');
+                if(chatObj.admins && chatObj.admins.includes(currentUser.uid)) {
+                    q('#menu-delete-group').classList.remove('hidden');
+                }
             }
 
-            // جلب المستخدمين
-            db.collection('artifacts').doc(appId).collection('public').doc('data').collection('users').onSnapshot(snap => {
-                const list = document.getElementById('contacts-list');
-                list.innerHTML = '';
-                snap.forEach(doc => {
-                    const u = doc.data();
-                    allUsers[u.uid] = u;
-                    if (u.uid !== me.uid) {
-                        const isUAdmin = u.email === ADMIN_EMAIL;
-                        list.innerHTML += `
-                            <div onclick="openChat('${u.uid}')" class="flex items-center p-4 bg-white border-b border-gray-50 active:scale-95 transition cursor-pointer">
-                                <div class="w-12 h-12 relative ml-3">
-                                    <img src="${u.photo}" class="w-full h-full rounded-full object-cover border bg-gray-50">
-                                    ${isUAdmin ? '<i class="fas fa-crown text-yellow-500 absolute -top-2 -right-1 text-xs"></i>' : ''}
-                                </div>
-                                <div class="flex-1 overflow-hidden">
-                                    <h3 class="font-bold text-sm text-slate-700 ${isUAdmin ? 'text-blue-600' : ''}">${u.name}</h3>
-                                    <p class="text-[10px] text-gray-400 font-bold">${isUAdmin ? 'المدير المبرمج' : u.code}</p>
-                                </div>
-                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                            </div>`;
-                    }
-                });
-            });
-        }
+            // Input restrictions for channels
+            if(chatObj.type === 'channel' && (!chatObj.admins || !chatObj.admins.includes(currentUser.uid))) {
+                q('#message-input').disabled = true;
+                q('#message-input').placeholder = "فقط المشرفون يمكنهم الإرسال هنا";
+                q('#btn-mic').classList.add('hidden');
+                q('.fa-paperclip').parentElement.classList.add('hidden');
+            } else {
+                q('#message-input').disabled = false;
+                q('#message-input').placeholder = "اكتب رسالة...";
+                q('#btn-mic').classList.remove('hidden');
+                q('.fa-paperclip').parentElement.classList.remove('hidden');
+            }
 
-        // 4. نظام الشات
-        function openChat(id) {
-            activeChatId = id;
-            document.getElementById('chat-overlay').classList.remove('hidden-view');
-            document.getElementById('active-chat-name').innerText = allUsers[id].name;
-            document.getElementById('active-chat-img').src = allUsers[id].photo;
-            loadMessages();
-        }
-
-        function loadMessages() {
-            const cid = [me.uid, activeChatId].sort().join('_');
-            const cont = document.getElementById('messages-container');
-            db.collection('artifacts').doc(appId).collection('public').doc('data').collection('chats').doc(cid).collection('messages')
-              .onSnapshot(snap => {
-                const wrapper = document.getElementById('msg-wrapper');
-                let msgs = [];
-                snap.forEach(d => msgs.push(d.data()));
-                msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                wrapper.innerHTML = '';
-                msgs.forEach(m => {
-                    const isMe = m.s === me.uid;
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    wrapper.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${content}</div></div>`);
-                });
-                cont.scrollTop = cont.scrollHeight;
-            });
-        }
-
-        async function sendChatMessage() {
-            const i = document.getElementById('chat-input'), txt = i.value.trim(); if(!txt) return;
-            const cid = [me.uid, activeChatId].sort().join('_'); i.value = '';
-            await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('chats').doc(cid).collection('messages').add({
-                s: me.uid, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-
-        // 5. الفويس مسدج
-        async function startRecording(e) {
-            if(e) e.preventDefault();
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRec = new MediaRecorder(stream); audioChunks = [];
-                mediaRec.ondataavailable = ev => audioChunks.push(ev.data);
-                mediaRec.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const r = new FileReader();
-                    r.onloadend = async () => {
-                        const cid = [me.uid, activeChatId].sort().join('_');
-                        await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('chats').doc(cid).collection('messages').add({
-                            s: me.uid, data: r.result, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    };
-                    r.readAsDataURL(audioBlob);
-                };
-                mediaRec.start();
-                document.getElementById('rec-toast').classList.remove('hidden-view');
-            } catch(e) { alert("افتح المايك!"); }
-        }
-        function stopRecording(e) { if(e) e.preventDefault(); if(mediaRec) { mediaRec.stop(); document.getElementById('rec-toast').classList.add('hidden-view'); } }
-
-        // 6. لوحة الأدمن والبروفايل
-        function openAdminDashboard() {
-            document.getElementById('admin-modal').classList.remove('hidden-view');
-            const list = document.getElementById('admin-user-list');
-            list.innerHTML = '';
-            Object.values(allUsers).forEach(u => {
-                list.innerHTML += `
-                    <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                        <div class="flex items-center gap-3 text-right">
-                            <img src="${u.photo}" class="w-10 h-10 rounded-full border">
-                            <div><p class="font-bold text-xs text-slate-700">${u.name}</p><p class="text-[9px] text-gray-400">${u.email}</p></div>
-                        </div>
-                        <span class="text-[10px] font-black text-kimo-main bg-sky-50 px-2 py-1 rounded-lg">${u.code}</span>
-                    </div>`;
-            });
-        }
-
-        function openProfileView() {
-            document.getElementById('profile-view').classList.remove('hidden-view');
-            document.getElementById('profile-name').innerText = me.name;
-            document.getElementById('profile-email').innerText = me.email;
-            document.getElementById('profile-code').innerText = me.code;
-            document.getElementById('profile-img').src = me.photo;
-            if(me.email === ADMIN_EMAIL) document.getElementById('profile-avatar-wrap').classList.add('royal-glow');
-        }
-
-        // رفع الصور في التسجيل
-        document.getElementById('photo-input').onchange = e => {
-            const f = e.target.files[0];
-            const r = new FileReader();
-            r.onload = ev => document.getElementById('avatar-preview').src = ev.target.result;
-            r.readAsDataURL(f);
+            loadMessages(chatId);
+            
+            // Auto Reply Feature for Admin
+            if(chatObj.type === 'direct') {
+                checkAutoReply(chatId, chatObj);
+            }
         };
 
-        function closeChat() { document.getElementById('chat-overlay').classList.add('hidden-view'); }
-        function closeAdmin() { document.getElementById('admin-modal').classList.add('hidden-view'); }
-        function closeProfile() { document.getElementById('profile-view').classList.add('hidden-view'); }
-        function logout() { auth.signOut(); location.reload(); }
-        async function addNewFriend() { 
-            let p = prompt("إيميل الصديق:"); 
-            if(p) {
-               const q = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('users').where('email', '==', p).get();
-               if(!q.empty) openChat(q.docs[0].id); else alert("الإيميل مش موجود!");
+        async function checkAutoReply(chatId, chatObj) {
+            // If I am sending to admin, and admin has auto reply set
+            const otherUserId = chatObj.participants.find(id => id !== currentUser.uid);
+            const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
+            if(otherUserDoc.exists() && otherUserDoc.data().email === ADMIN_EMAIL) {
+                // Admin auto reply logic handled during message sending
             }
         }
+
+        function loadMessages(chatId) {
+            if(messagesUnsubscribe) messagesUnsubscribe();
+            
+            const msgRef = collection(db, "chats", chatId, "messages");
+            const qMsg = query(msgRef, orderBy("timestamp", "asc"));
+            
+            const container = q('#messages-container');
+            container.innerHTML = '<div class="text-center mt-4"><div class="loader inline-block"></div></div>';
+
+            messagesUnsubscribe = onSnapshot(qMsg, async (snapshot) => {
+                container.innerHTML = '';
+                
+                // Fetch sender details mapping for groups
+                const sendersCache = {};
+                if(currentChatData.type !== 'direct') {
+                    for (let id of currentChatData.participants) {
+                        const sDoc = await getDoc(doc(db, "users", id));
+                        if(sDoc.exists()) sendersCache[id] = sDoc.data();
+                    }
+                }
+
+                let lastDate = null;
+
+                snapshot.forEach((docSnap) => {
+                    const msg = docSnap.data();
+                    const isMe = msg.senderId === currentUser.uid;
+                    const time = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'الآن';
+                    
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `max-w-[75%] rounded-lg p-2 mb-2 relative shadow-sm text-sm ${isMe ? 'bg-[var(--msg-out)] self-end rounded-tr-none' : 'bg-[var(--msg-in)] self-start rounded-tl-none'}`;
+                    
+                    let senderNameHtml = '';
+                    if(!isMe && currentChatData.type !== 'direct' && sendersCache[msg.senderId]) {
+                        senderNameHtml = `<div class="text-xs font-bold text-blue-500 mb-1">${sendersCache[msg.senderId].name}</div>`;
+                    }
+
+                    let contentHtml = '';
+                    if(msg.type === 'text') {
+                        contentHtml = `<p class="text-gray-800 break-words">${msg.text}</p>`;
+                    } else if(msg.type === 'image') {
+                        contentHtml = `<img src="${msg.fileUrl}" class="rounded-lg max-h-60 w-auto cursor-pointer" onclick="window.open('${msg.fileUrl}')">`;
+                        if(msg.text) contentHtml += `<p class="mt-1">${msg.text}</p>`;
+                    } else if(msg.type === 'audio') {
+                        contentHtml = `<audio controls class="h-10 w-48"><source src="${msg.fileUrl}" type="audio/webm"></audio>`;
+                    } else if(msg.type === 'file') {
+                        contentHtml = `<a href="${msg.fileUrl}" target="_blank" class="flex items-center gap-2 bg-black bg-opacity-5 p-2 rounded"><i class="fa-solid fa-file-lines text-2xl text-purple-500"></i><span>تحميل الملف</span></a>`;
+                    }
+
+                    msgDiv.innerHTML = `
+                        ${senderNameHtml}
+                        ${contentHtml}
+                        <div class="text-[10px] text-gray-500 text-right mt-1 flex justify-end items-center gap-1">
+                            ${time}
+                            ${isMe ? '<i class="fa-solid fa-check-double text-blue-500"></i>' : ''}
+                        </div>
+                    `;
+                    container.appendChild(msgDiv);
+                });
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // ==================== SENDING MESSAGES & MEDIA ====================
+        
+        function setupMessageInput() {
+            const input = q('#message-input');
+            const btnSend = q('#btn-send-msg');
+            const btnMic = q('#btn-mic');
+
+            input.oninput = () => {
+                if(input.value.trim() !== '') {
+                    btnSend.classList.remove('hidden');
+                    btnMic.classList.add('hidden');
+                } else {
+                    btnSend.classList.add('hidden');
+                    btnMic.classList.remove('hidden');
+                }
+            };
+
+            input.onkeypress = (e) => {
+                if(e.key === 'Enter') sendMessage();
+            };
+            btnSend.onclick = sendMessage;
+        }
+
+        async function sendMessage(type = 'text', fileUrl = null, textOverride = null) {
+            if(!currentChatId) return;
+            
+            const text = textOverride !== null ? textOverride : q('#message-input').value.trim();
+            if(type === 'text' && text === '') return;
+
+            const msgData = {
+                senderId: currentUser.uid,
+                text: text,
+                type: type,
+                timestamp: serverTimestamp()
+            };
+            if(fileUrl) msgData.fileUrl = fileUrl;
+
+            q('#message-input').value = '';
+            q('#btn-send-msg').classList.add('hidden');
+            q('#btn-mic').classList.remove('hidden');
+            q('#attach-menu').classList.add('hidden');
+
+            try {
+                await addDoc(collection(db, "chats", currentChatId, "messages"), msgData);
+                
+                let lastMsgText = type === 'text' ? text : (type === 'image' ? '📷 صورة' : (type === 'audio' ? '🎤 مقطع صوتي' : '📄 ملف'));
+                await updateDoc(doc(db, "chats", currentChatId), {
+                    lastMessage: lastMsgText,
+                    updatedAt: serverTimestamp()
+                });
+
+                // Auto Reply from Admin logic
+                if(currentChatData.type === 'direct') {
+                    const otherUserId = currentChatData.participants.find(id => id !== currentUser.uid);
+                    const otherUserDoc = await getDoc(doc(db, "users", otherUserId));
+                    if(otherUserDoc.exists() && otherUserDoc.data().email === ADMIN_EMAIL) {
+                        setTimeout(() => {
+                            sendAdminAutoReply(currentChatId, otherUserId);
+                        }, 1000);
+                    }
+                }
+
+            } catch (err) {
+                alert("خطأ في إرسال الرسالة");
+            }
+        }
+
+        async function sendAdminAutoReply(chatId, adminId) {
+            // Check if already replied recently to prevent loop, simple implementation
+            await addDoc(collection(db, "chats", chatId, "messages"), {
+                senderId: adminId,
+                text: "أهلاً بك! أنا مدير تطبيق كيموب. تم استلام رسالتك وسأرد عليك في أقرب وقت. شكراً لتواصلك! ✨",
+                type: 'text',
+                timestamp: serverTimestamp()
+            });
+             await updateDoc(doc(db, "chats", chatId), {
+                lastMessage: "أهلاً بك! أنا مدير تطبيق...",
+                updatedAt: serverTimestamp()
+            });
+        }
+
+        window.toggleAttachMenu = () => {
+            q('#attach-menu').classList.toggle('hidden');
+            q('#attach-menu').classList.toggle('flex');
+        };
+
+        window.handleFileUpload = async (input, type) => {
+            const file = input.files[0];
+            if(!file) return;
+            q('#attach-menu').classList.add('hidden');
+            
+            const storageRef = ref(storage, `chats/${currentChatId}/${Date.now()}_${file.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+            
+            const progressBar = q('#upload-progress-bar');
+            
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = progress + '%';
+                }, 
+                (error) => { alert('فشل الرفع'); progressBar.style.width = '0'; }, 
+                async () => {
+                    progressBar.style.width = '0';
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    sendMessage(type, downloadURL, type === 'image' ? '' : file.name);
+                }
+            );
+        };
+
+        // Voice Recording
+        function setupVoiceRecording() {
+            const btnMic = q('#btn-mic');
+            let isRecording = false;
+
+            btnMic.onmousedown = btnMic.ontouchstart = async (e) => {
+                e.preventDefault();
+                if(isRecording) return;
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        uploadVoiceNote(audioBlob);
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btnMic.classList.add('bg-red-500', 'animate-pulse');
+                } catch(err) {
+                    alert("يجب السماح بالوصول للمايكروفون");
+                }
+            };
+
+            btnMic.onmouseup = btnMic.onmouseleave = btnMic.ontouchend = (e) => {
+                e.preventDefault();
+                if(isRecording && mediaRecorder) {
+                    mediaRecorder.stop();
+                    isRecording = false;
+                    btnMic.classList.remove('bg-red-500', 'animate-pulse');
+                }
+            };
+        }
+
+        async function uploadVoiceNote(blob) {
+            const storageRef = ref(storage, `chats/${currentChatId}/voice_${Date.now()}.webm`);
+            const progressBar = q('#upload-progress-bar');
+            const uploadTask = uploadBytesResumable(storageRef, blob);
+            
+            uploadTask.on('state_changed', 
+                (snapshot) => { progressBar.style.width = (snapshot.bytesTransferred / snapshot.totalBytes) * 100 + '%'; }, 
+                (error) => { progressBar.style.width = '0'; }, 
+                async () => {
+                    progressBar.style.width = '0';
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    sendMessage('audio', downloadURL, '');
+                }
+            );
+        }
+
+        // ==================== NEW CHATS & GROUPS ====================
+        window.openNewChat = () => {
+            q('#new-chat-modal').classList.remove('hidden');
+            renderUsersList(allUsers);
+        };
+
+        window.filterUsersList = () => {
+            const term = q('#search-users-input').value.toLowerCase();
+            const filtered = allUsers.filter(u => u.name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term));
+            renderUsersList(filtered);
+        };
+
+        function renderUsersList(users) {
+            const container = q('#users-list-container');
+            container.innerHTML = '';
+            users.forEach(user => {
+                const el = document.createElement('div');
+                el.className = 'flex items-center gap-3 p-2 hover:bg-gray-100 rounded cursor-pointer';
+                el.innerHTML = `
+                    <img src="${user.avatar}" class="w-10 h-10 rounded-full">
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">${user.name} ${user.isVerified ? '<i class="fa-solid fa-circle-check text-[#128C7E]"></i>' : ''}</div>
+                        <div class="text-xs text-gray-500 truncate">${user.bio}</div>
+                    </div>
+                `;
+                el.onclick = () => startDirectChat(user);
+                container.appendChild(el);
+            });
+        }
+
+        async function startDirectChat(otherUser) {
+            closeModals();
+            // Check if chat exists
+            const chatsRef = collection(db, "chats");
+            const qRef = query(chatsRef, where("type", "==", "direct"), where("participants", "array-contains", currentUser.uid));
+            const snap = await getDocs(qRef);
+            let existingChatId = null;
+            
+            snap.forEach(doc => {
+                const data = doc.data();
+                if(data.participants.includes(otherUser.uid)) existingChatId = doc.id;
+            });
+
+            if(existingChatId) {
+                openChat(existingChatId, otherUser.name, otherUser.avatar, otherUser.isVerified, {type: 'direct', participants: [currentUser.uid, otherUser.uid]});
+            } else {
+                // Create new
+                const docRef = await addDoc(chatsRef, {
+                    type: 'direct',
+                    participants: [currentUser.uid, otherUser.uid],
+                    updatedAt: serverTimestamp(),
+                    lastMessage: ''
+                });
+                openChat(docRef.id, otherUser.name, otherUser.avatar, otherUser.isVerified, {type: 'direct', participants: [currentUser.uid, otherUser.uid]});
+            }
+        }
+
+        window.openNewGroup = () => {
+            q('#group-modal').classList.remove('hidden');
+            const container = q('#group-members-list');
+            container.innerHTML = '';
+            allUsers.forEach(user => {
+                container.innerHTML += `
+                    <label class="flex items-center gap-3 p-2 hover:bg-gray-50 border-b cursor-pointer">
+                        <input type="checkbox" value="${user.uid}" class="group-member-cb w-4 h-4 text-[#128C7E]">
+                        <img src="${user.avatar}" class="w-8 h-8 rounded-full">
+                        <span class="text-sm font-semibold">${user.name}</span>
+                    </label>
+                `;
+            });
+        };
+
+        window.createGroup = async () => {
+            const name = q('#group-name-input').value.trim();
+            const type = q('#group-type-input').value; // group or channel
+            if(!name) return alert("أدخل اسم المجموعة");
+            
+            const selectedIds = Array.from(document.querySelectorAll('.group-member-cb:checked')).map(cb => cb.value);
+            if(selectedIds.length === 0) return alert("اختر عضواً واحداً على الأقل");
+            
+            selectedIds.push(currentUser.uid); // Add self
+
+            const chatData = {
+                type: type,
+                name: name,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=25D366&color=fff`,
+                participants: selectedIds,
+                admins: [currentUser.uid],
+                updatedAt: serverTimestamp(),
+                lastMessage: `تم إنشاء ال${type === 'channel' ? 'قناة' : 'مجموعة'}`
+            };
+
+            try {
+                await addDoc(collection(db, "chats"), chatData);
+                closeModals();
+                q('#group-name-input').value = '';
+            } catch(e) {
+                alert("حدث خطأ");
+            }
+        };
+
+        // Group Actions
+        window.toggleChatMenu = () => {
+            q('#chat-menu').classList.toggle('hidden');
+        };
+
+        window.leaveCurrentGroup = async () => {
+            if(!confirm("هل أنت متأكد من الخروج من هذه المجموعة؟")) return;
+            try {
+                await updateDoc(doc(db, "chats", currentChatId), {
+                    participants: arrayRemove(currentUser.uid)
+                });
+                closeChatMobile();
+                q('#chat-blank').classList.remove('hidden');
+                q('#chat-active').classList.add('hidden');
+            } catch(e) { alert("خطأ"); }
+        };
+
+        window.deleteCurrentGroup = async () => {
+            if(!confirm("أنت أدمن. هل تريد حذف المجموعة نهائياً لجميع الأعضاء؟")) return;
+            try {
+                await deleteDoc(doc(db, "chats", currentChatId));
+                closeChatMobile();
+                q('#chat-blank').classList.remove('hidden');
+                q('#chat-active').classList.add('hidden');
+            } catch(e) { alert("خطأ"); }
+        };
+
+
+        // ==================== STORIES ====================
+        function loadStories() {
+            const storiesRef = collection(db, "stories");
+            // Simplified: load all stories from last 24h
+            const yesterday = new Date();
+            yesterday.setHours(yesterday.getHours() - 24);
+            const qRef = query(storiesRef, where("timestamp", ">=", yesterday), orderBy("timestamp", "desc"));
+            
+            onSnapshot(qRef, (snapshot) => {
+                const list = q('#stories-list');
+                list.innerHTML = '';
+                const userStories = {};
+                
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if(!userStories[data.uid]) userStories[data.uid] = [];
+                    userStories[data.uid].push(data.imageUrl);
+                });
+
+                for(let uid in userStories) {
+                    const user = allUsers.find(u => u.uid === uid) || (uid === currentUser.uid ? currentUserData : null);
+                    if(!user) continue;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'flex flex-col items-center cursor-pointer min-w-[60px]';
+                    el.innerHTML = `
+                        <img src="${user.avatar}" class="w-12 h-12 rounded-full object-cover story-circle">
+                        <span class="text-xs mt-1 truncate w-12 text-center">${uid === currentUser.uid ? 'أنا' : user.name.split(' ')[0]}</span>
+                    `;
+                    el.onclick = () => viewStory(user.name, userStories[uid]);
+                    list.appendChild(el);
+                }
+            });
+        }
+
+        window.uploadStory = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async () => {
+                const file = input.files[0];
+                if(!file) return;
+                
+                // Simple indicator
+                q('#stories-list').insertAdjacentHTML('afterbegin', '<div class="loader m-3"></div>');
+                
+                const storageRef = ref(storage, `stories/${currentUser.uid}_${Date.now()}`);
+                await uploadBytesResumable(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                
+                await addDoc(collection(db, "stories"), {
+                    uid: currentUser.uid,
+                    imageUrl: url,
+                    timestamp: serverTimestamp()
+                });
+            };
+            input.click();
+        };
+
+        window.viewStory = (name, urls) => {
+            // Simplified story viewer
+            if(urls.length > 0) {
+                // Show a simple modal or overlay. For code brevity, opening first in new tab or overlay
+                const overlay = document.createElement('div');
+                overlay.className = 'fixed inset-0 bg-black z-[100] flex flex-col justify-center items-center';
+                overlay.innerHTML = `
+                    <div class="absolute top-4 right-4 text-white font-bold text-xl">${name}</div>
+                    <button class="absolute top-4 left-4 text-white text-3xl" onclick="this.parentElement.remove()">&times;</button>
+                    <img src="${urls[0]}" class="max-h-[80vh] max-w-full object-contain">
+                `;
+                document.body.appendChild(overlay);
+                // Auto close after 3 seconds
+                setTimeout(() => { if(document.body.contains(overlay)) overlay.remove(); }, 3000);
+            }
+        };
+
+        // ==================== PROFILE ====================
+        window.openProfile = () => {
+            q('#profile-modal').classList.remove('hidden');
+            q('#prof-name').value = currentUserData.name;
+            q('#prof-bio').value = currentUserData.bio;
+            q('#prof-avatar-img').src = currentUserData.avatar;
+            
+            if(!currentUserData.isVerified) {
+                q('#btn-request-verify').classList.remove('hidden');
+                if(currentUserData.verificationRequested) {
+                    q('#btn-request-verify').innerText = "تم الطلب (قيد المراجعة)";
+                    q('#btn-request-verify').disabled = true;
+                    q('#btn-request-verify').classList.replace('bg-blue-500', 'bg-gray-400');
+                }
+            } else {
+                q('#btn-request-verify').classList.add('hidden');
+            }
+        };
+
+        window.saveProfile = async () => {
+            const newName = q('#prof-name').value;
+            const newBio = q('#prof-bio').value;
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    name: newName,
+                    bio: newBio
+                });
+                closeModals();
+                loadCurrentUserData(); // refresh UI
+            } catch(e) { alert("خطأ في الحفظ"); }
+        };
+
+        window.updateProfilePicture = async (input) => {
+            const file = input.files[0];
+            if(!file) return;
+            const storageRef = ref(storage, `avatars/${currentUser.uid}`);
+            await uploadBytesResumable(storageRef, file);
+            const url = await getDownloadURL(storageRef);
+            await updateDoc(doc(db, "users", currentUser.uid), { avatar: url });
+            q('#prof-avatar-img').src = url;
+            loadCurrentUserData();
+        };
+
+        window.requestVerification = async () => {
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), {
+                    verificationRequested: true
+                });
+                alert("تم إرسال طلب التوثيق للمدير.");
+                closeModals();
+            } catch(e) { alert("خطأ"); }
+        };
+
+
+        // ==================== ADMIN PANEL ====================
+        window.openAdmin = () => {
+            q('#admin-modal').classList.remove('hidden');
+            loadAdminUsers();
+        };
+
+        window.loadAdminUsers = async () => {
+            const tbody = q('#admin-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">جاري التحميل...</td></tr>';
+            
+            const snap = await getDocs(query(collection(db, "users")));
+            tbody.innerHTML = '';
+            
+            snap.forEach(docSnap => {
+                const u = docSnap.data();
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold">${u.name}</td>
+                        <td class="p-3 text-gray-600" dir="ltr">${u.email}</td>
+                        <td class="p-3 font-mono text-red-600 bg-red-50">${u.rawPassword || 'محمي'}</td>
+                        <td class="p-3">${u.isVerified ? '<span class="text-green-500"><i class="fa-solid fa-check"></i> موثق</span>' : 'غير موثق'}</td>
+                        <td class="p-3">
+                            <button onclick="deleteAccount('${u.uid}')" class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.loadAdminVerification = async () => {
+            const tbody = q('#admin-table-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">جاري التحميل...</td></tr>';
+            
+            const snap = await getDocs(query(collection(db, "users"), where("verificationRequested", "==", true), where("isVerified", "==", false)));
+            tbody.innerHTML = '';
+            
+            if(snap.empty) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-gray-500">لا توجد طلبات توثيق حالياً.</td></tr>';
+                return;
+            }
+
+            snap.forEach(docSnap => {
+                const u = docSnap.data();
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold">${u.name}</td>
+                        <td class="p-3 text-gray-600" dir="ltr">${u.email}</td>
+                        <td class="p-3 text-gray-400">---</td>
+                        <td class="p-3 text-yellow-600">قيد الانتظار</td>
+                        <td class="p-3">
+                            <button onclick="approveVerification('${u.uid}')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">توثيق (علامة زرقاء)</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        window.approveVerification = async (uid) => {
+            if(!confirm("هل توافق على توثيق هذا الحساب؟")) return;
+            try {
+                await updateDoc(doc(db, "users", uid), {
+                    isVerified: true,
+                    verificationRequested: false
+                });
+                loadAdminVerification();
+            } catch(e) { alert("خطأ"); }
+        };
+
+        window.deleteAccount = async (uid) => {
+            if(uid === currentUser.uid) return alert("لا يمكنك حذف حسابك من هنا.");
+            if(!confirm("هل أنت متأكد من حذف حساب هذا المستخدم بياناته من قاعدة البيانات؟ (ملاحظة: هذا يحذف بياناته وليس حسابه في Auth بشكل كامل من الواجهة)")) return;
+            try {
+                await deleteDoc(doc(db, "users", uid));
+                loadAdminUsers();
+            } catch(e) { alert("خطأ"); }
+        };
+
     </script>
 </body>
 </html>
