@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kimoup - Official App</title>
+    <title>Kimoup - Pro App</title>
     
     <!-- CSS Frameworks -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs (النسخة المستقرة) -->
+    <!-- Firebase SDKs (النسخة المستقرة الصافية) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
@@ -18,9 +18,7 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        kimo: { main: '#0ea5e9', dark: '#0284c7', bg: '#f8fafc', text: '#1e293b' }
-                    },
+                    colors: { kimo: { main: '#0ea5e9', dark: '#0284c7', bg: '#f8fafc', text: '#1e293b' } },
                     fontFamily: { sans: ['Cairo', 'sans-serif'] }
                 }
             }
@@ -33,7 +31,7 @@
         .app-container { width: 100%; height: 100%; background: #ffffff; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 8px solid #1e293b; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); } }
 
-        #messages-container, #spy-messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #f0f2f5; scroll-behavior: smooth; }
+        #messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #f0f2f5; scroll-behavior: smooth; }
         .msg-bubble { max-width: 80%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .msg-out { background-color: #dcf8c6; border-radius: 12px 12px 0 12px; align-self: flex-end; }
         .msg-in { background-color: #ffffff; border-radius: 12px 12px 12px 0; align-self: flex-start; }
@@ -41,17 +39,13 @@
         ::-webkit-scrollbar { width: 0px; }
         .hidden-view { display: none !important; }
         audio { height: 35px; width: 220px; outline: none; }
-        
-        .badge-icon { display: inline-block; margin-right: 4px; font-size: 12px; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
 
     <!-- Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center shadow-xl animate-pulse mb-4 relative overflow-hidden">
+        <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center shadow-xl animate-pulse mb-4">
             <i class="fas fa-bolt text-5xl text-sky-400"></i>
         </div>
         <h1 class="text-3xl font-black text-slate-800">Kimoup</h1>
@@ -88,13 +82,14 @@
             </div>
         </div>
 
-        <!-- ================= 2. الواجهة الرئيسية ================= -->
+        <!-- ================= 2. الواجهة الرئيسية (Tabs) ================= -->
         <div id="main-view" class="w-full h-full flex flex-col hidden-view bg-white">
             
+            <!-- الهيدر -->
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.05)] z-20">
                 <div class="flex items-center gap-3">
                     <button id="logout-btn" onclick="logout()" class="hidden-view text-red-400 text-xl p-2 active:scale-90"><i class="fas fa-power-off"></i></button>
-                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90 relative"><i class="fas fa-user-shield"></i></button>
+                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90"><i class="fas fa-user-shield"></i></button>
                     <button onclick="openSettingsModal()" class="text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-id-card"></i></button>
                 </div>
                 <div class="flex items-center gap-3">
@@ -108,21 +103,53 @@
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <!-- TAB 1: الدردشات -->
+            <div id="tab-chats-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                 <button onclick="openAddFriendModal()" class="w-full py-3.5 bg-gray-50 border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
-                    <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة صديق
+                    <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة صديق برقم الموبايل
                 </button>
                 <div id="contacts-list" class="space-y-1 mt-4"></div>
             </div>
+
+            <!-- TAB 2: الحالات (Status) -->
+            <div id="tab-status-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50">
+                <button onclick="addStatus()" class="w-full py-3.5 bg-white border border-sky-200 rounded-2xl flex justify-center items-center gap-2 text-sky-500 font-bold shadow-sm active:scale-95 transition">
+                    <i class="fas fa-camera text-lg"></i> إضافة حالة جديدة
+                </button>
+                <h3 class="text-xs font-bold text-gray-400 mt-4 mb-2">الحالات الحديثة</h3>
+                <div id="status-list" class="space-y-3"></div>
+            </div>
+
+            <!-- TAB 3: القنوات (Channels) -->
+            <div id="tab-channels-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50">
+                <button onclick="createChannel()" class="w-full py-3.5 bg-white border border-sky-200 rounded-2xl flex justify-center items-center gap-2 text-sky-500 font-bold shadow-sm active:scale-95 transition">
+                    <i class="fas fa-bullhorn text-lg"></i> إنشاء قناة جديدة
+                </button>
+                <h3 class="text-xs font-bold text-gray-400 mt-4 mb-2">اكتشف القنوات</h3>
+                <div id="channels-list" class="space-y-3"></div>
+            </div>
+
+            <!-- شريط التنقل السفلي -->
+            <div class="h-[60px] bg-white border-t border-gray-100 flex justify-around items-center shrink-0 z-20">
+                <button onclick="switchTab('chats')" id="tab-chats" class="flex-1 flex flex-col items-center text-sky-500 transition">
+                    <i class="fas fa-comment-dots text-xl"></i><span class="text-[10px] font-bold mt-1">الدردشات</span>
+                </button>
+                <button onclick="switchTab('status')" id="tab-status" class="flex-1 flex flex-col items-center text-gray-400 hover:text-sky-500 transition">
+                    <i class="fas fa-circle-notch text-xl"></i><span class="text-[10px] font-bold mt-1">الحالات</span>
+                </button>
+                <button onclick="switchTab('channels')" id="tab-channels" class="flex-1 flex flex-col items-center text-gray-400 hover:text-sky-500 transition">
+                    <i class="fas fa-bullhorn text-xl"></i><span class="text-[10px] font-bold mt-1">القنوات</span>
+                </button>
+            </div>
         </div>
 
-        <!-- ================= 3. شاشة الشات ================= -->
+        <!-- ================= 3. شاشة الشات والقنوات ================= -->
         <div id="chat-view" class="absolute inset-0 bg-[#f0f2f5] z-[60] flex flex-col hidden-view animate-fade-in">
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-sm z-20">
                 <button onclick="closeChat()" class="p-2 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
                 <div class="flex-1 flex flex-col items-end justify-center mr-3">
                     <div class="flex items-center gap-1">
-                        <span id="active-chat-badge" class="badge-icon"></span>
+                        <i id="active-chat-verified" class="fas fa-check-circle text-sky-500 hidden-view text-[12px]"></i>
                         <h3 id="active-chat-name" class="font-bold text-sm text-slate-800"></h3>
                     </div>
                     <p id="active-chat-status" class="text-[10px] text-sky-500 font-bold"></p>
@@ -134,7 +161,8 @@
             
             <div id="messages-container"><div id="msg-wrapper" class="flex flex-col gap-2"></div></div>
             
-            <div class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3">
+            <!-- منطقة إدخال الرسائل (تختفي لو مش أدمن في قناة) -->
+            <div id="chat-input-area" class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3">
                 <button id="btn-voice" onmousedown="startVoice()" onmouseup="stopVoice()" ontouchstart="startVoice(event)" ontouchend="stopVoice(event)" class="w-11 h-11 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition">
                     <i class="fas fa-microphone text-lg"></i>
                 </button>
@@ -154,7 +182,9 @@
         <div id="add-friend-modal" class="hidden-view fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl relative mt-8 animate-slide-up">
                 <div class="w-16 h-16 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-14 border-[5px] border-white shadow-md text-2xl font-bold"><i class="fas fa-user-plus"></i></div>
-                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-6 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-100">
+                <h3 class="mt-4 font-bold text-lg">إضافة جهة اتصال</h3>
+                <p class="text-xs text-gray-500 mb-4">بمجرد الإضافة ستتمكنان من رؤية بعضكما ومراسلة بعضكما.</p>
+                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-2 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-100 dir-ltr">
                 <div class="flex gap-3 mt-6">
                     <button onclick="closeAddFriendModal()" class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl active:scale-95">إلغاء</button>
                     <button onclick="confirmAddFriend()" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl active:scale-95 shadow-md">إضافة</button>
@@ -178,21 +208,9 @@
             </div>
 
             <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-4">
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm text-right">
-                    <p class="text-[10px] text-gray-400 font-bold mb-2">اختر شارة التميز (تظهر بجانب اسمك):</p>
-                    <select id="set-badge" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold border border-gray-100 text-right dir-rtl">
-                        <option value="">بدون شارة</option>
-                        <option value="✔️">✔️ موثق (أزرق)</option>
-                        <option value="🌟">🌟 نجمة مميزة</option>
-                        <option value="⚡">⚡ طاقة</option>
-                        <option value="👑">👑 ملكي</option>
-                        <option value="💎">💎 VIP</option>
-                        <option value="🛡️">🛡️ حماية</option>
-                    </select>
-                </div>
-
+                <!-- تم إزالة الشارات كما طلبت وبقي التوثيق فقط للأدمن -->
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <p class="text-[10px] text-gray-400 font-bold mb-2 text-right">تغيير الباسورد (سيمسح القديم تماماً):</p>
+                    <p class="text-[10px] text-gray-400 font-bold mb-2 text-right">تغيير الباسورد (يتم مسح القديم):</p>
                     <input type="text" id="set-pass" placeholder="أدخل الباسورد الجديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center border border-gray-100">
                 </div>
 
@@ -205,40 +223,21 @@
             </div>
         </div>
 
-        <!-- لوحة التحكم للأدمن -->
+        <!-- لوحة التحكم للأدمن (فيها التوثيق) -->
         <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4">
             <div class="bg-slate-900 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[80vh]">
                 <div class="p-4 text-white flex justify-between items-center border-b border-gray-700 shrink-0">
                     <button onclick="closeAdminModal()"><i class="fas fa-times text-lg"></i></button>
-                    <h3 class="font-bold text-lg text-yellow-400">التحكم والأعضاء</h3>
+                    <h3 class="font-bold text-lg text-yellow-400">الإدارة والتوثيق 🔵</h3>
                 </div>
                 <div class="p-4 bg-white flex-1 overflow-y-auto space-y-3" id="admin-requests"></div>
-            </div>
-        </div>
-
-        <!-- شاشة المراقبة (التجسس) للأدمن -->
-        <div id="spy-modal" class="hidden-view fixed inset-0 bg-white z-[150] flex flex-col">
-            <div class="h-[70px] bg-slate-900 text-white flex items-center justify-between px-4 shrink-0 shadow-md">
-                <button onclick="closeSpyModal()" class="p-2"><i class="fas fa-times text-xl"></i></button>
-                <div class="text-right">
-                    <h3 class="font-bold text-sm text-yellow-400">وضع المراقبة 👁️</h3>
-                    <p id="spy-target-name" class="text-[10px]"></p>
-                </div>
-            </div>
-            
-            <div id="spy-contacts" class="p-4 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto flex gap-2 hide-scrollbar">
-            </div>
-
-            <div id="spy-messages-container" class="flex-1 bg-[#efeae2] relative">
-                <div id="spy-msg-wrapper" class="flex flex-col gap-2 p-4"></div>
-                <div id="spy-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 font-bold text-sm">اختر محادثة لعرضها</div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // إعدادات فايربيز الأصلية البسيطة والمستقرة
+        // إعدادات فايربيز الأصلية الأساسية والمستقرة (بدون أي Auth معقد)
         const firebaseConfig = {
             apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
             authDomain: "whatsapp-fcd3c.firebaseapp.com",
@@ -254,9 +253,9 @@
         let currentUser = localStorage.getItem('kimo_u_phone'); 
         let activeChatId = null, uCache = {}, tempPhone = "", profileBase64 = '';
         let mediaRec, audioChunks = [];
-        let spyTargetId = null;
+        let isChannelMode = false, currentChannelOwner = null;
 
-        // إخفاء شاشة البداية
+        // إخفاء Splash
         setTimeout(() => {
             document.getElementById('splash-screen').classList.add('opacity-0');
             setTimeout(() => { 
@@ -265,48 +264,34 @@
             }, 500);
         }, 1500);
 
-        // --- 1. Login Logic (الدخول المباشر والتأكد من الحظر) ---
+        // --- 1. Login Logic (تسجيل مباشر بدون انتظار) ---
         async function checkNumberReady() {
             let p = document.getElementById('phone-input').value.trim();
             if(!p) return alert("أدخل رقم الهاتف!");
             if(p.startsWith('0')) p = p.substring(1);
             tempPhone = "+20" + p;
 
-            const btn = document.getElementById('btn-check');
-            const btnText = document.getElementById('btn-text');
-            btn.disabled = true;
-            btnText.innerText = "جاري الدخول...";
-
+            document.getElementById('btn-check').innerText = "جاري الفحص...";
+            
             try {
-                const docSnap = await db.collection('users').doc(tempPhone).get();
+                const userRef = db.collection('users').doc(tempPhone);
+                const docSnap = await userRef.get();
 
                 if(!docSnap.exists) {
-                    // تسجيل جديد وتفعيل تلقائي
-                    await db.collection('users').doc(tempPhone).set({
-                        phone: tempPhone, displayName: "مستخدم جديد", bio: 'متاح',
-                        status: 'approved', loginCode: '000000', badge: tempPhone === ADMIN_PHONE ? '👑' : '',
+                    await userRef.set({
+                        phone: tempPhone, displayName: "مستخدم " + tempPhone.slice(-4), bio: 'متاح في كيمو اب',
+                        status: 'approved', loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE,
                         contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    showStep('pin-step');
-                } else {
-                    const data = docSnap.data();
-                    if (data.status === 'banned') {
-                        alert("تم حظر هذا الحساب من قبل الإدارة 🚫");
-                    } else {
-                        // لو كان معلق قديم، فعله
-                        if(data.status === 'pending') {
-                            await db.collection('users').doc(tempPhone).update({ status: 'approved' });
-                        }
-                        showStep('pin-step');
-                    }
+                } else if(docSnap.data().status === 'banned') {
+                    alert("تم حظر هذا الحساب 🚫");
+                    document.getElementById('btn-check').innerText = "متابعة الدخول";
+                    return;
                 }
-            } catch (error) {
-                console.error(error);
-                alert("تأكد من اتصالك بالإنترنت.");
-            }
+                showStep('pin-step');
+            } catch(e) { alert("حدث خطأ في الاتصال!"); }
             
-            btn.disabled = false;
-            btnText.innerText = "متابعة الدخول";
+            document.getElementById('btn-check').innerText = "متابعة الدخول";
         }
 
         function showStep(id) {
@@ -316,20 +301,14 @@
 
         async function verifyAccess() {
             const pin = document.getElementById('pin-input').value.trim();
-            if(!pin) return;
             try {
                 const snap = await db.collection('users').doc(tempPhone).get();
-                // شرط الدخول هو تطابق الباسورد فقط (لو اتغير هيتمسح القديم ومش هيدخل)
                 if (snap.data().loginCode === pin) {
                     currentUser = tempPhone;
                     localStorage.setItem('kimo_u_phone', currentUser);
                     initApp();
-                } else {
-                    alert("الباسورد غير صحيح!");
-                }
-            } catch(e) {
-                alert("حدث خطأ في الاتصال!");
-            }
+                } else { alert("الباسورد غير صحيح!"); }
+            } catch(e) { alert("حدث خطأ!"); }
         }
 
         // --- 2. Main App Logic ---
@@ -346,26 +325,27 @@
             db.collection('users').doc(currentUser).onSnapshot(s => {
                 if(!s.exists) return;
                 const me = s.data();
-                if(me.status === 'banned') {
-                    alert("لقد تم حظرك!");
-                    logout();
-                    return;
-                }
+                if(me.status === 'banned') { alert("لقد تم حظرك!"); logout(); return; }
                 profileBase64 = me.avatar || `https://ui-avatars.com/api/?name=${me.displayName}&background=0ea5e9&color=fff`;
                 document.getElementById('set-img-preview').src = profileBase64;
                 document.getElementById('set-name').value = me.displayName;
                 document.getElementById('set-bio').value = me.bio || '';
-                document.getElementById('set-badge').value = me.badge || '';
             });
 
             db.collection('users').onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); renderContacts(); });
         }
 
+        // الخصوصية: لا يتم عرض الأرقام إلا إذا كانت مضافة في جهات الاتصال (الأدمن يرى الجميع)
         function renderContacts() {
             const list = document.getElementById('contacts-list'); list.innerHTML = '';
+            const meData = uCache[currentUser];
+            const myContactsList = meData?.contacts || [];
+
             Object.values(uCache).forEach(u => {
                 if(u.phone === currentUser || u.status === 'banned') return;
-                const badgeHtml = u.badge ? `<span class="badge-icon">${u.badge}</span>` : '';
+                
+                // الخصوصية: إخفاء لو مش جهة اتصال (ماعدا لو أنا الأدمن)
+                if(currentUser !== ADMIN_PHONE && !myContactsList.includes(u.phone)) return;
                 
                 list.innerHTML += `
                     <div onclick="openChat('${u.phone}')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-xl transition">
@@ -374,7 +354,7 @@
                         </div>
                         <div class="text-right flex-1">
                             <div class="flex items-center justify-end gap-1">
-                                ${badgeHtml}
+                                ${u.isVerified ? '<i class="fas fa-check-circle text-sky-500 text-[12px]"></i>' : ''}
                                 <h3 class="font-bold text-[15px] text-slate-800">${u.displayName}</h3>
                             </div>
                             <p class="text-[11px] text-gray-400 mt-0.5">${u.bio || 'متاح'}</p>
@@ -384,29 +364,49 @@
             });
         }
 
+        // التنقل بين الأقسام
+        function switchTab(tab) {
+            ['chats', 'status', 'channels'].forEach(t => {
+                document.getElementById(`tab-${t}-view`).classList.add('hidden-view');
+                document.getElementById(`tab-${t}`).classList.remove('text-sky-500');
+                document.getElementById(`tab-${t}`).classList.add('text-gray-400');
+            });
+            document.getElementById(`tab-${tab}-view`).classList.remove('hidden-view');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-400');
+            document.getElementById(`tab-${tab}`).classList.add('text-sky-500');
+            
+            if(tab === 'status') loadStatuses();
+            if(tab === 'channels') loadChannels();
+        }
+
         // --- 3. Chat Logic ---
+        function getChatId() { return isChannelMode ? activeChatId : [currentUser, activeChatId].sort().join('_'); }
+
         function openChat(id) {
+            isChannelMode = false;
             activeChatId = id;
             const u = uCache[id];
             document.getElementById('chat-view').classList.remove('hidden-view');
             document.getElementById('active-chat-name').innerText = u.displayName;
             document.getElementById('active-chat-status').innerText = u.bio || 'متاح';
-            document.getElementById('active-chat-badge').innerText = u.badge || '';
+            document.getElementById('active-chat-verified').classList.toggle('hidden-view', !u.isVerified);
             document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
+            document.getElementById('chat-input-area').classList.remove('hidden-view');
             loadMsgs();
         }
 
         function loadMsgs() {
-            const cid = [currentUser, activeChatId].sort().join('_');
+            const cid = getChatId();
             const cont = document.getElementById('messages-container'), wrap = document.getElementById('msg-wrapper');
-            db.collection('chats').doc(cid).collection('messages').onSnapshot(s => {
+            db.collection('messages').where('chatId', '==', cid).onSnapshot(s => {
                 let msgs = []; s.forEach(d => msgs.push(d.data()));
                 msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
                 wrap.innerHTML = '';
                 msgs.forEach(m => {
                     const isMe = m.s === currentUser;
+                    let senderName = isChannelMode && !isMe ? `<p class="text-[10px] text-gray-400 mb-1">${uCache[m.s]?.displayName || 'عضو'}</p>` : '';
                     let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${content}</div></div>`);
+                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${senderName}${content}</div></div>`);
                 });
                 cont.scrollTop = cont.scrollHeight;
             });
@@ -414,11 +414,10 @@
 
         async function sendText() {
             const i = document.getElementById('m-input'), txt = i.value.trim(); if(!txt) return;
-            const cid = [currentUser, activeChatId].sort().join('_'); i.value = '';
-            await db.collection('chats').doc(cid).collection('messages').add({ s: currentUser, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+            const cid = getChatId(); i.value = '';
+            await db.collection('messages').add({ chatId: cid, s: currentUser, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
         }
 
-        // Voice
         async function startVoice(e) {
             if(e) e.preventDefault();
             try {
@@ -430,8 +429,8 @@
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     const reader = new FileReader();
                     reader.onloadend = async () => {
-                        const cid = [currentUser, activeChatId].sort().join('_');
-                        await db.collection('chats').doc(cid).collection('messages').add({ s: currentUser, data: reader.result, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp() });
+                        const cid = getChatId();
+                        await db.collection('messages').add({ chatId: cid, s: currentUser, data: reader.result, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp() });
                     };
                     reader.readAsDataURL(audioBlob);
                 };
@@ -448,7 +447,86 @@
             }
         }
 
-        // --- 4. Modals ---
+        // --- 4. Status (الحالات) ---
+        async function addStatus() {
+            let txt = prompt("اكتب حالتك لتشاركها مع أصدقائك:");
+            if(!txt) return;
+            await db.collection('statuses').add({ s: currentUser, txt, t: firebase.firestore.FieldValue.serverTimestamp() });
+            alert("تم إضافة الحالة بنجاح!");
+        }
+
+        function loadStatuses() {
+            const list = document.getElementById('status-list');
+            db.collection('statuses').orderBy('t', 'desc').limit(20).onSnapshot(snap => {
+                list.innerHTML = '';
+                const meContacts = uCache[currentUser]?.contacts || [];
+                snap.forEach(doc => {
+                    const s = doc.data();
+                    if(currentUser !== ADMIN_PHONE && s.s !== currentUser && !meContacts.includes(s.s)) return; // Privacy
+                    const u = uCache[s.s]; if(!u) return;
+                    
+                    list.innerHTML += `
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center">
+                            <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-sky-400 to-blue-600 shrink-0">
+                                <img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full rounded-full border-2 border-white object-cover">
+                            </div>
+                            <div class="flex-1 text-right">
+                                <h4 class="font-bold text-sm text-slate-800">${u.displayName}</h4>
+                                <p class="text-xs text-gray-600 mt-1 font-semibold">${s.txt}</p>
+                            </div>
+                        </div>`;
+                });
+                if(list.innerHTML === '') list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-4">لا توجد حالات حديثة.</p>';
+            });
+        }
+
+        // --- 5. Channels (القنوات) ---
+        async function createChannel() {
+            let name = prompt("أدخل اسم القناة الجديدة:");
+            if(!name) return;
+            await db.collection('channels').add({ name, owner: currentUser, t: firebase.firestore.FieldValue.serverTimestamp() });
+            alert("تم إنشاء القناة!");
+        }
+
+        function loadChannels() {
+            const list = document.getElementById('channels-list');
+            db.collection('channels').orderBy('t', 'desc').onSnapshot(snap => {
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const c = doc.data();
+                    list.innerHTML += `
+                        <div onclick="openChannel('${doc.id}', '${c.name}', '${c.owner}')" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center cursor-pointer active:bg-gray-50 transition">
+                            <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center shrink-0 text-xl"><i class="fas fa-bullhorn"></i></div>
+                            <div class="flex-1 text-right">
+                                <h4 class="font-bold text-[15px] text-slate-800">${c.name}</h4>
+                                <p class="text-[10px] text-gray-400 mt-0.5">قناة عامة</p>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        function openChannel(id, name, owner) {
+            activeChatId = id;
+            isChannelMode = true;
+            currentChannelOwner = owner;
+            
+            document.getElementById('chat-view').classList.remove('hidden-view');
+            document.getElementById('active-chat-name').innerText = name;
+            document.getElementById('active-chat-status').innerText = "قناة عامة";
+            document.getElementById('active-chat-verified').classList.add('hidden-view');
+            document.getElementById('active-chat-img').src = `https://ui-avatars.com/api/?name=${name}&background=0ea5e9&color=fff`;
+            
+            // قفل الكتابة لو مش الأدمن أو مش صاحب القناة
+            if(currentUser !== owner && currentUser !== ADMIN_PHONE) {
+                document.getElementById('chat-input-area').classList.add('hidden-view');
+            } else {
+                document.getElementById('chat-input-area').classList.remove('hidden-view');
+            }
+            loadMsgs();
+        }
+
+        // --- 6. Modals ---
         function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
         function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
         async function confirmAddFriend() {
@@ -458,13 +536,14 @@
             
             const doc = await db.collection('users').doc(p).get();
             if(doc.exists && doc.data().status === 'approved') {
+                // إضافة متبادلة
                 await db.collection('users').doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) });
+                await db.collection('users').doc(p).update({ contacts: firebase.firestore.FieldValue.arrayUnion(currentUser) });
                 closeAddFriendModal();
                 openChat(p);
-            } else alert("هذا الرقم غير مسجل أو محظور!");
+            } else alert("الرقم ده لسه مسجلش أو مش متفعل!");
         }
 
-        // Settings
         function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
         function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
         
@@ -476,12 +555,10 @@
             const name = document.getElementById('set-name').value.trim();
             const bio = document.getElementById('set-bio').value.trim();
             const pass = document.getElementById('set-pass').value.trim();
-            const badge = document.getElementById('set-badge').value;
             
             if(!name) return alert('الاسم مطلوب!');
             
-            let updates = { displayName: name, bio, badge, avatar: profileBase64 };
-            // التحديث الصارم للباسورد
+            let updates = { displayName: name, bio, avatar: profileBase64 };
             if(pass && pass.length >= 4) updates.loginCode = pass;
             
             await db.collection('users').doc(currentUser).update(updates);
@@ -489,7 +566,7 @@
             closeSettingsModal();
         }
 
-        // --- 5. لوحة الأدمن ---
+        // --- 7. لوحة الأدمن والتوثيق ---
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden-view');
             const list = document.getElementById('admin-requests');
@@ -499,70 +576,26 @@
                     const u = doc.data();
                     if(u.phone === ADMIN_PHONE) return; 
                     
+                    const btn = u.isVerified 
+                        ? `<button onclick="updateVerify('${u.phone}', false)" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">إزالة التوثيق ❌</button>`
+                        : `<button onclick="updateVerify('${u.phone}', true)" class="bg-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm">توثيق 🔵</button>`;
+
                     list.innerHTML += `
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-3">
+                        <div class="bg-white p-3 rounded-2xl border border-gray-200 shadow-sm flex flex-col gap-2 mb-2">
                             <div class="flex justify-between items-center text-right">
                                 <div class="flex-1 mr-2">
-                                    <p class="font-bold text-[14px] text-slate-800">${u.displayName} <span class="text-xs">${u.badge || ''}</span></p>
+                                    <p class="font-bold text-[14px] text-slate-800">${u.displayName} ${u.isVerified ? '<i class="fas fa-check-circle text-sky-500 text-xs"></i>' : ''}</p>
                                     <p class="text-[10px] text-gray-500 font-bold">${u.phone}</p>
                                 </div>
-                                <div class="text-[10px] font-bold ${u.status === 'banned' ? 'text-red-500' : 'text-green-500'}">
-                                    ${u.status === 'banned' ? 'محظور' : 'مفعل'}
-                                </div>
-                            </div>
-                            <div class="flex gap-2 justify-end mt-2 border-t pt-2">
-                                <button onclick="updateUserStatus('${u.phone}', 'approved')" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">✔️ تفعيل</button>
-                                <button onclick="updateUserStatus('${u.phone}', 'banned')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">🚫 حظر</button>
-                                <button onclick="openSpyModal('${u.phone}', '${u.displayName}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">👁️ مراقبة</button>
+                                <div>${btn}</div>
                             </div>
                         </div>`;
                 });
             });
         }
-        async function updateUserStatus(phone, status) { await db.collection('users').doc(phone).update({ status }); }
+        async function updateVerify(phone, isVerified) { await db.collection('users').doc(phone).update({ isVerified }); }
         function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden-view'); }
 
-        // --- 6. نظام المراقبة (التجسس) ---
-        function openSpyModal(targetPhone, targetName) {
-            spyTargetId = targetPhone;
-            document.getElementById('spy-modal').classList.remove('hidden-view');
-            document.getElementById('spy-target-name').innerText = "الهدف: " + targetName;
-            document.getElementById('spy-placeholder').classList.remove('hidden-view');
-            document.getElementById('spy-msg-wrapper').innerHTML = '';
-            
-            const contactsDiv = document.getElementById('spy-contacts');
-            contactsDiv.innerHTML = '';
-            
-            const u = uCache[targetPhone];
-            if(u && u.contacts && u.contacts.length > 0) {
-                u.contacts.forEach(contactId => {
-                    const cName = uCache[contactId] ? uCache[contactId].displayName : contactId;
-                    contactsDiv.innerHTML += `<button onclick="loadSpyChat('${contactId}')" class="shrink-0 bg-white px-4 py-2 rounded-full text-xs font-bold shadow-sm border text-slate-700 active:bg-sky-50 transition">${cName}</button>`;
-                });
-            } else {
-                contactsDiv.innerHTML = '<p class="text-xs text-gray-500 font-bold p-2">لا يوجد أصدقاء له.</p>';
-            }
-        }
-
-        function loadSpyChat(contactId) {
-            document.getElementById('spy-placeholder').classList.add('hidden-view');
-            const cid = [spyTargetId, contactId].sort().join('_');
-            const cont = document.getElementById('spy-messages-container'), wrap = document.getElementById('spy-msg-wrapper');
-            
-            db.collection('chats').doc(cid).collection('messages').onSnapshot(s => {
-                let msgs = []; s.forEach(d => msgs.push(d.data()));
-                msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                wrap.innerHTML = '';
-                msgs.forEach(m => {
-                    const isTarget = m.s === spyTargetId;
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isTarget?'items-end':'items-start'} w-full"><div class="msg-bubble ${isTarget?'bg-green-100':'bg-white'}">${content}</div></div>`);
-                });
-                cont.scrollTop = cont.scrollHeight;
-            });
-        }
-
-        function closeSpyModal() { document.getElementById('spy-modal').classList.add('hidden-view'); spyTargetId = null; }
         function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
