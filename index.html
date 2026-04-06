@@ -1,474 +1,1837 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kimoup Business VIP</title>
-    
-    <!-- Scripts & Frameworks -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kimoup - WE HERE TO HELP YOU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --blue:#2563eb;--blue-light:#3b82f6;--blue-dark:#1d4ed8;
+  --bg:#ffffff;--bg2:#f8fafc;--bg3:#f1f5f9;
+  --text:#1e293b;--text2:#64748b;--text3:#94a3b8;
+  --border:#e2e8f0;--success:#22c55e;--danger:#ef4444;
+  --warning:#f59e0b;--shadow:0 1px 3px rgba(0,0,0,.08);
+  --shadow-lg:0 10px 40px rgba(0,0,0,.12);
+  --radius:14px;--radius-sm:10px;--radius-xs:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cairo',sans-serif;background:var(--bg3);color:var(--text);overflow:hidden;height:100vh;height:100dvh;}
+input,textarea,select,button{font-family:'Cairo',sans-serif;outline:none;border:none;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 
-    <!-- Firebase Legacy SDKs for maximum stability -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+/* إطار التطبيق */
+.app-frame{
+  width:100%;max-width:430px;height:100vh;height:100dvh;
+  margin:0 auto;background:var(--bg);position:relative;overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+@media(min-width:500px){
+  body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);}
+  .app-frame{border-radius:24px;height:92vh;}
+}
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { kimo: { main: '#0ea5e9', dark: '#0284c7', bg: '#f0f2f5', text: '#1e293b', business: '#fbbf24' } },
-                    fontFamily: { sans: ['Cairo', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
+/* شاشة البداية */
+.splash{
+  position:absolute;inset:0;z-index:1000;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .5s,transform .5s;
+}
+.splash.hide{opacity:0;transform:scale(1.1);pointer-events:none;}
+.splash-logo{
+  width:90px;height:90px;background:var(--bg3);border-radius:20px;
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+}
+.splash-logo i{font-size:42px;color:var(--blue);}
+.splash h1{font-size:28px;font-weight:900;color:var(--text);letter-spacing:-.5px;}
+.splash p{font-size:12px;color:var(--text2);margin-top:2px;letter-spacing:2px;font-weight:600;}
 
-    <style>
-        /* Custom Styles & Reset */
-        * { -webkit-tap-highlight-color: transparent; outline: none; scrollbar-width: none; }
-        body { background-color: #cbd5e1; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .app-container { width: 100%; height: 100%; background: #ffffff; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 12px solid #1e293b; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); } }
+/* شاشة الدخول */
+.auth-screen{
+  position:absolute;inset:0;z-index:900;background:var(--bg);
+  display:none;flex-direction:column;padding:24px;
+  transition:opacity .3s;
+}
+.auth-screen.hide{opacity:0;pointer-events:none;}
+.auth-logo{width:60px;height:60px;background:var(--bg3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.auth-logo i{font-size:28px;color:var(--blue);}
+.auth-title{font-size:22px;font-weight:700;}
+.auth-sub{font-size:12px;color:var(--text2);margin-bottom:32px;}
+.auth-field{margin-bottom:16px;}
+.auth-field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text2);}
+.auth-field input{
+  width:100%;padding:14px 16px;background:var(--bg2);border:2px solid var(--border);
+  border-radius:var(--radius-sm);font-size:15px;color:var(--text);transition:border .2s;
+}
+.auth-field input:focus{border-color:var(--blue);}
+.auth-btn{
+  width:100%;padding:14px;background:var(--blue);color:#fff;
+  border-radius:var(--radius-sm);font-size:15px;font-weight:700;
+  cursor:pointer;transition:background .2s;margin-top:8px;
+}
+.auth-btn:hover{background:var(--blue-dark);}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;}
+.auth-error{color:var(--danger);font-size:12px;margin-top:8px;display:none;text-align:center;}
+.auth-error.show{display:block;}
 
-        /* Chat Components */
-        #messages-container, #spy-messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #efeae2; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); scroll-behavior: smooth; }
-        .msg-bubble { max-width: 85%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); border-radius: 12px; position: relative; }
-        .msg-out { background-color: #dcf8c6; border-top-right-radius: 2px; align-self: flex-end; }
-        .msg-in { background-color: #ffffff; border-top-left-radius: 2px; align-self: flex-start; }
-        
-        /* Official Blue Tick */
-        .verified-badge {
-            background-color: #0ea5e9;
-            color: white;
-            border-radius: 50%;
-            width: 15px;
-            height: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            margin-right: 4px;
-            box-shadow: 0 0 0 1.5px white;
-        }
+/* الشريط العلوي */
+.top-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);
+  position:relative;z-index:10;min-height:56px;
+}
+.top-bar .right{display:flex;align-items:center;gap:10px;}
+.top-bar .avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  color:var(--blue);cursor:pointer;overflow:hidden;border:2px solid var(--border);
+}
+.top-bar .avatar img{width:100%;height:100%;object-fit:cover;}
+.top-bar .info h3{font-size:14px;font-weight:700;line-height:1.2;}
+.top-bar .info p{font-size:10px;color:var(--text2);}
+.top-bar .actions{display:flex;gap:4px;}
+.top-bar .actions button{
+  width:36px;height:36px;border-radius:50%;background:var(--bg2);
+  border:none;color:var(--text2);font-size:15px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.top-bar .actions button:hover{background:var(--bg3);color:var(--text);}
+.top-bar .actions button.admin-btn{color:var(--warning);}
+.top-bar .actions button.admin-btn.active{background:var(--warning);color:#fff;}
 
-        .sys-msg { background-color: #fef08a; color: #854d0e; font-size: 10px; text-align: center; padding: 6px 12px; border-radius: 10px; margin: 10px auto; font-weight: bold; width: fit-content; border: 1px solid #fde047; }
-        .cart-bill { background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 15px; padding: 10px; width: 100%; color: #0c4a6e; }
+/* شريط التنقل السفلي */
+.bottom-nav{
+  display:flex;background:var(--bg);border-top:1px solid var(--border);
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  padding:6px 0 env(safe-area-inset-bottom,8px);
+}
+.bottom-nav button{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:6px 0;background:none;cursor:pointer;border:none;
+  color:var(--text3);font-size:10px;font-weight:600;transition:color .2s;
+}
+.bottom-nav button i{font-size:18px;transition:color .2s;}
+.bottom-nav button.active{color:var(--blue);}
+.bottom-nav button.active i{color:var(--blue);}
 
-        .hidden-view { display: none !important; }
-        ::-webkit-scrollbar { display: none; }
-        audio { height: 35px; width: 220px; outline: none; }
-        
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; transition: 0.2s; padding: 8px 0; }
-        .nav-btn.active { color: #0ea5e9; border-top: 3px solid #0ea5e9; background: linear-gradient(to bottom, #f0f9ff, white); }
-        .nav-btn.inactive { color: #94a3b8; border-top: 3px solid transparent; }
+/* منطقة المحتوى */
+.views{position:absolute;top:56px;bottom:58px;left:0;right:0;overflow:hidden;}
+.view{
+  position:absolute;inset:0;overflow-y:auto;padding:16px;
+  display:none;animation:fadeIn .25s;
+}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 
-        @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        .toast-show { animation: slideUp 0.3s ease-out forwards; }
-    </style>
+/* ===== الرئيسية ===== */
+.home-header{
+  background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%);
+  border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.home-header::after{
+  content:'';position:absolute;top:-20px;left:-20px;
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(255,255,255,.08);
+}
+.home-header h2{font-size:18px;font-weight:700;margin-bottom:4px;}
+.home-header p{font-size:12px;opacity:.85;}
+.home-search{
+  display:flex;align-items:center;gap:10px;background:var(--bg2);
+  border:2px solid var(--border);border-radius:var(--radius-sm);
+  padding:0 14px;margin-bottom:16px;transition:border .2s;
+}
+.home-search:focus-within{border-color:var(--blue);}
+.home-search i{color:var(--text3);font-size:14px;}
+.home-search input{flex:1;padding:12px 0;background:none;font-size:14px;color:var(--text);}
+.home-search input::placeholder{color:var(--text3);}
+.home-search .cam-btn{background:none;border:none;color:var(--blue);font-size:16px;cursor:pointer;}
+.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.stat-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px;text-align:center;
+}
+.stat-card .num{font-size:24px;font-weight:900;color:var(--blue);}
+.stat-card .lbl{font-size:11px;color:var(--text2);margin-top:2px;}
+.info-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:background .15s;
+}
+.info-card:hover{background:var(--bg2);}
+.info-card .ic-icon{
+  width:42px;height:42px;border-radius:12px;display:flex;
+  align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.info-card .ic-text h4{font-size:13px;font-weight:600;}
+.info-card .ic-text p{font-size:11px;color:var(--text2);}
+.join-banner{
+  background:linear-gradient(135deg,var(--blue),#7c3aed);
+  border-radius:var(--radius);padding:20px;color:#fff;text-align:center;
+  margin-bottom:16px;cursor:pointer;transition:transform .2s;
+}
+.join-banner:hover{transform:scale(1.02);}
+.join-banner i{font-size:32px;margin-bottom:8px;}
+.join-banner h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.join-banner p{font-size:12px;opacity:.85;}
+
+/* ===== الخدمات ===== */
+.service-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all .2s;
+}
+.service-card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:var(--shadow);}
+.service-card .sv-icon{
+  width:48px;height:48px;border-radius:14px;display:flex;
+  align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.service-card .sv-text h4{font-size:14px;font-weight:600;}
+.service-card .sv-text p{font-size:11px;color:var(--text2);margin-top:2px;}
+.service-card .sv-arrow{margin-right:auto;color:var(--text3);font-size:14px;}
+
+/* ===== المحادثات ===== */
+.chat-item{
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;
+}
+.chat-item:hover{background:var(--bg2);margin:0 -16px;padding:12px 16px;border-radius:var(--radius-xs);}
+.chat-item .ch-avatar{
+  width:48px;height:48px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  color:var(--blue);flex-shrink:0;overflow:hidden;position:relative;
+}
+.chat-item .ch-avatar img{width:100%;height:100%;object-fit:cover;}
+.chat-item .ch-avatar .online-dot{
+  position:absolute;bottom:1px;left:1px;width:10px;height:10px;
+  border-radius:50%;background:var(--success);border:2px solid var(--bg);
+}
+.chat-item .ch-info{flex:1;min-width:0;}
+.chat-item .ch-top{display:flex;justify-content:space-between;align-items:center;}
+.chat-item .ch-name{font-size:14px;font-weight:600;}
+.chat-item .ch-time{font-size:11px;color:var(--text3);}
+.chat-item .ch-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
+.chat-item .ch-last{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.chat-item .ch-badge{
+  min-width:20px;height:20px;border-radius:10px;background:var(--blue);
+  color:#fff;font-size:10px;font-weight:700;display:flex;
+  align-items:center;justify-content:center;padding:0 6px;flex-shrink:0;
+}
+.chat-item .verified-badge{color:var(--success);font-size:12px;margin-right:4px;}
+
+/* ===== غرفة المحادثة ===== */
+.chat-room{
+  position:absolute;inset:0;z-index:50;background:var(--bg);display:none;
+  flex-direction:column;animation:slideLeft .25s;
+}
+.chat-room.show{display:flex;}
+@keyframes slideLeft{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.chat-room .room-header{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);min-height:56px;
+}
+.chat-room .room-header .back-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--bg2);
+  border:none;color:var(--text);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.chat-room .room-header .rh-avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  color:var(--blue);overflow:hidden;
+}
+.chat-room .room-header .rh-avatar img{width:100%;height:100%;object-fit:cover;}
+.chat-room .room-header .rh-info h4{font-size:14px;font-weight:600;}
+.chat-room .room-header .rh-info p{font-size:10px;color:var(--text2);}
+.chat-room .room-header .rh-actions{margin-right:auto;display:flex;gap:4px;}
+.chat-room .room-header .rh-actions button{
+  width:34px;height:34px;border-radius:50%;background:none;border:none;
+  color:var(--text2);font-size:15px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;
+}
+.messages-area{flex:1;overflow-y:auto;padding:12px 16px;background:var(--bg2);}
+.msg-date{text-align:center;margin:12px 0;}
+.msg-date span{background:var(--bg3);color:var(--text2);padding:4px 12px;border-radius:10px;font-size:11px;}
+.msg-row{display:flex;margin-bottom:4px;animation:msgPop .2s;}
+@keyframes msgPop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg-row.me{justify-content:flex-end;}
+.msg-row.them{justify-content:flex-start;}
+.msg-bubble{
+  max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;
+  line-height:1.6;position:relative;word-wrap:break-word;
+}
+.msg-row.me .msg-bubble{background:var(--blue);color:#fff;border-bottom-left:4px;}
+.msg-row.them .msg-bubble{background:var(--bg);border:1px solid var(--border);border-bottom-right:4px;}
+.msg-bubble .msg-time{font-size:10px;opacity:.6;margin-top:4px;display:flex;align-items:center;gap:3px;justify-content:flex-end;}
+.msg-bubble .msg-time .ticks{font-size:12px;}
+.msg-bubble .auto-reply-tag{
+  font-size:9px;background:rgba(255,255,255,.15);padding:2px 6px;
+  border-radius:4px;margin-bottom:4px;display:inline-block;
+}
+.msg-row.them .auto-reply-tag{background:var(--bg3);color:var(--text2);}
+.msg-bubble .reply-ref{
+  background:rgba(0,0,0,.08);border-right:3px solid var(--blue);
+  padding:4px 8px;border-radius:4px;margin-bottom:4px;font-size:11px;
+  cursor:pointer;
+}
+.msg-row.me .reply-ref{background:rgba(255,255,255,.12);}
+.typing-row{display:flex;justify-content:flex-start;margin-bottom:4px;}
+.typing-bubble{
+  background:var(--bg);border:1px solid var(--border);border-radius:14px;
+  padding:10px 16px;display:flex;gap:4px;
+}
+.typing-bubble span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:tp 1.2s infinite;}
+.typing-bubble span:nth-child(2){animation-delay:.2s;}
+.typing-bubble span:nth-child(3){animation-delay:.4s;}
+@keyframes tp{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
+
+.chat-input-area{
+  display:flex;align-items:flex-end;gap:8px;padding:10px 12px;
+  border-top:1px solid var(--border);background:var(--bg);
+}
+.chat-input-area textarea{
+  flex:1;resize:none;background:var(--bg2);border:2px solid var(--border);
+  border-radius:22px;padding:10px 16px;font-size:14px;color:var(--text);
+  max-height:100px;min-height:40px;line-height:1.4;transition:border .2s;
+}
+.chat-input-area textarea:focus{border-color:var(--blue);}
+.chat-input-area button{
+  width:40px;height:40px;border-radius:50%;background:var(--blue);
+  color:#fff;border:none;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background .2s;
+}
+.chat-input-area button:hover{background:var(--blue-dark);}
+.chat-input-area button:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ===== لوحة الأدمن ===== */
+.admin-tabs{
+  display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;
+  padding-bottom:4px;-webkit-overflow-scrolling:touch;
+}
+.admin-tabs button{
+  padding:8px 14px;border-radius:20px;background:var(--bg2);
+  border:1px solid var(--border);font-size:12px;font-weight:600;
+  color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+.admin-tabs button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.admin-card{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px;margin-bottom:10px;transition:all .2s;
+}
+.admin-card .ac-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.admin-card .ac-avatar{
+  width:40px;height:40px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);
+}
+.admin-card .ac-info{flex:1;min-width:0;}
+.admin-card .ac-info h4{font-size:13px;font-weight:600;}
+.admin-card .ac-info p{font-size:11px;color:var(--text2);}
+.admin-card .ac-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.admin-card .ac-actions button{
+  padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;
+  cursor:pointer;transition:all .15s;border:none;
+}
+.btn-verify{background:#dcfce7;color:#16a34a;}
+.btn-verify:hover{background:#bbf7d0;}
+.btn-block{background:#fef2f2;color:#dc2626;}
+.btn-block:hover{background:#fecaca;}
+.btn-unblock{background:#dcfce7;color:#16a34a;}
+.btn-unblock:hover{background:#bbf7d0;}
+.btn-view{background:#eff6ff;color:var(--blue);}
+.btn-view:hover{background:#dbeafe;}
+.btn-delete{background:#fef2f2;color:#dc2626;}
+.btn-delete:hover{background:#fecaca;}
+.btn-accept{background:#dcfce7;color:#16a34a;}
+.btn-reject{background:#fef2f2;color:#dc2626;}
+
+.status-badge{
+  display:inline-flex;align-items:center;gap:3px;padding:2px 8px;
+  border-radius:6px;font-size:10px;font-weight:600;
+}
+.status-badge.verified{background:#dcfce7;color:#16a34a;}
+.status-badge.unverified{background:#fef9c3;color:#ca8a04;}
+.status-badge.blocked{background:#fef2f2;color:#dc2626;}
+.status-badge.pending{background:#eff6ff;color:var(--blue);}
+
+/* ===== الاعتراض ===== */
+.appeal-form{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;
+}
+.appeal-form h3{font-size:16px;font-weight:700;margin-bottom:4px;color:var(--danger);}
+.appeal-form p{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.appeal-form textarea{
+  width:100%;padding:12px;background:var(--bg2);border:2px solid var(--border);
+  border-radius:var(--radius-sm);font-size:14px;resize:none;min-height:100px;
+  margin-bottom:12px;color:var(--text);
+}
+.appeal-form textarea:focus{border-color:var(--blue);}
+
+/* ===== عرض بيانات المستخدم ===== */
+.data-viewer{padding:0;}
+.data-section{margin-bottom:16px;}
+.data-section h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.data-section h4 i{font-size:12px;color:var(--blue);}
+.data-row{
+  display:flex;justify-content:space-between;padding:8px 12px;
+  background:var(--bg2);border-radius:var(--radius-xs);margin-bottom:4px;font-size:12px;
+}
+.data-row .dr-label{color:var(--text2);}
+.data-row .dr-value{font-weight:600;color:var(--text);max-width:60%;text-align:left;word-break:break-all;}
+.data-msg{
+  padding:8px 12px;background:var(--bg2);border-radius:var(--radius-xs);
+  margin-bottom:4px;font-size:12px;
+}
+.data-msg .dm-sender{font-weight:600;color:var(--blue);font-size:11px;}
+.data-msg .dm-text{color:var(--text);margin-top:2px;}
+.data-msg .dm-time{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* ===== الإعدادات ===== */
+.settings-item{
+  display:flex;align-items:center;gap:12px;padding:14px 0;
+  border-bottom:1px solid var(--border);cursor:pointer;
+}
+.settings-item:last-child{border-bottom:none;}
+.settings-item .si-icon{
+  width:38px;height:38px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.settings-item .si-text h4{font-size:13px;font-weight:600;}
+.settings-item .si-text p{font-size:11px;color:var(--text2);}
+.settings-item .si-arrow{margin-right:auto;color:var(--text3);font-size:13px;}
+
+/* ===== نافذة منبثقة ===== */
+.modal-overlay{
+  position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.5);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.show{display:flex;}
+.modal-content{
+  background:var(--bg);border-radius:20px 20px 0 0;width:100%;
+  max-height:85vh;overflow-y:auto;animation:slideUp .3s;
+  padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px;}
+.modal-content h3{font-size:16px;font-weight:700;margin-bottom:12px;}
+.modal-field{margin-bottom:14px;}
+.modal-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+.modal-field input,.modal-field textarea,.modal-field select{
+  width:100%;padding:10px 14px;background:var(--bg2);border:2px solid var(--border);
+  border-radius:var(--radius-xs);font-size:14px;color:var(--text);
+}
+.modal-field textarea{resize:none;min-height:80px;}
+.modal-field input:focus,.modal-field textarea:focus{border-color:var(--blue);}
+.modal-btns{display:flex;gap:8px;margin-top:16px;}
+.modal-btns button{flex:1;padding:12px;border-radius:var(--radius-xs);font-size:14px;font-weight:600;cursor:pointer;border:none;}
+.modal-btns .btn-primary{background:var(--blue);color:#fff;}
+.modal-btns .btn-secondary{background:var(--bg2);color:var(--text2);}
+
+/* ===== توست ===== */
+.toast-container{
+  position:absolute;top:12px;left:12px;right:12px;z-index:500;
+  display:flex;flex-direction:column;gap:6px;pointer-events:none;
+}
+.toast{
+  padding:12px 16px;border-radius:var(--radius-xs);font-size:12px;font-weight:600;
+  box-shadow:var(--shadow-lg);animation:toastIn .3s;pointer-events:auto;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.success{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
+.toast.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.toast.info{background:#eff6ff;color:var(--blue);border:1px solid #dbeafe;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ===== بحث الأشخاص ===== */
+.search-results{max-height:300px;overflow-y:auto;}
+.search-result-item{
+  display:flex;align-items:center;gap:10px;padding:10px;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;
+}
+.search-result-item:hover{background:var(--bg2);}
+.search-result-item .sr-avatar{
+  width:40px;height:40px;border-radius:50%;background:var(--bg3);
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);
+}
+.search-result-item .sr-info h4{font-size:13px;font-weight:600;}
+.search-result-item .sr-info p{font-size:11px;color:var(--text2);}
+
+/* حظر شاشة */
+.blocked-screen{
+  position:absolute;inset:0;z-index:200;background:var(--bg);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;
+}
+.blocked-screen.show{display:flex;}
+.blocked-screen i{font-size:48px;color:var(--danger);margin-bottom:16px;}
+.blocked-screen h2{font-size:20px;font-weight:700;margin-bottom:8px;}
+.blocked-screen p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.7;}
+
+/* تلقائي رد */
+.auto-reply-config{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;}
+.auto-reply-config h4{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.toggle-switch{
+  position:relative;width:44px;height:24px;background:var(--border);
+  border-radius:12px;cursor:pointer;transition:background .2s;
+}
+.toggle-switch.on{background:var(--blue);}
+.toggle-switch .toggle-dot{
+  position:absolute;top:2px;right:2px;width:20px;height:20px;
+  border-radius:50%;background:#fff;transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch.on .toggle-dot{transform:translateX(-20px);}
+</style>
 </head>
 <body>
 
-    <!-- 0. Splash Screen -->
-    <div id="splash-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center transition-opacity duration-700">
-        <div class="w-32 h-32 bg-slate-900 rounded-[2.5rem] flex items-center justify-center shadow-2xl animate-pulse mb-6 relative">
-            <i class="fas fa-bolt text-7xl text-sky-400"></i>
-            <div class="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white"></div>
+<div class="app-frame" id="appFrame">
+  <!-- توست -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- شاشة البداية -->
+  <div class="splash" id="splashScreen">
+    <div class="splash-logo"><i class="fas fa-bolt"></i></div>
+    <h1>Kimoup</h1>
+    <p>BUSINESS MASTER VIP</p>
+  </div>
+
+  <!-- شاشة الحظر -->
+  <div class="blocked-screen" id="blockedScreen">
+    <i class="fas fa-ban"></i>
+    <h2>تم حظر حسابك</h2>
+    <p id="blockedReason">تم حظر حسابك من قبل الإدارة. يمكنك تقديم اعتراض إذا كنت تعتقد أن هذا كان خطأ.</p>
+    <button class="auth-btn" onclick="showAppealForm()" style="max-width:250px;margin-bottom:10px;">
+      <i class="fas fa-gavel" style="margin-left:6px;"></i> تقديم اعتراض
+    </button>
+    <button class="auth-btn" onclick="logout()" style="max-width:250px;background:var(--bg2);color:var(--text2);">
+      تسجيل الخروج
+    </button>
+  </div>
+
+  <!-- شاشة الدخول -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-logo"><i class="fas fa-bolt"></i></div>
+    <div class="auth-title">Kimoup</div>
+    <div class="auth-sub">WE HERE TO HELP YOU</div>
+    <div class="auth-field">
+      <label>اسم المستخدم</label>
+      <input type="text" id="authName" placeholder="أدخل اسمك..." maxlength="30">
+    </div>
+    <div class="auth-field">
+      <label>رقم الهاتف</label>
+      <input type="tel" id="authPhone" placeholder="01xxxxxxxxx" dir="ltr" maxlength="11" style="text-align:left;">
+    </div>
+    <button class="auth-btn" id="authBtn" onclick="doAuth()">
+      <i class="fas fa-arrow-left" style="margin-left:6px;"></i> انضم إلينا
+    </button>
+    <div class="auth-error" id="authError"></div>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:16px;">
+      بالتسجيل أنت توافق على شروط الاستخدام وسياسة الخصوصية
+    </p>
+  </div>
+
+  <!-- التطبيق الرئيسي -->
+  <div id="mainApp" style="display:none;position:absolute;inset:0;">
+    <!-- الشريط العلوي -->
+    <div class="top-bar">
+      <div class="right">
+        <div class="avatar" id="topAvatar" onclick="showView('profile')"><i class="fas fa-bolt"></i></div>
+        <div class="info">
+          <h3 id="topName">Kimoup</h3>
+          <p id="topSub">WE HERE TO HELP YOU</p>
         </div>
-        <h1 class="text-4xl font-black text-slate-800 tracking-tighter">Kimoup</h1>
-        <p class="text-[12px] text-gray-400 font-bold uppercase tracking-[0.3em] mt-2">Business Master VIP</p>
+      </div>
+      <div class="actions">
+        <button class="admin-btn" id="adminBtn" onclick="showView('admin')" title="لوحة التحكم" style="display:none;">
+          <i class="fas fa-crown"></i>
+        </button>
+        <button onclick="showView('profile')" title="الإعدادات"><i class="fas fa-gear"></i></button>
+        <button onclick="logout()" title="تسجيل الخروج"><i class="fas fa-right-from-bracket"></i></button>
+      </div>
     </div>
 
-    <!-- Alert Toast -->
-    <div id="alert-toast" class="hidden-view fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-3 rounded-full text-sm font-bold shadow-2xl z-[9999] text-center w-5/6 border border-slate-700"></div>
-
-    <div class="app-container">
-
-        <!-- 1. Auth View -->
-        <div id="auth-view" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 hidden-view">
-            <div class="w-full max-w-sm text-center">
-                <div class="w-20 h-20 bg-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl"><i class="fas fa-bolt text-4xl text-sky-400"></i></div>
-                <h2 class="text-3xl font-black text-slate-800 mb-2">تسجيل الدخول</h2>
-                <p class="text-gray-400 text-sm mb-12 font-bold">أدخل رقم هاتفك للوصول لحسابك</p>
-
-                <div id="check-step" class="space-y-5">
-                    <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center focus-within:border-sky-500 transition-all shadow-inner">
-                        <span class="text-gray-400 font-bold ml-3 border-l pl-3">+20</span>
-                        <input type="tel" id="phone-input" placeholder="1112215950" class="w-full bg-transparent outline-none font-bold text-xl dir-ltr text-right">
-                    </div>
-                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-5 rounded-2xl shadow-lg active:scale-95 transition text-lg">متابعة الدخول</button>
-                </div>
-
-                <div id="pin-step" class="hidden-view space-y-6">
-                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-sm"><i class="fas fa-unlock-keyhole text-2xl"></i></div>
-                    <h3 class="font-bold text-xl">أدخل كود الدخول</h3>
-                    <p id="otp-message" class="text-xs text-gray-500 mb-2 font-bold px-4 py-2 bg-gray-100 rounded-xl">الكود الافتراضي: 000000</p>
-                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-black text-center text-4xl tracking-[0.4em] border-2 border-transparent shadow-inner focus:border-green-500 transition-all">
-                    <button onclick="verifyAccess()" id="btn-pin" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-5 rounded-2xl shadow-lg active:scale-95 transition text-lg">دخول آمن</button>
-                </div>
-            </div>
+    <!-- المحتوى -->
+    <div class="views">
+      <!-- الرئيسية -->
+      <div class="view active" id="homeView">
+        <div class="home-header">
+          <h2 id="homeGreeting">مرحباً بك</h2>
+          <p>نحن هنا لمساعدتك في أي وقت</p>
         </div>
-
-        <!-- 2. Main Dashboard -->
-        <div id="main-view" class="w-full h-full flex flex-col hidden-view bg-white">
-            
-            <!-- White Old Header -->
-            <div class="h-[75px] bg-white flex items-center justify-between px-5 shrink-0 shadow-[0_2px_15px_rgba(0,0,0,0.04)] z-20">
-                <div class="flex items-center gap-2">
-                    <button id="logout-btn" onclick="logout()" class="hidden-view text-red-500 bg-red-50 p-2.5 rounded-xl active:scale-90"><i class="fas fa-power-off"></i></button>
-                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-yellow-600 bg-yellow-50 p-2.5 rounded-xl active:scale-90"><i class="fas fa-crown"></i></button>
-                    <button onclick="openSettingsModal()" class="text-gray-400 bg-gray-100 p-2.5 rounded-xl active:scale-90"><i class="fas fa-cog"></i></button>
-                    <button id="biz-tools-btn" onclick="openBizTools()" class="hidden-view text-sky-600 bg-sky-50 p-2.5 rounded-xl active:scale-90 animate-pulse"><i class="fas fa-store"></i></button>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="text-right">
-                        <h1 class="font-black text-xl text-slate-800 leading-none">Kimoup</h1>
-                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">we here to help you</p>
-                    </div>
-                    <div class="w-11 h-11 bg-slate-900 rounded-full flex items-center justify-center shadow-md border-2 border-sky-400">
-                        <i class="fas fa-bolt text-sky-400 text-xl"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabs Content -->
-            <div class="flex-1 overflow-hidden relative">
-                <!-- Chats -->
-                <div id="tab-chats-view" class="absolute inset-0 overflow-y-auto px-4 py-5 bg-slate-50/50">
-                    <button onclick="openAddFriendModal()" class="w-full py-4 bg-white border border-gray-200 rounded-3xl flex justify-center items-center gap-3 text-slate-700 font-bold shadow-sm active:scale-95 transition hover:bg-gray-50 mb-6">
-                        <i class="fas fa-user-plus text-sky-500 text-xl"></i> إضافة جهة اتصال للدردشة
-                    </button>
-                    <div id="contacts-list" class="space-y-1"></div>
-                </div>
-
-                <!-- Communities -->
-                <div id="tab-groups-view" class="absolute inset-0 overflow-y-auto px-4 py-5 hidden-view bg-slate-50/50">
-                    <button id="btn-create-group" onclick="createGroup()" class="hidden-view w-full py-4 bg-sky-500 text-white rounded-3xl flex justify-center items-center gap-3 font-bold shadow-lg mb-6"><i class="fas fa-users-cog"></i> إنشاء مجتمع رسمي 🔵</button>
-                    <div id="groups-list" class="space-y-3"></div>
-                </div>
-
-                <!-- Status -->
-                <div id="tab-status-view" class="absolute inset-0 overflow-y-auto px-4 py-5 hidden-view bg-slate-50/50">
-                    <button onclick="addStatus()" class="w-full py-4 bg-white border border-sky-200 text-sky-600 rounded-3xl flex justify-center items-center gap-3 font-bold shadow-sm mb-6"><i class="fas fa-camera"></i> نشر حالة جديدة</button>
-                    <div id="status-list" class="space-y-3"></div>
-                </div>
-            </div>
-
-            <!-- Bottom Navbar -->
-            <div class="h-[70px] bg-white border-t border-gray-100 flex items-center shrink-0 z-20 shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
-                <button onclick="switchTab('chats')" id="tab-chats" class="nav-btn active"><i class="fas fa-comment-dots text-2xl mb-1"></i><span class="text-[11px] font-bold">الدردشات</span></button>
-                <button onclick="switchTab('groups')" id="tab-groups" class="nav-btn inactive"><i class="fas fa-shield-cat text-2xl mb-1"></i><span class="text-[11px] font-bold">المجتمعات</span></button>
-                <button onclick="switchTab('status')" id="tab-status" class="nav-btn inactive"><i class="fas fa-circle-notch text-2xl mb-1"></i><span class="text-[11px] font-bold">الحالات</span></button>
-            </div>
+        <div class="home-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="ابحث عن خدمة..." id="homeSearch">
+          <button class="cam-btn" onclick="openPersonSearch()"><i class="fas fa-camera"></i></button>
         </div>
-
-        <!-- ================= 3. Chat Window (Business Integrated) ================= -->
-        <div id="chat-view" class="absolute inset-0 bg-[#efeae2] z-[60] flex flex-col hidden-view animate-fade-in">
-            <div class="h-[75px] bg-white flex items-center justify-between px-4 shrink-0 shadow-md z-20">
-                <button onclick="closeChat()" class="p-3 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
-                
-                <div class="flex gap-2 mr-auto">
-                    <button id="shop-btn" onclick="openStoreCatalog()" class="hidden-view w-10 h-10 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-shopping-bag"></i></button>
-                    <button id="label-chat-btn" onclick="openAssignLabelModal()" class="hidden-view w-10 h-10 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center shadow-sm"><i class="fas fa-tags"></i></button>
-                </div>
-
-                <div class="flex-1 flex flex-col items-end justify-center mr-3 cursor-pointer" onclick="openContactProfile()">
-                    <div class="flex items-center gap-1">
-                        <div id="active-chat-verified" class="hidden-view"><span class="verified-badge"><i class="fas fa-check"></i></span></div>
-                        <h3 id="active-chat-name" class="font-black text-[16px] text-slate-800 truncate"></h3>
-                    </div>
-                    <p id="active-chat-status" class="text-[10px] text-sky-600 font-bold mt-0.5 truncate max-w-[150px]"></p>
-                </div>
-                <div class="w-12 h-12 bg-gray-100 rounded-full overflow-hidden shrink-0 border-2 border-white shadow-md">
-                    <img id="active-chat-img" src="" class="w-full h-full object-cover">
-                </div>
-            </div>
-            
-            <div id="messages-container"><div id="msg-wrapper" class="flex flex-col gap-2 relative p-4 pb-10"></div></div>
-            <div id="quick-reply-popup" class="hidden-view p-2"></div>
-
-            <!-- Chat Input Controls -->
-            <div id="chat-input-area" class="p-3 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3 relative border-t">
-                <button id="btn-voice" onmousedown="startVoice(event)" onmouseup="stopVoice(event)" class="w-12 h-12 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0"><i class="fas fa-microphone text-xl"></i></button>
-                <div class="flex-1 bg-white rounded-3xl px-5 py-3.5 flex items-center shadow-sm border border-gray-200">
-                    <input type="text" id="m-input" placeholder="رسالة... (اكتب / للرد السريع)" class="w-full bg-transparent outline-none font-bold text-sm text-slate-700" onkeyup="handleTyping(this.value)">
-                </div>
-                <button onclick="sendText()" class="w-12 h-12 text-sky-500 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-100 active:scale-90 transition shrink-0"><i class="fas fa-paper-plane text-2xl rotate-[225deg]"></i></button>
-            </div>
-            
-            <div id="join-group-area" class="hidden-view p-5 bg-white border-t text-center z-30 shadow-2xl">
-                <button onclick="joinActiveGroup()" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-black py-4 rounded-2xl shadow-xl active:scale-95 transition text-lg">انضمام للمجتمع الآن</button>
-            </div>
-            <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-2xl animate-pulse">جاري تسجيل صوتك...</div>
+        <div class="stat-cards">
+          <div class="stat-card"><div class="num" id="statUsers">0</div><div class="lbl">المستخدمين</div></div>
+          <div class="stat-card"><div class="num" id="statChats">0</div><div class="lbl">المحادثات</div></div>
         </div>
-
-        <!-- ================= Business Tools Modal ================= -->
-        <div id="biz-tools-modal" class="hidden-view fixed inset-0 bg-slate-50 z-[110] flex flex-col animate-slide-up">
-            <div class="bg-slate-900 h-[75px] flex items-center justify-between px-5 text-white shrink-0 shadow-xl border-b border-sky-500/30">
-                <div class="w-10"></div><h3 class="font-black text-xl text-yellow-400">أدوات الأعمال VIP</h3><button onclick="closeBizTools()" class="p-2 bg-white/10 rounded-full w-10 h-10"><i class="fas fa-arrow-left text-xl"></i></button>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto px-5 py-6 space-y-6 text-right">
-                <!-- Cover Setup -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="h-36 bg-slate-200 relative">
-                        <img id="biz-cover-preview" src="" class="w-full h-full object-cover">
-                        <label class="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"><i class="fas fa-camera mr-1"></i> تغيير الغلاف<input type="file" id="biz-cover-input" class="hidden" accept="image/*"></label>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <input type="text" id="biz-category" placeholder="الفئة (مثلاً: خدمات تقنية)" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none focus:ring-2 ring-sky-500">
-                        <input type="text" id="biz-address" placeholder="الموقع الجغرافي" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none focus:ring-2 ring-sky-500">
-                        <select id="biz-hours" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none dir-rtl text-right focus:ring-2 ring-sky-500"><option value="مفتوح دائماً">مفتوح دائماً</option><option value="ساعات محددة">ساعات محددة</option><option value="بموعد مسبق">بموعد مسبق فقط</option></select>
-                        <input type="url" id="biz-link" placeholder="الموقع الإلكتروني" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none dir-ltr text-right focus:ring-2 ring-sky-500">
-                    </div>
-                </div>
-
-                <!-- Catalog Admin -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-center mb-5 border-b pb-3"><button onclick="addNewProduct()" class="bg-sky-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md"><i class="fas fa-plus"></i> منتج جديد</button><h4 class="font-black text-slate-800">الكتالوج والمنتجات</h4></div>
-                    <div id="biz-catalog-list" class="space-y-3 max-h-[250px] overflow-y-auto"></div>
-                </div>
-
-                <!-- Messaging Tools -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 space-y-5">
-                    <h4 class="font-black text-slate-800 border-b pb-3">المراسلة الآلية</h4>
-                    <div><p class="text-xs text-gray-500 font-bold mb-2">رسالة الترحيب:</p><textarea id="biz-greeting" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none"></textarea></div>
-                    <div><p class="text-xs text-gray-500 font-bold mb-2">رسالة الغياب:</p><textarea id="biz-away" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl text-sm font-bold border border-gray-100 outline-none"></textarea></div>
-                </div>
-
-                <!-- Quick Replies -->
-                <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6">
-                    <div class="flex justify-between items-center mb-4 border-b pb-3"><button onclick="addQuickReply()" class="bg-yellow-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow-sm"><i class="fas fa-plus"></i> إضافة رد</button><h4 class="font-black text-slate-800">الردود السريعة</h4></div>
-                    <div id="biz-replies-list" class="space-y-2 max-h-[150px] overflow-y-auto"></div>
-                </div>
-
-                <button onclick="saveBizProfile()" class="w-full py-5 bg-slate-900 text-white font-black rounded-3xl shadow-2xl active:scale-95 transition text-xl">حفظ إعدادات الأعمال</button>
-            </div>
+        <div class="join-banner" onclick="openJoinModal()">
+          <i class="fas fa-user-plus"></i>
+          <h3>انضم إلى فريق العمل</h3>
+          <p>كن جزءاً من فريقنا المميز</p>
         </div>
-
-        <!-- Catalog Viewer (Customer View) -->
-        <div id="catalog-viewer-modal" class="hidden-view fixed inset-0 bg-white z-[120] flex flex-col animate-slide-up">
-            <div class="h-[180px] bg-slate-800 relative shrink-0">
-                <img id="store-cover" src="" class="w-full h-full object-cover opacity-80">
-                <button onclick="closeStoreCatalog()" class="absolute top-5 right-5 bg-black/50 text-white w-10 h-10 rounded-full flex items-center justify-center active:scale-90"><i class="fas fa-times text-xl"></i></button>
-                <div class="absolute -bottom-10 right-6 w-24 h-24 bg-white rounded-2xl shadow-xl p-1 border border-gray-100"><img id="store-logo" src="" class="w-full h-full rounded-xl object-cover"></div>
-            </div>
-            <div class="pt-12 px-6 text-right border-b border-gray-100 pb-5 shrink-0">
-                <h2 id="store-name" class="text-2xl font-black text-slate-800"></h2>
-                <p id="store-category" class="text-sm text-sky-600 font-black mt-1"></p>
-                <div class="flex gap-4 justify-end mt-3 text-xs text-gray-500 font-bold">
-                    <span id="store-hours"><i class="far fa-clock text-sky-500"></i> </span>
-                    <span id="store-location"><i class="fas fa-map-marker-alt text-sky-500"></i> </span>
-                </div>
-            </div>
-            <div class="flex-1 overflow-y-auto p-5 bg-slate-50 mt-4">
-                <h3 class="font-black text-lg mb-4 text-right">المنتجات والخدمات</h3>
-                <div id="store-products-list" class="grid grid-cols-2 gap-4"></div>
-            </div>
-            <div class="p-5 bg-white border-t shrink-0 shadow-lg"><button onclick="sendCartOrder()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-black shadow-lg flex justify-between px-8 text-lg"><span id="cart-total">0 ج.م</span><span>إرسال الطلب <i class="fas fa-shopping-cart mr-2"></i> (<span id="cart-count">0</span>)</span></button></div>
+        <div class="info-card" onclick="openPersonSearch()">
+          <div class="ic-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-search"></i></div>
+          <div class="ic-text"><h4>ابحث عن شخص</h4><p>ابحث عن المستخدمين بالاسم أو الرقم</p></div>
         </div>
-
-        <!-- ================= Ultimate Admin Control (God Mode) ================= -->
-        <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-md">
-            <div class="bg-slate-900 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col h-[85vh] border border-gray-700">
-                <div class="p-6 text-white flex justify-between items-center border-b border-gray-700 shrink-0 bg-slate-800">
-                    <button onclick="closeAdminModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center active:scale-90"><i class="fas fa-times text-xl"></i></button>
-                    <h3 class="font-black text-2xl text-yellow-400"><i class="fas fa-crown mr-2"></i> الإدارة العليا</h3>
-                </div>
-                <div class="p-4 bg-gray-100 flex-1 overflow-y-auto space-y-4" id="admin-list"></div>
-            </div>
+        <div class="info-card" onclick="showView('services')">
+          <div class="ic-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-concierge-bell"></i></div>
+          <div class="ic-text"><h4>الخدمات المتاحة</h4><p>تصفح جميع الخدمات التي نقدمها</p></div>
         </div>
-
-        <!-- Admin Specific User Editor -->
-        <div id="admin-edit-modal" class="hidden-view fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-6 backdrop-blur-sm">
-            <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 text-right shadow-2xl animate-slide-up">
-                <h3 class="font-black text-xl mb-6 text-slate-800 border-b pb-4">تغيير باسورد المستخدم</h3>
-                <div class="space-y-4 mb-8 text-center">
-                    <p id="edit-u-phone" class="text-lg font-black text-sky-600 dir-ltr tracking-widest bg-sky-50 py-2 rounded-xl border border-sky-100"></p>
-                    <input type="text" id="edit-u-pin" placeholder="أدخل باسورد جديد" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-black text-center text-3xl tracking-widest border-2 border-sky-200 focus:border-sky-500">
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeAdminEdit()" class="flex-1 py-4 bg-gray-100 text-gray-500 font-bold rounded-2xl active:scale-95 transition">إلغاء</button>
-                    <button onclick="saveAdminEdit()" class="flex-1 py-4 bg-sky-500 text-white font-black rounded-2xl active:scale-95 shadow-md">تغيير الباسورد</button>
-                </div>
-            </div>
+        <div class="info-card" onclick="showView('chats')">
+          <div class="ic-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-comments"></i></div>
+          <div class="ic-text"><h4>المحادثات</h4><p>تابع محادثاتك مع العملاء والفريق</p></div>
         </div>
+      </div>
 
-        <!-- Spy Mode View -->
-        <div id="spy-modal" class="hidden-view fixed inset-0 bg-white z-[150] flex flex-col animate-fade-in">
-            <div class="h-[70px] bg-slate-900 text-white flex items-center justify-between px-5 shrink-0 shadow-lg">
-                <button onclick="closeSpyModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center active:scale-90"><i class="fas fa-times text-xl"></i></button>
-                <div class="text-right"><h3 class="font-black text-sm text-yellow-400"><i class="fas fa-eye mr-1"></i> وضع التجسس</h3><p id="spy-target-name" class="text-[10px] font-bold text-gray-300 mt-1"></p></div>
-            </div>
-            <div id="spy-contacts" class="p-3 bg-gray-100 border-b border-gray-200 shrink-0 overflow-x-auto flex gap-2 hide-scrollbar shadow-inner"></div>
-            <div id="spy-messages-container" class="flex-1 bg-[#efeae2] relative overflow-y-auto">
-                <div id="spy-msg-wrapper" class="flex flex-col gap-2 p-4"></div>
-                <div id="spy-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 font-bold text-sm bg-white/50 backdrop-blur-sm">اختر محادثة للمراقبة</div>
-            </div>
+      <!-- الخدمات -->
+      <div class="view" id="servicesView">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">الخدمات المتاحة</h3>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-headset"></i></div>
+          <div class="sv-text"><h4>خدمة العملاء</h4><p>دعم فني على مدار الساعة</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
         </div>
-
-        <!-- Global Modals (Settings & Add) -->
-        <div id="add-friend-modal" class="hidden-view fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
-            <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 text-center shadow-2xl relative animate-slide-up">
-                <div class="w-20 h-20 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-16 border-[6px] border-white shadow-lg text-3xl font-bold"><i class="fas fa-user-plus"></i></div>
-                <h3 class="mt-5 font-black text-xl text-slate-800">إضافة صديق</h3>
-                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-6 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-200 dir-ltr text-lg">
-                <div class="flex gap-3 mt-8">
-                    <button onclick="closeAddFriendModal()" class="flex-1 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl active:scale-95 transition">إلغاء</button>
-                    <button onclick="confirmAddFriend()" class="flex-1 py-4 bg-sky-500 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">تحدث الآن</button>
-                </div>
-            </div>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-bullhorn"></i></div>
+          <div class="sv-text"><h4>التسويق الرقمي</h4><p>إدارة الحملات الإعلانية</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
         </div>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-store"></i></div>
+          <div class="sv-text"><h4>إدارة المتاجر</h4><p>حلول متكاملة للتجارة الإلكترونية</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
+        </div>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#fef2f2;color:var(--danger);"><i class="fas fa-shield-halved"></i></div>
+          <div class="sv-text"><h4>الحماية والأمان</h4><p>تأمين حساباتك وبياناتك</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
+        </div>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#f3e8ff;color:#7c3aed;"><i class="fas fa-laptop-code"></i></div>
+          <div class="sv-text"><h4>تطوير المواقع</h4><p>تصميم وبرمجة المواقع والتطبيقات</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
+        </div>
+        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
+          <div class="sv-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-chart-line"></i></div>
+          <div class="sv-text"><h4>تحليل البيانات</h4><p>تقارير وإحصائيات مفصلة</p></div>
+          <i class="fas fa-chevron-left sv-arrow"></i>
+        </div>
+      </div>
 
+      <!-- المحادثات -->
+      <div class="view" id="chatsView">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">المحادثات</h3>
+        <div id="chatsList"></div>
+        <div id="noChats" style="text-align:center;padding:40px 0;color:var(--text3);display:none;">
+          <i class="fas fa-comments" style="font-size:40px;margin-bottom:12px;display:block;"></i>
+          <p style="font-size:13px;">لا توجد محادثات بعد</p>
+        </div>
+      </div>
+
+      <!-- لوحة الأدمن -->
+      <div class="view" id="adminView" style="display:none;">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:4px;">
+          <i class="fas fa-crown" style="color:var(--warning);margin-left:6px;"></i> لوحة التحكم
+        </h3>
+        <p style="font-size:11px;color:var(--text2);margin-bottom:14px;">إدارة المستخدمين والمراقبة</p>
+        <div class="admin-tabs" id="adminTabs">
+          <button class="active" onclick="switchAdminTab('all-users',this)">الكل</button>
+          <button onclick="switchAdminTab('verify',this)">توثيق</button>
+          <button onclick="switchAdminTab('blocked',this)">محظورين</button>
+          <button onclick="switchAdminTab('appeals',this)">اعتراضات</button>
+          <button onclick="switchAdminTab('data',this)">داتا فيور</button>
+          <button onclick="switchAdminTab('autoreply',this)">رد تلقائي</button>
+        </div>
+        <div id="adminContent"></div>
+      </div>
+
+      <!-- الإعدادات -->
+      <div class="view" id="profileView" style="display:none;">
+        <div style="text-align:center;margin-bottom:24px;">
+          <div class="avatar" id="profileAvatar" style="width:70px;height:70px;font-size:28px;margin:0 auto 10px;cursor:pointer;" onclick="changePhoto()">
+            <i class="fas fa-bolt"></i>
+          </div>
+          <h3 id="profileName" style="font-size:18px;font-weight:700;">-</h3>
+          <p id="profilePhone" style="font-size:13px;color:var(--text2);">-</p>
+          <div id="profileBadges" style="margin-top:6px;display:flex;gap:6px;justify-content:center;"></div>
+        </div>
+        <div class="settings-item" onclick="editProfile()">
+          <div class="si-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-pen"></i></div>
+          <div class="si-text"><h4>تعديل الملف الشخصي</h4><p>تغيير الاسم والصورة</p></div>
+          <i class="fas fa-chevron-left si-arrow"></i>
+        </div>
+        <div class="settings-item" onclick="showView('services')">
+          <div class="si-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-concierge-bell"></i></div>
+          <div class="si-text"><h4>الخدمات</h4><p>تصفح الخدمات المتاحة</p></div>
+          <i class="fas fa-chevron-left si-arrow"></i>
+        </div>
+        <div class="settings-item" onclick="showView('chats')">
+          <div class="si-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-comments"></i></div>
+          <div class="si-text"><h4>المحادثات</h4><p>إدارة محادثاتك</p></div>
+          <i class="fas fa-chevron-left si-arrow"></i>
+        </div>
+        <div id="adminSettings" style="display:none;">
+          <div class="settings-item" onclick="showView('admin')">
+            <div class="si-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-crown"></i></div>
+            <div class="si-text"><h4>لوحة التحكم</h4><p>إدارة المستخدمين والنظام</p></div>
+            <i class="fas fa-chevron-left si-arrow"></i>
+          </div>
+        </div>
+        <div class="settings-item" onclick="logout()" style="color:var(--danger);">
+          <div class="si-icon" style="background:#fef2f2;color:var(--danger);"><i class="fas fa-right-from-bracket"></i></div>
+          <div class="si-text"><h4 style="color:var(--danger);">تسجيل الخروج</h4><p>خروج من الحساب</p></div>
+          <i class="fas fa-chevron-left si-arrow"></i>
+        </div>
+      </div>
+
+      <!-- عرض بيانات مستخدم -->
+      <div class="view data-viewer" id="dataViewerView" style="display:none;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <button style="width:34px;height:34px;border-radius:50%;background:var(--bg2);border:none;color:var(--text);cursor:pointer;font-size:14px;" onclick="showView('admin')"><i class="fas fa-arrow-right"></i></button>
+          <h3 style="font-size:15px;font-weight:700;">بيانات المستخدم</h3>
+        </div>
+        <div id="dataViewerContent"></div>
+      </div>
     </div>
 
-    <script>
-        // --- 1. Firebase Core (Ultra-Stable) ---
-        const firebaseConfig = { apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM", authDomain: "whatsapp-fcd3c.firebaseapp.com", projectId: "whatsapp-fcd3c", storageBucket: "whatsapp-fcd3c.firebasestorage.app", messagingSenderId: "369090984748", appId: "1:369090984748:web:cba013025b108578cd0a89" };
-        firebase.initializeApp(firebaseConfig); const db = firebase.firestore(); const auth = firebase.auth();
+    <!-- شريط التنقل -->
+    <div class="bottom-nav">
+      <button class="active" onclick="showView('home')" id="navHome"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+      <button onclick="showView('services')" id="navServices"><i class="fas fa-grid-2"></i><span>الخدمات</span></button>
+      <button onclick="showView('chats')" id="navChats"><i class="fas fa-comments"></i><span>المحادثات</span></button>
+    </div>
 
-        const APP_ID = 'kimo-master-vip-v10';
-        const usersDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('users');
-        const chatsDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('chats');
-        const groupsDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('groups');
-        const statusDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('status');
+    <!-- غرفة المحادثة -->
+    <div class="chat-room" id="chatRoom">
+      <div class="room-header">
+        <button class="back-btn" onclick="closeChatRoom()"><i class="fas fa-arrow-right"></i></button>
+        <div class="rh-avatar" id="roomAvatar"><i class="fas fa-user"></i></div>
+        <div class="rh-info">
+          <h4 id="roomName">-</h4>
+          <p id="roomStatus">-</p>
+        </div>
+        <div class="rh-actions">
+          <button onclick="toast('مكالمة صوتية','info')"><i class="fas fa-phone"></i></button>
+        </div>
+      </div>
+      <div class="messages-area" id="messagesArea"></div>
+      <div class="chat-input-area">
+        <textarea id="chatMsgInput" rows="1" placeholder="اكتب رسالة..." oninput="autoResizeTA(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"></textarea>
+        <button onclick="sendChatMsg()" id="chatSendBtn"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
 
-        const ADMIN_PHONE = "+201112215950";
-        let currentUser = localStorage.getItem('kimo_master_vip_v10'); 
-        let activeChatId = null, activeChatType = 'direct'; 
-        let uCache = {}, gCache = {}, tempPhone = "", profileBase64 = '', coverBase64 = '';
-        let mediaRec, audioChunks = [], spyTargetId = null, editingUserPhone = null;
-        let myProducts = [], myQuickReplies = [], shoppingCart = [];
+  <!-- نافذة البحث عن شخص -->
+  <div class="modal-overlay" id="personSearchModal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <h3><i class="fas fa-search" style="margin-left:8px;color:var(--blue);"></i>ابحث عن شخص</h3>
+      <div class="modal-field">
+        <input type="text" id="personSearchInput" placeholder="أدخل الاسم أو الرقم..." oninput="searchPersons(this.value)">
+      </div>
+      <div class="search-results" id="personSearchResults"></div>
+    </div>
+  </div>
 
-        function showToast(m) { const t = document.getElementById('alert-toast'); t.innerText = m; t.classList.remove('hidden-view'); t.classList.add('toast-show'); setTimeout(() => { t.classList.add('hidden-view'); t.classList.remove('toast-show'); }, 3500); }
+  <!-- نافذة الانضمام -->
+  <div class="modal-overlay" id="joinModal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <h3><i class="fas fa-user-plus" style="margin-left:8px;color:var(--blue);"></i>انضم إلى فريق العمل</h3>
+      <div class="modal-field">
+        <label>الاسم الكامل</label>
+        <input type="text" id="joinName" placeholder="أدخل اسمك الكامل">
+      </div>
+      <div class="modal-field">
+        <label>الرقم</label>
+        <input type="tel" id="joinPhone" placeholder="01xxxxxxxxx" dir="ltr">
+      </div>
+      <div class="modal-field">
+        <label>لماذا تريد الانضمام؟</label>
+        <textarea id="joinReason" placeholder="اكتب سبب انضمامك..."></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('joinModal')">إلغاء</button>
+        <button class="btn-primary" onclick="submitJoin()">إرسال الطلب</button>
+      </div>
+    </div>
+  </div>
 
-        window.addEventListener('load', async () => {
-            try { if(auth) await auth.signInAnonymously(); } catch (e) {}
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash-screen').classList.add('hidden-view'), 600);
-                if(currentUser) initApp(); else document.getElementById('auth-view').classList.remove('hidden-view');
-            }, 1200);
-        });
+  <!-- نافذة تعديل الملف -->
+  <div class="modal-overlay" id="editProfileModal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <h3>تعديل الملف الشخصي</h3>
+      <div class="modal-field">
+        <label>الاسم</label>
+        <input type="text" id="editNameInput" maxlength="30">
+      </div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('editProfileModal')">إلغاء</button>
+        <button class="btn-primary" onclick="saveProfile()">حفظ</button>
+      </div>
+    </div>
+  </div>
 
-        // --- 2. Security Auth Logic ---
-        async function checkNumberReady() {
-            let p = document.getElementById('phone-input').value.trim(); if(!p) return showToast("أدخل رقم الهاتف!");
-            if(p.startsWith('0')) p = p.substring(1); tempPhone = "+20" + p;
-            document.getElementById('btn-check').innerText = "جاري التحقق...";
-            try {
-                const doc = await usersDb.doc(tempPhone).get();
-                if(!doc.exists) {
-                    await usersDb.doc(tempPhone).set({ phone: tempPhone, displayName: "مستخدم جديد", bio: 'متاح في Kimoup', status: 'approved', loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE, isBusiness: false, contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                } else if(doc.data().status === 'banned') { showToast("أنت محظور 🚫"); return; }
-                showStep('pin-step');
-            } catch(e) { showToast("خطأ اتصال!"); }
-            document.getElementById('btn-check').innerText = "متابعة";
+  <!-- نافذة الاعتراض -->
+  <div class="modal-overlay" id="appealModal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <h3 style="color:var(--danger);"><i class="fas fa-gavel" style="margin-left:8px;"></i>تقديم اعتراض</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">اشرح سبب اعتراضك على الحظر وسيتم مراجعته من قبل الإدارة</p>
+      <div class="modal-field">
+        <textarea id="appealText" placeholder="اكتب سبب الاعتراض هنا..." rows="4"></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('appealModal')">إلغاء</button>
+        <button class="btn-primary" onclick="submitAppeal()">إرسال الاعتراض</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-content" style="text-align:center;">
+      <div class="modal-handle"></div>
+      <i class="fas fa-triangle-exclamation" style="font-size:36px;color:var(--warning);margin-bottom:12px;"></i>
+      <h3 id="confirmTitle">تأكيد</h3>
+      <p id="confirmMsg" style="font-size:13px;color:var(--text2);margin-bottom:16px;"></p>
+      <div class="modal-btns">
+        <button class="btn-secondary" onclick="closeModal('confirmModal')">إلغاء</button>
+        <button class="btn-primary" id="confirmAction" style="background:var(--danger);">تأكيد</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Firebase =====
+const firebaseConfig = {
+  apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
+  authDomain:"whatsapp-fcd3c.firebaseapp.com",
+  projectId:"whatsapp-fcd3c",
+  storageBucket:"whatsapp-fcd3c.firebasestorage.app",
+  messagingSenderId:"369090984748",
+  appId:"1:369090984748:web:cba013025b108578cd0a89"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// ===== ثوابت =====
+const ADMIN_PHONE = '01112215950';
+
+// ===== حالة التطبيق =====
+let currentUser = null; // {uid, name, phone, verified, blocked, ...}
+let currentChatId = null;
+let currentChatPartner = null;
+let chatUnsub = null;
+let adminTab = 'all-users';
+
+// ===== بدء التطبيق =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splashScreen').classList.add('hide');
+    // التحقق من الجلسة
+    const saved = localStorage.getItem('kimoup_user');
+    if (saved) {
+      try {
+        currentUser = JSON.parse(saved);
+        checkUserStatus();
+      } catch(e) {
+        showAuth();
+      }
+    } else {
+      showAuth();
+    }
+  }, 1500);
+});
+
+// ===== التوثيق =====
+function showAuth() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('blockedScreen').classList.remove('show');
+}
+
+function showMainApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('blockedScreen').classList.remove('show');
+  updateUI();
+  loadChats();
+  loadStats();
+  if (isAdmin()) showView('admin');
+}
+
+function showBlocked(reason) {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('blockedScreen').classList.add('show');
+  document.getElementById('blockedReason').textContent = reason || 'تم حظر حسابك من قبل الإدارة.';
+}
+
+async function doAuth() {
+  const name = document.getElementById('authName').value.trim();
+  const phone = document.getElementById('authPhone').value.trim();
+  const errEl = document.getElementById('authError');
+  errEl.classList.remove('show');
+
+  if (!name) { errEl.textContent='أدخل اسم المستخدم'; errEl.classList.add('show'); return; }
+  if (!phone || phone.length < 11) { errEl.textContent='أدخل رقم هاتف صحيح (11 رقم)'; errEl.classList.add('show'); return; }
+
+  const btn = document.getElementById('authBtn');
+  btn.disabled = true;
+  btn.textContent = 'جاري التسجيل...';
+
+  try {
+    // تسجيل مجهول في Firebase Auth
+    const cred = await auth.signInAnonymously();
+    const uid = cred.user.uid;
+
+    // حفظ بيانات المستخدم
+    const userData = {
+      uid, name, phone,
+      verified: phone === ADMIN_PHONE,
+      blocked: false,
+      blockedReason: '',
+      appeal: '',
+      appealStatus: '',
+      online: true,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      photo: ''
+    };
+
+    await db.collection('users').doc(uid).set(userData);
+    currentUser = { ...userData, createdAt: Date.now() };
+    localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+    showMainApp();
+    toast('تم التسجيل بنجاح! مرحباً ' + name, 'success');
+  } catch(e) {
+    errEl.textContent = 'حدث خطأ: ' + e.message;
+    errEl.classList.add('show');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-arrow-left" style="margin-left:6px;"></i> انضم إلينا';
+}
+
+async function checkUserStatus() {
+  if (!currentUser) { showAuth(); return; }
+  try {
+    const doc = await db.collection('users').doc(currentUser.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      currentUser = { ...currentUser, ...data };
+      localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+
+      if (data.blocked) {
+        if (data.appealStatus === 'accepted') {
+          // تم قبول الاعتراض - فك الحظر
+          await db.collection('users').doc(currentUser.uid).update({
+            blocked: false, blockedReason: '', appeal: '', appealStatus: ''
+          });
+          currentUser.blocked = false;
+          localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+          showMainApp();
+          toast('تم قبول اعتراضك ورفع الحظر!', 'success');
+        } else {
+          showBlocked(data.blockedReason);
         }
-        function showStep(id) { ['check-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); }
-        async function verifyAccess() {
-            const pin = document.getElementById('pin-input').value.trim(); if(!pin) return;
-            try {
-                const snap = await usersDb.doc(tempPhone).get(); const d = snap.data();
-                if (d.loginCode === pin) { currentUser = tempPhone; localStorage.setItem('kimo_master_vip_v10', currentUser); if(d.forceOtp) await usersDb.doc(tempPhone).update({ forceOtp: false }); initApp(); }
-                else showToast("الكود خاطئ!");
-            } catch(e) { showToast("فشل التحقق!"); }
-        }
+      } else {
+        showMainApp();
+      }
+    } else {
+      showAuth();
+    }
+  } catch(e) {
+    showAuth();
+  }
+}
 
-        // --- 3. Main Logic & Sync ---
-        function initApp() {
-            document.getElementById('auth-view').classList.add('hidden-view'); document.getElementById('main-view').classList.remove('hidden-view');
-            if (currentUser === ADMIN_PHONE) { ['logout-btn', 'admin-panel-btn', 'btn-create-group'].forEach(i => document.getElementById(i).classList.remove('hidden-view')); }
-            usersDb.doc(currentUser).onSnapshot(s => {
-                if(!s.exists) return logout(); const me = s.data(); if(me.status === 'banned') { alert("أنت محظور 🚫"); logout(); return; }
-                profileBase64 = me.avatar || ''; coverBase64 = me.bizProfile?.cover || '';
-                document.getElementById('set-is-business').checked = me.isBusiness || false;
-                document.getElementById('biz-tools-btn').classList.toggle('hidden-view', !me.isBusiness);
-                if(me.isBusiness && me.bizProfile) { myProducts = me.bizProfile.catalog || []; myQuickReplies = me.bizProfile.quickReplies || []; renderCatalogAdmin(); renderQuickRepliesAdmin(); }
-                document.getElementById('set-name').value = me.displayName;
-            });
-            usersDb.onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); renderContacts(); });
-            groupsDb.onSnapshot(s => { s.docs.forEach(d => gCache[d.id] = d.data()); loadGroups(); });
-            switchTab('chats');
-        }
-        function renderContacts() {
-            const list = document.getElementById('contacts-list'); list.innerHTML = ''; const myContacts = uCache[currentUser]?.contacts || [];
-            Object.values(uCache).forEach(u => {
-                if(u.phone === currentUser || u.status === 'banned') return;
-                if(currentUser !== ADMIN_PHONE && !myContacts.includes(u.phone)) return;
-                const v = u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : '';
-                const b = u.isBusiness ? '<span class="text-[8px] bg-yellow-100 text-yellow-700 px-1 rounded ml-1 font-black">أعمال</span>' : '';
-                list.innerHTML += `<div onclick="openChat('${u.phone}', 'direct')" class="flex flex-row-reverse items-center gap-3 p-3 active:bg-gray-100 rounded-2xl cursor-pointer border-b"><div class="w-12 h-12 rounded-full overflow-hidden border shrink-0 shadow-sm"><img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1">${v}<h3 class="font-black text-[16px] text-slate-800 truncate">${u.displayName}</h3></div><p class="text-[11px] text-gray-500 mt-0.5 truncate">${b} ${u.bio || 'متاح'}</p></div></div>`;
-            });
-        }
-        function switchTab(t) { ['chats', 'groups', 'status'].forEach(x => { document.getElementById(`tab-${x}-view`).classList.add('hidden-view'); document.getElementById(`tab-${x}`).className = 'nav-btn inactive'; }); document.getElementById(`tab-${t}-view`).classList.remove('hidden-view'); document.getElementById(`tab-${t}`).className = 'nav-btn active'; if(t === 'status') loadStatuses(); }
+function logout() {
+  if (chatUnsub) chatUnsub();
+  auth.signOut().catch(()=>{});
+  localStorage.removeItem('kimoup_user');
+  currentUser = null;
+  document.getElementById('authName').value = '';
+  document.getElementById('authPhone').value = '';
+  showAuth();
+}
 
-        // --- 4. Advanced Chat System ---
-        function openChat(id, type) {
-            activeChatId = id; activeChatType = type; document.getElementById('chat-view').classList.remove('hidden-view');
-            const u = uCache[id]; if(type === 'direct') {
-                document.getElementById('active-chat-name').innerText = u.displayName; document.getElementById('active-chat-status').innerText = u.isBusiness ? 'حساب أعمال' : 'متاح';
-                document.getElementById('active-chat-verified').classList.toggle('hidden-view', !u.isVerified); document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
-                document.getElementById('shop-btn').classList.toggle('hidden-view', !u.isBusiness); document.getElementById('chat-input-area').classList.remove('hidden-view'); document.getElementById('join-group-area').classList.add('hidden-view');
-            } else {
-                const g = gCache[id]; document.getElementById('active-chat-name').innerText = g.name; document.getElementById('active-chat-status').innerText = 'مجتمع موثق'; document.getElementById('active-chat-verified').classList.remove('hidden-view');
-                document.getElementById('active-chat-img').src = `https://ui-avatars.com/api/?name=${g.name}&background=0ea5e9&color=fff`; const isMem = g.members?.includes(currentUser) || currentUser === ADMIN_PHONE;
-                document.getElementById('join-group-area').classList.toggle('hidden-view', isMem); document.getElementById('chat-input-area').classList.toggle('hidden-view', !isMem);
-            }
-            loadMsgs(type === 'direct' ? uCache[id].isBusiness : false);
-        }
-        function loadMsgs(isBiz) {
-            const cid = activeChatType === 'group' ? activeChatId : [currentUser, activeChatId].sort().join('_');
-            const col = activeChatType === 'group' ? groupsDb.doc(cid).collection('messages') : chatsDb.doc(cid).collection('messages');
-            col.onSnapshot(s => {
-                let msgs = []; s.forEach(d => msgs.push(d.data())); msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                let h = isBiz ? `<div class="sys-msg">أنت تدردش مع حساب أعمال. استكشف المتجر.</div>` : '';
-                msgs.forEach(m => { const me = m.s === currentUser; let b = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : (m.isCart ? `<div class="cart-bill">🛒 طلب جديد:<br>${m.txt}</div>` : `<p>${m.txt}</p>`); h += `<div class="flex flex-col ${me?'items-end':'items-start'} w-full"><div class="msg-bubble ${me?'msg-out':'msg-in'} shadow-sm">${b}</div></div>`; });
-                document.getElementById('msg-wrapper').innerHTML = h; document.getElementById('messages-container').scrollTop = 99999;
-            });
-        }
-        async function sendText(customTxt = null, isCart = false) {
-            const i = document.getElementById('m-input'); const txt = customTxt || i.value.trim(); if(!txt) return;
-            const cid = activeChatType === 'group' ? activeChatId : [currentUser, activeChatId].sort().join('_'); if(!customTxt) i.value = '';
-            const col = activeChatType === 'group' ? groupsDb.doc(cid).collection('messages') : chatsDb.doc(cid).collection('messages');
-            await col.add({ s: currentUser, txt, isCart, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
-        }
+function isAdmin() {
+  return currentUser && currentUser.phone === ADMIN_PHONE;
+}
 
-        // --- 5. Admin (God Mode) ---
-        function openAdminModal() {
-            document.getElementById('admin-modal').classList.remove('hidden-view'); const list = document.getElementById('admin-list');
-            usersDb.onSnapshot(s => {
-                list.innerHTML = ''; s.forEach(doc => {
-                    const u = doc.data(); if(u.phone === ADMIN_PHONE) return;
-                    list.innerHTML += `<div class="bg-white p-4 rounded-3xl flex flex-col gap-3 shadow-md"><div class="flex justify-between items-center text-right"><div><p class="font-black">${u.displayName} ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}</p><p class="text-xs text-gray-400">${u.phone}</p><p class="text-xs text-sky-600 font-bold">كود: ${u.loginCode}</p></div><div class="px-3 py-1 rounded-full text-white text-[10px] ${u.status === 'banned' ? 'bg-red-500' : 'bg-green-500'} shadow-md">${u.status}</div></div><div class="flex flex-wrap gap-2 justify-end border-t pt-2"><button onclick="updateU('${u.phone}', {isVerified:!u.isVerified})" class="text-[10px] bg-sky-500 text-white p-2 rounded-xl">توثيق 🔵</button><button onclick="openAdminEdit('${u.phone}')" class="text-[10px] bg-yellow-400 p-2 rounded-xl">تعديل كود ⚙️</button><button onclick="updateU('${u.phone}', {status:'banned'})" class="text-[10px] bg-red-600 text-white p-2 rounded-xl">حظر 🚫</button><button onclick="openSpyModal('${u.phone}', '${u.displayName}')" class="text-[10px] bg-slate-900 text-white p-2 rounded-xl flex items-center gap-1"><i class="fas fa-eye"></i> مراقبة</button></div></div>`;
-                });
-            });
-        }
-        async function updateU(p, up) { await usersDb.doc(p).update(up); showToast("تم التحديث"); }
-        function openAdminEdit(p) { editingUserPhone = p; document.getElementById('edit-u-phone').innerText = p; document.getElementById('edit-u-pin').value = uCache[p].loginCode; document.getElementById('admin-edit-modal').classList.remove('hidden-view'); }
-        async function saveAdminEdit() { const pin = document.getElementById('edit-u-pin').value.trim(); if(pin) { await usersDb.doc(editingUserPhone).update({ loginCode: pin }); closeAdminEdit(); showToast("تم الحفظ ✅"); } }
-        function closeAdminEdit() { document.getElementById('admin-edit-modal').classList.add('hidden-view'); }
+// ===== التنقل =====
+function showView(viewName) {
+  document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
+  const view = document.getElementById(viewName + 'View');
+  if (view) { view.style.display = 'block'; view.classList.add('active'); }
 
-        // --- 6. Business Tools ---
-        function openBizTools() { document.getElementById('biz-tools-modal').classList.remove('hidden-view'); }
-        function closeBizTools() { document.getElementById('biz-tools-modal').classList.add('hidden-view'); }
-        function addNewProduct() { const n = prompt("الاسم:"); const p = prompt("السعر:"); if(n) { myProducts.push({ name: n, price: p }); renderCatalogAdmin(); } }
-        function renderCatalogAdmin() { document.getElementById('biz-catalog-list').innerHTML = myProducts.map((p, i) => `<div class="flex justify-between items-center bg-gray-50 p-2 rounded-xl text-xs"><span>${p.price}ج</span><b>${p.name}</b><button onclick="myProducts.splice(${i},1);renderCatalogAdmin()" class="text-red-500"><i class="fas fa-trash"></i></button></div>`).join(''); }
-        async function saveBizProfile() { const biz = { cover: coverBase64, category: document.getElementById('biz-category').value, address: document.getElementById('biz-address').value, greeting: document.getElementById('biz-greeting').value, away: document.getElementById('biz-away').value, catalog: myProducts, quickReplies: myQuickReplies }; await usersDb.doc(currentUser).update({ bizProfile: biz }); showToast("تم الحفظ"); closeBizTools(); }
-        
-        // Utils
-        function logout() { localStorage.clear(); location.reload(); }
-        function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); activeChatId = null; }
-        function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
-        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
-        function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
-        function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
-        async function confirmAddFriend() { let p = document.getElementById('add-phone-input').value.trim(); if(!p) return; if(p.startsWith('0')) p = p.substring(1); p = "+20"+p; const doc = await usersDb.doc(p).get(); if(doc.exists) { await usersDb.doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) }); await usersDb.doc(p).update({ contacts: firebase.firestore.FieldValue.arrayUnion(currentUser) }); closeAddFriendModal(); openChat(p, 'direct'); } else alert("غير موجود"); }
-        async function saveProfile() { const n = document.getElementById('set-name').value.trim(), p = document.getElementById('set-pass').value.trim(), isB = document.getElementById('set-is-business').checked; if(n) { let up = { displayName: n, isBusiness: isB, avatar: profileBase64 }; if(p && p.length >= 4) up.loginCode = p; await usersDb.doc(currentUser).update(up); closeSettingsModal(); } }
-        document.getElementById('set-photo-input').onchange = e => { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=ev=>{ profileBase64=ev.target.result; document.getElementById('set-img-preview').src=profileBase64; }; r.readAsDataURL(f); } };
-    </script>
+  // تحديث التنقل السفلي
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+  const navMap = { home:'navHome', services:'navServices', chats:'navChats' };
+  if (navMap[viewName]) document.getElementById(navMap[viewName]).classList.add('active');
+
+  // تحديث الأدمن
+  if (viewName === 'admin') renderAdminTab();
+
+  // تحديث الرئيسية
+  if (viewName === 'home') loadStats();
+}
+
+// ===== واجهة المستخدم =====
+function updateUI() {
+  if (!currentUser) return;
+  document.getElementById('topName').textContent = currentUser.name;
+  document.getElementById('topSub').textContent = isAdmin() ? 'مدير النظام' : 'WE HERE TO HELP YOU';
+  document.getElementById('profileName').textContent = currentUser.name;
+  document.getElementById('profilePhone').textContent = currentUser.phone;
+  document.getElementById('homeGreeting').textContent = 'مرحباً، ' + currentUser.name;
+
+  // أيقونة الأدمن
+  const adminBtn = document.getElementById('adminBtn');
+  const adminSettings = document.getElementById('adminSettings');
+  if (isAdmin()) {
+    adminBtn.style.display = 'flex';
+    adminSettings.style.display = 'block';
+  } else {
+    adminBtn.style.display = 'none';
+    adminSettings.style.display = 'none';
+  }
+
+  // شارات الملف
+  const badges = document.getElementById('profileBadges');
+  let html = '';
+  if (isAdmin()) html += '<span class="status-badge verified"><i class="fas fa-crown"></i> أدمن</span>';
+  if (currentUser.verified && !isAdmin()) html += '<span class="status-badge verified"><i class="fas fa-check-circle"></i> موثق</span>';
+  if (!currentUser.verified && !isAdmin()) html += '<span class="status-badge unverified"><i class="fas fa-clock"></i> غير موثق</span>';
+  badges.innerHTML = html;
+}
+
+// ===== الإحصائيات =====
+async function loadStats() {
+  try {
+    const usersSnap = await db.collection('users').get();
+    document.getElementById('statUsers').textContent = usersSnap.size;
+    const chatsSnap = await db.collection('chats').get();
+    document.getElementById('statChats').textContent = chatsSnap.size;
+  } catch(e) {}
+}
+
+// ===== المحادثات =====
+let allChats = [];
+
+async function loadChats() {
+  if (!currentUser) return;
+  try {
+    const snap = await db.collection('chats')
+      .where('participants', 'array-contains', currentUser.uid)
+      .orderBy('lastTime', 'desc')
+      .get();
+
+    allChats = [];
+    for (const doc of snap.docs) {
+      allChats.push({ id: doc.id, ...doc.data() });
+    }
+    renderChatsList();
+  } catch(e) {
+    console.log('خطأ تحميل المحادثات:', e);
+    renderChatsList();
+  }
+}
+
+async function renderChatsList() {
+  const container = document.getElementById('chatsList');
+  const noChats = document.getElementById('noChats');
+
+  if (allChats.length === 0) {
+    container.innerHTML = '';
+    noChats.style.display = 'block';
+    return;
+  }
+  noChats.style.display = 'none';
+
+  let html = '';
+  for (const chat of allChats) {
+    const partnerId = chat.participants.find(p => p !== currentUser.uid);
+    let partnerName = 'مستخدم';
+    let partnerVerified = false;
+    let partnerOnline = false;
+
+    try {
+      const uDoc = await db.collection('users').doc(partnerId).get();
+      if (uDoc.exists) {
+        partnerName = uDoc.data().name;
+        partnerVerified = uDoc.data().verified;
+        partnerOnline = uDoc.data().online;
+      }
+    } catch(e) {}
+
+    const lastMsg = chat.lastMessage || '';
+    const lastTime = chat.lastTime ? formatTime(chat.lastTime) : '';
+    const unread = chat.unread && chat.unread[currentUser.uid] ? chat.unread[currentUser.uid] : 0;
+
+    html += `
+      <div class="chat-item" onclick="openChatRoom('${chat.id}','${partnerId}','${partnerName}',${partnerVerified})">
+        <div class="ch-avatar">
+          <i class="fas fa-user"></i>
+          ${partnerOnline ? '<div class="online-dot"></div>' : ''}
+        </div>
+        <div class="ch-info">
+          <div class="ch-top">
+            <span class="ch-name">${partnerVerified ? '<i class="fas fa-check-circle verified-badge"></i>' : ''}${esc(partnerName)}</span>
+            <span class="ch-time">${lastTime}</span>
+          </div>
+          <div class="ch-bottom">
+            <span class="ch-last">${esc(lastMsg)}</span>
+            ${unread > 0 ? `<span class="ch-badge">${unread}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  const now = new Date();
+  if (d.toDateString() === now.toDateString()) {
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  }
+  return d.getDate() + '/' + (d.getMonth()+1);
+}
+
+function formatTimeFull(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+}
+
+// ===== غرفة المحادثة =====
+async function openChatRoom(chatId, partnerId, partnerName, partnerVerified) {
+  currentChatId = chatId;
+  currentChatPartner = { id: partnerId, name: partnerName, verified: partnerVerified };
+
+  document.getElementById('roomName').innerHTML = (partnerVerified ? '<i class="fas fa-check-circle verified-badge"></i> ' : '') + esc(partnerName);
+  document.getElementById('roomStatus').textContent = 'متصل';
+  document.getElementById('chatRoom').classList.add('show');
+
+  const area = document.getElementById('messagesArea');
+  area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-spinner fa-spin"></i></div>';
+
+  // الاستماع للرسائل بالوقت الحقيقي
+  if (chatUnsub) chatUnsub();
+  chatUnsub = db.collection('chats').doc(chatId).collection('messages')
+    .orderBy('timestamp', 'asc')
+    .onSnapshot(snap => {
+      renderMessages(snap.docs.map(d => ({id:d.id,...d.data()})));
+    }, err => {
+      area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">خطأ في تحميل الرسائل</div>';
+    });
+
+  // إعادة تعيين غير المقروء
+  try {
+    await db.collection('chats').doc(chatId).update({
+      [`unread.${currentUser.uid}`]: 0
+    });
+  } catch(e) {}
+
+  // تحديث قائمة المحادثات
+  loadChats();
+}
+
+function renderMessages(msgs) {
+  const area = document.getElementById('messagesArea');
+  let html = '';
+  let lastDate = '';
+
+  for (const msg of msgs) {
+    const d = msg.timestamp ? (msg.timestamp.toDate ? msg.timestamp.toDate() : new Date(msg.timestamp)) : new Date();
+    const dateStr = d.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+    if (dateStr !== lastDate) {
+      html += `<div class="msg-date"><span>${dateStr}</span></div>`;
+      lastDate = dateStr;
+    }
+
+    const isMe = msg.senderId === currentUser.uid;
+    html += `
+      <div class="msg-row ${isMe ? 'me' : 'them'}">
+        <div class="msg-bubble">
+          ${msg.isAutoReply ? '<div class="auto-reply-tag"><i class="fas fa-robot" style="margin-left:3px;"></i> رد تلقائي</div>' : ''}
+          ${esc(msg.text).replace(/\n/g,'<br>')}
+          <div class="msg-time">
+            ${formatTimeFull(msg.timestamp)}
+            ${isMe ? '<span class="ticks"><i class="fas fa-check-double" style="font-size:11px;"></i></span>' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  area.innerHTML = html;
+  area.scrollTop = area.scrollHeight;
+}
+
+async function sendChatMsg() {
+  const input = document.getElementById('chatMsgInput');
+  const text = input.value.trim();
+  if (!text || !currentChatId) return;
+
+  input.value = '';
+  autoResizeTA(input);
+
+  const msgData = {
+    senderId: currentUser.uid,
+    senderName: currentUser.name,
+    text: text,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    isAutoReply: false
+  };
+
+  try {
+    await db.collection('chats').doc(currentChatId).collection('messages').add(msgData);
+    await db.collection('chats').doc(currentChatId).update({
+      lastMessage: text.substring(0, 50),
+      lastTime: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // التحقق من الرد التلقائي (أول رسالة في المحادثة)
+    checkAutoReply(currentChatId, text);
+  } catch(e) {
+    toast('خطأ في إرسال الرسالة', 'error');
+  }
+}
+
+async function checkAutoReply(chatId, userMsg) {
+  try {
+    // جلب إعدادات الرد التلقائي
+    const settingsDoc = await db.collection('settings').doc('autoReply').get();
+    if (!settingsDoc.exists) return;
+    const settings = settingsDoc.data();
+    if (!settings.enabled) return;
+
+    // التحقق إن دي أول رسالة من المستخدم في المحادثة
+    const msgsSnap = await db.collection('chats').doc(chatId).collection('messages')
+      .where('senderId', '==', currentUser.uid)
+      .get();
+
+    if (msgsSnap.size <= 1) {
+      // أول رسالة - أرسل الرد التلقائي
+      const autoMsg = {
+        senderId: 'system',
+        senderName: 'نظام Kimoup',
+        text: settings.message,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        isAutoReply: true
+      };
+      setTimeout(async () => {
+        try {
+          await db.collection('chats').doc(chatId).collection('messages').add(autoMsg);
+          await db.collection('chats').doc(chatId).update({
+            lastMessage: '[رد تلقائي] ' + settings.message.substring(0, 40),
+            lastTime: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch(e) {}
+      }, 1500);
+    }
+  } catch(e) {}
+}
+
+function closeChatRoom() {
+  document.getElementById('chatRoom').classList.remove('show');
+  if (chatUnsub) { chatUnsub(); chatUnsub = null; }
+  currentChatId = null;
+  currentChatPartner = null;
+  loadChats();
+}
+
+function autoResizeTA(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+// ===== بدء محادثة مع شخص =====
+async function startChatWith(partnerId) {
+  closeModal('personSearchModal');
+  if (partnerId === currentUser.uid) { toast('لا يمكن المحادثة مع نفسك', 'error'); return; }
+
+  // التحقق من الحظر
+  try {
+    const pDoc = await db.collection('users').doc(partnerId).get();
+    if (pDoc.exists && pDoc.data().blocked) {
+      toast('هذا المستخدم محظور', 'error');
+      return;
+    }
+  } catch(e) {}
+
+  // التحقق إن المحادثة موجودة
+  try {
+    const snap = await db.collection('chats')
+      .where('participants', 'array-contains', currentUser.uid)
+      .get();
+
+    for (const doc of snap.docs) {
+      const data = doc.data();
+      if (data.participants.includes(partnerId)) {
+        const pDoc = await db.collection('users').doc(partnerId).get();
+        const pName = pDoc.exists ? pDoc.data().name : 'مستخدم';
+        const pVerified = pDoc.exists ? pDoc.data().verified : false;
+        openChatRoom(doc.id, partnerId, pName, pVerified);
+        return;
+      }
+    }
+
+    // إنشاء محادثة جديدة
+    const pDoc = await db.collection('users').doc(partnerId).get();
+    const pName = pDoc.exists ? pDoc.data().name : 'مستخدم';
+    const pVerified = pDoc.exists ? pDoc.data().verified : false;
+
+    const chatRef = await db.collection('chats').add({
+      participants: [currentUser.uid, partnerId],
+      lastMessage: '',
+      lastTime: firebase.firestore.FieldValue.serverTimestamp(),
+      unread: { [currentUser.uid]: 0, [partnerId]: 0 }
+    });
+
+    openChatRoom(chatRef.id, partnerId, pName, pVerified);
+    loadChats();
+  } catch(e) {
+    toast('خطأ في بدء المحادثة', 'error');
+  }
+}
+
+// ===== البحث عن أشخاص =====
+function openPersonSearch() {
+  document.getElementById('personSearchInput').value = '';
+  document.getElementById('personSearchResults').innerHTML = '';
+  openModal('personSearchModal');
+}
+
+async function searchPersons(q) {
+  const container = document.getElementById('personSearchResults');
+  if (!q || q.length < 1) { container.innerHTML = ''; return; }
+
+  try {
+    const snap = await db.collection('users').get();
+    let results = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      if (doc.id !== currentUser.uid && !d.blocked) {
+        if (d.name.includes(q) || d.phone.includes(q)) {
+          results.push({ id: doc.id, ...d });
+        }
+      }
+    });
+
+    if (results.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">لا توجد نتائج</div>';
+      return;
+    }
+
+    container.innerHTML = results.map(r => `
+      <div class="search-result-item" onclick="startChatWith('${r.id}')">
+        <div class="sr-avatar"><i class="fas fa-user"></i></div>
+        <div class="sr-info">
+          <h4>${r.verified ? '<i class="fas fa-check-circle" style="color:var(--success);font-size:11px;margin-left:4px;"></i>' : ''}${esc(r.name)}</h4>
+          <p>${esc(r.phone)}</p>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">خطأ في البحث</div>';
+  }
+}
+
+// ===== لوحة الأدمن =====
+function switchAdminTab(tab, btn) {
+  adminTab = tab;
+  document.querySelectorAll('#adminTabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdminTab();
+}
+
+async function renderAdminTab() {
+  const container = document.getElementById('adminContent');
+  container.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+
+  try {
+    const usersSnap = await db.collection('users').get();
+    const allUsers = usersSnap.docs.map(d => ({id:d.id,...d.data()})).filter(u => u.phone !== ADMIN_PHONE);
+
+    switch(adminTab) {
+      case 'all-users': renderAdminUsers(container, allUsers); break;
+      case 'verify': renderAdminVerify(container, allUsers); break;
+      case 'blocked': renderAdminBlocked(container, allUsers); break;
+      case 'appeals': renderAdminAppeals(container, allUsers); break;
+      case 'data': renderAdminDataSelector(container, allUsers); break;
+      case 'autoreply': renderAdminAutoReply(container); break;
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">خطأ في تحميل البيانات</div>';
+  }
+}
+
+function renderAdminUsers(container, users) {
+  if (users.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">لا يوجد مستخدمين</div>';
+    return;
+  }
+  container.innerHTML = users.map(u => `
+    <div class="admin-card">
+      <div class="ac-top">
+        <div class="ac-avatar"><i class="fas fa-user"></i></div>
+        <div class="ac-info">
+          <h4>${esc(u.name)} ${u.verified ? '<span class="status-badge verified"><i class="fas fa-check"></i> موثق</span>' : '<span class="status-badge unverified"><i class="fas fa-clock"></i></span>'}
+          ${u.blocked ? '<span class="status-badge blocked"><i class="fas fa-ban"></i> محظور</span>' : ''}</h4>
+          <p>${esc(u.phone)}</p>
+        </div>
+      </div>
+      <div class="ac-actions">
+        ${!u.verified ? `<button class="btn-verify" onclick="verifyUser('${u.id}')"><i class="fas fa-check"></i> توثيق</button>` : ''}
+        ${!u.blocked ? `<button class="btn-block" onclick="blockUser('${u.id}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button>` : `<button class="btn-unblock" onclick="unblockUser('${u.id}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك حظر</button>`}
+        <button class="btn-view" onclick="viewUserData('${u.id}')"><i class="fas fa-eye"></i> عرض البيانات</button>
+        <button class="btn-delete" onclick="deleteUser('${u.id}','${esc(u.name)}')"><i class="fas fa-trash"></i> حذف</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminVerify(container, users) {
+  const unverified = users.filter(u => !u.verified && !u.blocked);
+  if (unverified.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-check-circle" style="font-size:32px;display:block;margin-bottom:8px;color:var(--success);"></i>جميع المستخدمين موثقين</div>';
+    return;
+  }
+  container.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">المستخدمين غير الموثقين (' + unverified.length + ')</p>' +
+    unverified.map(u => `
+    <div class="admin-card">
+      <div class="ac-top">
+        <div class="ac-avatar"><i class="fas fa-user"></i></div>
+        <div class="ac-info">
+          <h4>${esc(u.name)} <span class="status-badge unverified"><i class="fas fa-clock"></i> غير موثق</span></h4>
+          <p>${esc(u.phone)}</p>
+        </div>
+      </div>
+      <div class="ac-actions">
+        <button class="btn-verify" onclick="verifyUser('${u.id}')"><i class="fas fa-check-circle"></i> توثيق الآن</button>
+        <button class="btn-block" onclick="blockUser('${u.id}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminBlocked(container, users) {
+  const blocked = users.filter(u => u.blocked);
+  if (blocked.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-shield-halved" style="font-size:32px;display:block;margin-bottom:8px;"></i>لا يوجد مستخدمين محظورين</div>';
+    return;
+  }
+  container.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">المستخدمين المحظورين (' + blocked.length + ')</p>' +
+    blocked.map(u => `
+    <div class="admin-card" style="border-color:#fecaca;">
+      <div class="ac-top">
+        <div class="ac-avatar" style="color:var(--danger);"><i class="fas fa-ban"></i></div>
+        <div class="ac-info">
+          <h4>${esc(u.name)} <span class="status-badge blocked"><i class="fas fa-ban"></i> محظور</span></h4>
+          <p>${esc(u.phone)}</p>
+          ${u.blockedReason ? `<p style="color:var(--danger);font-size:10px;margin-top:2px;">السبب: ${esc(u.blockedReason)}</p>` : ''}
+          ${u.appeal ? `<p style="color:var(--warning);font-size:10px;margin-top:2px;"><i class="fas fa-gavel"></i> اعتراض: ${esc(u.appeal).substring(0,50)}...</p>` : ''}
+          ${u.appealStatus === 'pending' ? '<span class="status-badge pending"><i class="fas fa-clock"></i> اعتراض قيد المراجعة</span>' : ''}
+        </div>
+      </div>
+      <div class="ac-actions">
+        <button class="btn-unblock" onclick="unblockUser('${u.id}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك الحظر</button>
+        ${u.appealStatus === 'pending' ? `<button class="btn-accept" onclick="acceptAppeal('${u.id}')"><i class="fas fa-check"></i> قبول الاعتراض</button><button class="btn-reject" onclick="rejectAppeal('${u.id}')"><i class="fas fa-times"></i> رفض</button>` : ''}
+        <button class="btn-view" onclick="viewUserData('${u.id}')"><i class="fas fa-eye"></i> عرض البيانات</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminAppeals(container, users) {
+  const withAppeals = users.filter(u => u.appeal && u.appealStatus === 'pending');
+  if (withAppeals.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-gavel" style="font-size:32px;display:block;margin-bottom:8px;"></i>لا يوجد اعتراضات قيد المراجعة</div>';
+    return;
+  }
+  container.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">الاعتراضات قيد المراجعة (' + withAppeals.length + ')</p>' +
+    withAppeals.map(u => `
+    <div class="admin-card" style="border-color:#fde68a;">
+      <div class="ac-top">
+        <div class="ac-avatar" style="color:var(--warning);"><i class="fas fa-gavel"></i></div>
+        <div class="ac-info">
+          <h4>${esc(u.name)}</h4>
+          <p>${esc(u.phone)}</p>
+        </div>
+      </div>
+      <div style="background:var(--bg2);padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;line-height:1.6;color:var(--text2);">
+        <strong style="color:var(--text);">نص الاعتراض:</strong><br>${esc(u.appeal)}
+      </div>
+      <div class="ac-actions">
+        <button class="btn-accept" onclick="acceptAppeal('${u.id}')"><i class="fas fa-check"></i> قبول ورفع الحظر</button>
+        <button class="btn-reject" onclick="rejectAppeal('${u.id}')"><i class="fas fa-times"></i> رفض الاعتراض</button>
+        <button class="btn-view" onclick="viewUserData('${u.id}')"><i class="fas fa-eye"></i> عرض البيانات</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminDataSelector(container, users) {
+  container.innerHTML = `
+    <div style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border-radius:var(--radius);padding:20px;color:#fff;text-align:center;margin-bottom:16px;">
+      <i class="fas fa-database" style="font-size:32px;margin-bottom:8px;display:block;"></i>
+      <h4 style="font-size:16px;font-weight:700;">Data Viewer</h4>
+      <p style="font-size:11px;opacity:.7;">عرض بيانات أي مستخدم بالكامل</p>
+    </div>
+    <div class="modal-field">
+      <label>اختر المستخدم</label>
+      <select id="dataViewerSelect" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xs);font-size:14px;color:var(--text);">
+        <option value="">-- اختر مستخدم --</option>
+        ${users.map(u => `<option value="${u.id}">${esc(u.name)} (${esc(u.phone)})</option>`).join('')}
+      </select>
+    </div>
+    <button class="auth-btn" onclick="viewSelectedUserData()" style="margin-top:8px;">
+      <i class="fas fa-eye" style="margin-left:6px;"></i> عرض البيانات
+    </button>
+  `;
+}
+
+async function renderAdminAutoReply(container) {
+  try {
+    const doc = await db.collection('settings').doc('autoReply').get();
+    const settings = doc.exists ? doc.data() : { enabled: false, message: '' };
+
+    container.innerHTML = `
+      <div class="auto-reply-config">
+        <h4><i class="fas fa-robot"></i> الرد التلقائي على أول رسالة</h4>
+        <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">يتم إرسال رسالة تلقائية عند أول رسالة من أي مستخدم في محادثة جديدة</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:600;">تفعيل الرد التلقائي</span>
+          <div class="toggle-switch ${settings.enabled ? 'on' : ''}" id="arToggle" onclick="toggleAutoReply()">
+            <div class="toggle-dot"></div>
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>نص الرسالة التلقائية</label>
+          <textarea id="arMessage" rows="4" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xs);font-size:14px;color:var(--text);resize:none;">${esc(settings.message || 'مرحباً بك! شكراً لتواصلك معنا. سيتم الرد عليك في أقرب وقت ممكن.')}</textarea>
+        </div>
+        <button class="auth-btn" onclick="saveAutoReply()">
+          <i class="fas fa-save" style="margin-left:6px;"></i> حفظ الإعدادات
+        </button>
+      </div>
+    `;
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">خطأ في تحميل الإعدادات</div>';
+  }
+}
+
+// ===== إجراءات الأدمن =====
+async function verifyUser(uid) {
+  try {
+    await db.collection('users').doc(uid).update({ verified: true });
+    toast('تم توثيق المستخدم بنجاح', 'success');
+    renderAdminTab();
+  } catch(e) {
+    toast('خطأ في التوثيق', 'error');
+  }
+}
+
+function blockUser(uid, name) {
+  document.getElementById('confirmTitle').textContent = 'حظر المستخدم';
+  document.getElementById('confirmMsg').textContent = `هل أنت متأكد من حظر "${name}"؟ لن يتمكن من الدخول. يمكنك إضافة سبب الحظر.`;
+  document.getElementById('confirmAction').onclick = async () => {
+    const reason = prompt('سبب الحظر (اختياري):') || 'انتهاك شروط الاستخدام';
+    try {
+      await db.collection('users').doc(uid).update({
+        blocked: true,
+        blockedReason: reason,
+        appeal: '',
+        appealStatus: ''
+      });
+      toast('تم حظر المستخدم', 'success');
+      renderAdminTab();
+    } catch(e) { toast('خطأ في الحظر', 'error'); }
+    closeModal('confirmModal');
+  };
+  openModal('confirmModal');
+}
+
+async function unblockUser(uid, name) {
+  try {
+    await db.collection('users').doc(uid).update({
+      blocked: false,
+      blockedReason: '',
+      appeal: '',
+      appealStatus: ''
+    });
+    toast('تم فك حظر ' + name, 'success');
+    renderAdminTab();
+  } catch(e) { toast('خطأ في فك الحظر', 'error'); }
+}
+
+async function acceptAppeal(uid) {
+  try {
+    await db.collection('users').doc(uid).update({
+      blocked: false,
+      blockedReason: '',
+      appealStatus: 'accepted'
+    });
+    toast('تم قبول الاعتراض ورفع الحظر', 'success');
+    renderAdminTab();
+  } catch(e) { toast('خطأ', 'error'); }
+}
+
+async function rejectAppeal(uid) {
+  try {
+    await db.collection('users').doc(uid).update({ appealStatus: 'rejected' });
+    toast('تم رفض الاعتراض', 'info');
+    renderAdminTab();
+  } catch(e) { toast('خطأ', 'error'); }
+}
+
+function deleteUser(uid, name) {
+  document.getElementById('confirmTitle').textContent = 'حذف المستخدم';
+  document.getElementById('confirmMsg').textContent = `هل أنت متأكد من حذف "${name}" نهائياً؟ لا يمكن التراجع عن هذا الإجراء.`;
+  document.getElementById('confirmAction').onclick = async () => {
+    try {
+      // حذف محادثات المستخدم
+      const chatsSnap = await db.collection('chats').where('participants','array-contains',uid).get();
+      for (const doc of chatsSnap.docs) {
+        // حذف الرسائل
+        const msgsSnap = await doc.ref.collection('messages').get();
+        for (const m of msgsSnap.docs) await m.ref.delete();
+        await doc.ref.delete();
+      }
+      await db.collection('users').doc(uid).delete();
+      toast('تم حذف المستخدم نهائياً', 'success');
+      renderAdminTab();
+    } catch(e) { toast('خطأ في الحذف', 'error'); }
+    closeModal('confirmModal');
+  };
+  openModal('confirmModal');
+}
+
+// ===== عرض بيانات المستخدم (Data Viewer) =====
+async function viewUserData(uid) {
+  showView('dataViewer');
+  const container = document.getElementById('dataViewerContent');
+  container.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+
+  try {
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) { container.innerHTML = '<div style="text-align:center;color:var(--danger);">المستخدم غير موجود</div>'; return; }
+    const u = userDoc.data();
+
+    // جلب المحادثات
+    const chatsSnap = await db.collection('chats').where('participants','array-contains',uid).get();
+    let allMsgs = [];
+    for (const chatDoc of chatsSnap.docs) {
+      const msgsSnap = await chatDoc.ref.collection('messages').orderBy('timestamp','desc').limit(50).get();
+      msgsSnap.forEach(m => allMsgs.push({chatId:chatDoc.id,...m.data()}));
+    }
+    allMsgs.sort((a,b) => {
+      const ta = a.timestamp ? (a.timestamp.toDate ? a.timestamp.toDate() : new Date(a.timestamp)) : new Date(0);
+      const tb = b.timestamp ? (b.timestamp.toDate ? b.timestamp.toDate() : new Date(b.timestamp)) : new Date(0);
+      return tb - ta;
+    });
+
+    container.innerHTML = `
+      <div class="data-section">
+        <h4><i class="fas fa-user"></i> البيانات الأساسية</h4>
+        <div class="data-row"><span class="dr-label">الاسم</span><span class="dr-value">${esc(u.name)}</span></div>
+        <div class="data-row"><span class="dr-label">الهاتف</span><span class="dr-value">${esc(u.phone)}</span></div>
+        <div class="data-row"><span class="dr-label">المعرف</span><span class="dr-value" style="font-size:10px;">${uid}</span></div>
+        <div class="data-row"><span class="dr-label">موثق</span><span class="dr-value">${u.verified ? '<span class="status-badge verified">نعم</span>' : '<span class="status-badge unverified">لا</span>'}</span></div>
+        <div class="data-row"><span class="dr-label">محظور</span><span class="dr-value">${u.blocked ? '<span class="status-badge blocked">نعم</span>' : 'لا'}</span></div>
+        <div class="data-row"><span class="dr-label">متصل</span><span class="dr-value">${u.online ? '<span class="status-badge verified">نعم</span>' : 'لا'}</span></div>
+        <div class="data-row"><span class="dr-label">تاريخ التسجيل</span><span class="dr-value">${u.createdAt ? (u.createdAt.toDate ? u.createdAt.toDate().toLocaleString('ar-EG') : '') : '-'}</span></div>
+        ${u.blockedReason ? `<div class="data-row"><span class="dr-label">سبب الحظر</span><span class="dr-value" style="color:var(--danger);">${esc(u.blockedReason)}</span></div>` : ''}
+        ${u.appeal ? `<div class="data-row"><span class="dr-label">الاعتراض</span><span class="dr-value">${esc(u.appeal)}</span></div>` : ''}
+        ${u.appealStatus ? `<div class="data-row"><span class="dr-label">حالة الاعتراض</span><span class="dr-value">${u.appealStatus === 'pending' ? '<span class="status-badge pending">قيد المراجعة</span>' : u.appealStatus === 'accepted' ? '<span class="status-badge verified">مقبول</span>' : '<span class="status-badge blocked">مرفوض</span>'}</span></div>` : ''}
+      </div>
+      <div class="data-section">
+        <h4><i class="fas fa-comments"></i> المحادثات (${chatsSnap.size})</h4>
+        ${chatsSnap.size === 0 ? '<p style="font-size:12px;color:var(--text3);padding:8px;">لا توجد محادثات</p>' : ''}
+      </div>
+      <div class="data-section">
+        <h4><i class="fas fa-envelope"></i> آخر الرسائل (${Math.min(allMsgs.length,30)})</h4>
+        ${allMsgs.slice(0,30).map(m => `
+          <div class="data-msg">
+            <div class="dm-sender">${esc(m.senderName || 'نظام')} ${m.isAutoReply ? '<span style="color:var(--warning);font-size:10px;">[رد تلقائي]</span>' : ''}</div>
+            <div class="dm-text">${esc(m.text || '')}</div>
+            <div class="dm-time">${m.timestamp ? formatTimeFull(m.timestamp) : ''}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;color:var(--danger);">خطأ في تحميل البيانات</div>';
+  }
+}
+
+function viewSelectedUserData() {
+  const sel = document.getElementById('dataViewerSelect');
+  if (!sel || !sel.value) { toast('اختر مستخدم أولاً', 'error'); return; }
+  viewUserData(sel.value);
+}
+
+// ===== الرد التلقائي =====
+function toggleAutoReply() {
+  const toggle = document.getElementById('arToggle');
+  toggle.classList.toggle('on');
+}
+
+async function saveAutoReply() {
+  const enabled = document.getElementById('arToggle').classList.contains('on');
+  const message = document.getElementById('arMessage').value.trim();
+
+  try {
+    await db.collection('settings').doc('autoReply').set({ enabled, message });
+    toast('تم حفظ إعدادات الرد التلقائي', 'success');
+  } catch(e) {
+    toast('خطأ في الحفظ', 'error');
+  }
+}
+
+// ===== الاعتراض =====
+function showAppealForm() {
+  openModal('appealModal');
+}
+
+async function submitAppeal() {
+  const text = document.getElementById('appealText').value.trim();
+  if (!text) { toast('اكتب سبب الاعتراض', 'error'); return; }
+
+  try {
+    await db.collection('users').doc(currentUser.uid).update({
+      appeal: text,
+      appealStatus: 'pending'
+    });
+    currentUser.appeal = text;
+    currentUser.appealStatus = 'pending';
+    localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+    closeModal('appealModal');
+    toast('تم إرسال الاعتراض بنجاح. سيتم مراجعته من قبل الإدارة.', 'success');
+  } catch(e) {
+    toast('خطأ في إرسال الاعتراض', 'error');
+  }
+}
+
+// ===== الانضمام للفريق =====
+function openJoinModal() {
+  document.getElementById('joinName').value = currentUser?.name || '';
+  document.getElementById('joinPhone').value = currentUser?.phone || '';
+  document.getElementById('joinReason').value = '';
+  openModal('joinModal');
+}
+
+async function submitJoin() {
+  const name = document.getElementById('joinName').value.trim();
+  const phone = document.getElementById('joinPhone').value.trim();
+  const reason = document.getElementById('joinReason').value.trim();
+  if (!name || !phone || !reason) { toast('أكمل جميع الحقول', 'error'); return; }
+
+  try {
+    await db.collection('joinRequests').add({
+      name, phone, reason,
+      userId: currentUser.uid,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    closeModal('joinModal');
+    toast('تم إرسال طلب الانضمام بنجاح!', 'success');
+  } catch(e) {
+    toast('خطأ في الإرسال', 'error');
+  }
+}
+
+// ===== تعديل الملف الشخصي =====
+function editProfile() {
+  document.getElementById('editNameInput').value = currentUser.name;
+  openModal('editProfileModal');
+}
+
+async function saveProfile() {
+  const name = document.getElementById('editNameInput').value.trim();
+  if (!name) { toast('أدخل الاسم', 'error'); return; }
+
+  try {
+    await db.collection('users').doc(currentUser.uid).update({ name });
+    currentUser.name = name;
+    localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+    updateUI();
+    closeModal('editProfileModal');
+    toast('تم تحديث الملف الشخصي', 'success');
+  } catch(e) {
+    toast('خطأ في التحديث', 'error');
+  }
+}
+
+function changePhoto() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      try {
+        await db.collection('users').doc(currentUser.uid).update({ photo: ev.target.result });
+        currentUser.photo = ev.target.result;
+        localStorage.setItem('kimoup_user', JSON.stringify(currentUser));
+        toast('تم تغيير الصورة', 'success');
+      } catch(err) {
+        toast('خطأ في رفع الصورة', 'error');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// ===== نوافذ =====
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// إغلاق بالنقر خارج المحتوى
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) m.classList.remove('show');
+  });
+});
+
+// ===== توست =====
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success:'fa-check-circle', error:'fa-times-circle', info:'fa-info-circle' };
+  el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${msg}`;
+  container.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-10px)'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+// ===== أدوات =====
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+</script>
 </body>
 </html>
-
