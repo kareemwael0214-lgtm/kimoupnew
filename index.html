@@ -2,1291 +2,499 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Kimoup - WE HERE TO HELP YOU</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-:root{
-  --blue:#2563eb;--blue-light:#3b82f6;--blue-dark:#1d4ed8;
-  --bg:#ffffff;--bg2:#f8fafc;--bg3:#f1f5f9;
-  --text:#1e293b;--text2:#64748b;--text3:#94a3b8;
-  --border:#e2e8f0;--success:#22c55e;--danger:#ef4444;
-  --warning:#f59e0b;--shadow:0 1px 3px rgba(0,0,0,.08);
-  --shadow-lg:0 10px 40px rgba(0,0,0,.12);
-  --radius:14px;--radius-sm:10px;--radius-xs:8px;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Cairo',sans-serif;background:var(--bg3);color:var(--text);overflow:hidden;height:100vh;height:100dvh;}
-input,textarea,select,button{font-family:'Cairo',sans-serif;outline:none;border:none;}
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-
-.app-frame{
-  width:100%;max-width:430px;height:100vh;height:100dvh;
-  margin:0 auto;background:var(--bg);position:relative;overflow:hidden;
-  box-shadow:var(--shadow-lg);
-}
-@media(min-width:500px){
-  body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f 0%,#0f172a 100%);}
-  .app-frame{border-radius:24px;height:92vh;}
-}
-
-.splash{
-  position:absolute;inset:0;z-index:1000;background:var(--bg);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transition:opacity .6s,transform .6s;
-}
-.splash.hide{opacity:0;transform:scale(1.1);pointer-events:none;}
-.splash-logo{width:90px;height:90px;background:var(--bg3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
-.splash-logo i{font-size:42px;color:var(--blue);}
-.splash h1{font-size:28px;font-weight:900;letter-spacing:-.5px;}
-.splash p{font-size:12px;color:var(--text2);margin-top:2px;letter-spacing:2px;font-weight:600;}
-
-.auth-screen{
-  position:absolute;inset:0;z-index:900;background:var(--bg);
-  display:none;flex-direction:column;padding:24px;
-}
-.auth-screen.hide{display:none;}
-.auth-logo{width:60px;height:60px;background:var(--bg3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
-.auth-logo i{font-size:28px;color:var(--blue);}
-.auth-title{font-size:22px;font-weight:700;}
-.auth-sub{font-size:12px;color:var(--text2);margin-bottom:32px;}
-.auth-field{margin-bottom:16px;}
-.auth-field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text2);}
-.auth-field input{
-  width:100%;padding:14px 16px;background:var(--bg2);border:2px solid var(--border);
-  border-radius:var(--radius-sm);font-size:15px;color:var(--text);transition:border .2s;
-}
-.auth-field input:focus{border-color:var(--blue);}
-.auth-btn{
-  width:100%;padding:14px;background:var(--blue);color:#fff;
-  border-radius:var(--radius-sm);font-size:15px;font-weight:700;
-  cursor:pointer;transition:background .2s;margin-top:8px;
-}
-.auth-btn:hover{background:var(--blue-dark);}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;}
-.auth-error{color:var(--danger);font-size:12px;margin-top:8px;display:none;text-align:center;line-height:1.6;}
-.auth-error.show{display:block;}
-.auth-success{color:var(--success);font-size:12px;margin-top:8px;display:none;text-align:center;}
-.auth-success.show{display:block;}
-
-.top-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);
-  position:relative;z-index:10;min-height:56px;
-}
-.top-bar .right{display:flex;align-items:center;gap:10px;}
-.top-bar .avatar{
-  width:38px;height:38px;border-radius:50%;background:var(--bg3);
-  display:flex;align-items:center;justify-content:center;font-size:16px;
-  color:var(--blue);cursor:pointer;overflow:hidden;border:2px solid var(--border);
-}
-.top-bar .avatar img{width:100%;height:100%;object-fit:cover;}
-.top-bar .info h3{font-size:14px;font-weight:700;line-height:1.2;}
-.top-bar .info p{font-size:10px;color:var(--text2);}
-.top-bar .actions{display:flex;gap:4px;}
-.top-bar .actions button{
-  width:36px;height:36px;border-radius:50%;background:var(--bg2);
-  border:none;color:var(--text2);font-size:15px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all .2s;
-}
-.top-bar .actions button:hover{background:var(--bg3);color:var(--text);}
-.top-bar .actions button.admin-btn{color:var(--warning);}
-
-.bottom-nav{
-  display:flex;background:var(--bg);border-top:1px solid var(--border);
-  position:absolute;bottom:0;left:0;right:0;z-index:10;
-  padding:6px 0 env(safe-area-inset-bottom,8px);
-}
-.bottom-nav button{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
-  padding:6px 0;background:none;cursor:pointer;border:none;
-  color:var(--text3);font-size:10px;font-weight:600;transition:color .2s;
-}
-.bottom-nav button i{font-size:18px;}
-.bottom-nav button.active{color:var(--blue);}
-
-.views{position:absolute;top:56px;bottom:58px;left:0;right:0;overflow:hidden;}
-.view{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;animation:fadeIn .25s;}
-.view.active{display:block;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-
-.home-header{
-  background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%);
-  border-radius:var(--radius);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden;
-}
-.home-header::after{content:'';position:absolute;top:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08);}
-.home-header h2{font-size:18px;font-weight:700;margin-bottom:4px;}
-.home-header p{font-size:12px;opacity:.85;}
-.home-search{display:flex;align-items:center;gap:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-sm);padding:0 14px;margin-bottom:16px;transition:border .2s;}
-.home-search:focus-within{border-color:var(--blue);}
-.home-search i{color:var(--text3);font-size:14px;}
-.home-search input{flex:1;padding:12px 0;background:none;font-size:14px;color:var(--text);}
-.home-search input::placeholder{color:var(--text3);}
-.stat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-.stat-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;text-align:center;}
-.stat-card .num{font-size:24px;font-weight:900;color:var(--blue);}
-.stat-card .lbl{font-size:11px;color:var(--text2);margin-top:2px;}
-.info-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s;}
-.info-card:hover{background:var(--bg2);}
-.info-card .ic-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.info-card .ic-text h4{font-size:13px;font-weight:600;}
-.info-card .ic-text p{font-size:11px;color:var(--text2);}
-.join-banner{background:linear-gradient(135deg,var(--blue),#7c3aed);border-radius:var(--radius);padding:20px;color:#fff;text-align:center;margin-bottom:16px;cursor:pointer;transition:transform .2s;}
-.join-banner:hover{transform:scale(1.02);}
-.join-banner i{font-size:32px;margin-bottom:8px;}
-.join-banner h3{font-size:16px;font-weight:700;margin-bottom:4px;}
-.join-banner p{font-size:12px;opacity:.85;}
-
-.service-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;}
-.service-card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:var(--shadow);}
-.service-card .sv-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
-.service-card .sv-text h4{font-size:14px;font-weight:600;}
-.service-card .sv-text p{font-size:11px;color:var(--text2);margin-top:2px;}
-.service-card .sv-arrow{margin-right:auto;color:var(--text3);font-size:14px;}
-
-.chat-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
-.chat-item:hover{background:var(--bg2);margin:0 -16px;padding:12px 16px;border-radius:var(--radius-xs);}
-.chat-item .ch-avatar{width:48px;height:48px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--blue);flex-shrink:0;overflow:hidden;position:relative;}
-.chat-item .ch-avatar img{width:100%;height:100%;object-fit:cover;}
-.chat-item .ch-avatar .online-dot{position:absolute;bottom:1px;left:1px;width:10px;height:10px;border-radius:50%;background:var(--success);border:2px solid var(--bg);}
-.chat-item .ch-info{flex:1;min-width:0;}
-.chat-item .ch-top{display:flex;justify-content:space-between;align-items:center;}
-.chat-item .ch-name{font-size:14px;font-weight:600;}
-.chat-item .ch-time{font-size:11px;color:var(--text3);}
-.chat-item .ch-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:2px;}
-.chat-item .ch-last{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
-.chat-item .ch-badge{min-width:20px;height:20px;border-radius:10px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px;flex-shrink:0;}
-.chat-item .verified-badge{color:var(--success);font-size:12px;margin-right:4px;}
-
-.chat-room{position:absolute;inset:0;z-index:50;background:var(--bg);display:none;flex-direction:column;animation:slideLeft .25s;}
-.chat-room.show{display:flex;}
-@keyframes slideLeft{from{transform:translateX(100%);}to{transform:translateX(0);}}
-.chat-room .room-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);min-height:56px;}
-.chat-room .room-header .back-btn{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:none;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.chat-room .room-header .rh-avatar{width:38px;height:38px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);overflow:hidden;}
-.chat-room .room-header .rh-avatar img{width:100%;height:100%;object-fit:cover;}
-.chat-room .room-header .rh-info h4{font-size:14px;font-weight:600;}
-.chat-room .room-header .rh-info p{font-size:10px;color:var(--text2);}
-.chat-room .room-header .rh-actions{margin-right:auto;display:flex;gap:4px;}
-.chat-room .room-header .rh-actions button{width:34px;height:34px;border-radius:50%;background:none;border:none;color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.messages-area{flex:1;overflow-y:auto;padding:12px 16px;background:var(--bg2);}
-.msg-date{text-align:center;margin:12px 0;}
-.msg-date span{background:var(--bg3);color:var(--text2);padding:4px 12px;border-radius:10px;font-size:11px;}
-.msg-row{display:flex;margin-bottom:4px;animation:msgPop .2s;}
-@keyframes msgPop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-.msg-row.me{justify-content:flex-end;}
-.msg-row.them{justify-content:flex-start;}
-.msg-bubble{max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;position:relative;word-wrap:break-word;}
-.msg-row.me .msg-bubble{background:var(--blue);color:#fff;border-bottom-left:4px;}
-.msg-row.them .msg-bubble{background:var(--bg);border:1px solid var(--border);border-bottom-right:4px;}
-.msg-bubble .msg-time{font-size:10px;opacity:.6;margin-top:4px;display:flex;align-items:center;gap:3px;justify-content:flex-end;}
-.msg-bubble .auto-reply-tag{font-size:9px;background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px;margin-bottom:4px;display:inline-block;}
-.msg-row.them .auto-reply-tag{background:var(--bg3);color:var(--text2);}
-.typing-row{display:flex;justify-content:flex-start;margin-bottom:4px;}
-.typing-bubble{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:10px 16px;display:flex;gap:4px;}
-.typing-bubble span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:tp 1.2s infinite;}
-.typing-bubble span:nth-child(2){animation-delay:.2s;}
-.typing-bubble span:nth-child(3){animation-delay:.4s;}
-@keyframes tp{0%,60%,100%{transform:translateY(0);opacity:.4;}30%{transform:translateY(-5px);opacity:1;}}
-.chat-input-area{display:flex;align-items:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--bg);}
-.chat-input-area textarea{flex:1;resize:none;background:var(--bg2);border:2px solid var(--border);border-radius:22px;padding:10px 16px;font-size:14px;color:var(--text);max-height:100px;min-height:40px;line-height:1.4;transition:border .2s;}
-.chat-input-area textarea:focus{border-color:var(--blue);}
-.chat-input-area button{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
-.chat-input-area button:hover{background:var(--blue-dark);}
-
-.admin-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px;}
-.admin-tabs button{padding:8px 12px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .2s;}
-.admin-tabs button.active{background:var(--blue);color:#fff;border-color:var(--blue);}
-.admin-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;}
-.admin-card .ac-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.admin-card .ac-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);}
-.admin-card .ac-info{flex:1;min-width:0;}
-.admin-card .ac-info h4{font-size:13px;font-weight:600;}
-.admin-card .ac-info p{font-size:11px;color:var(--text2);}
-.admin-card .ac-actions{display:flex;gap:6px;flex-wrap:wrap;}
-.admin-card .ac-actions button{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;border:none;}
-.btn-verify{background:#dcfce7;color:#16a34a;}.btn-verify:hover{background:#bbf7d0;}
-.btn-block{background:#fef2f2;color:#dc2626;}.btn-block:hover{background:#fecaca;}
-.btn-unblock{background:#dcfce7;color:#16a34a;}.btn-unblock:hover{background:#bbf7d0;}
-.btn-view{background:#eff6ff;color:var(--blue);}.btn-view:hover{background:#dbeafe;}
-.btn-delete{background:#fef2f2;color:#dc2626;}.btn-delete:hover{background:#fecaca;}
-.btn-accept{background:#dcfce7;color:#16a34a;}
-.btn-reject{background:#fef2f2;color:#dc2626;}
-.status-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;}
-.status-badge.verified{background:#dcfce7;color:#16a34a;}
-.status-badge.unverified{background:#fef9c3;color:#ca8a04;}
-.status-badge.blocked{background:#fef2f2;color:#dc2626;}
-.status-badge.pending{background:#eff6ff;color:var(--blue);}
-
-.data-section{margin-bottom:16px;}
-.data-section h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text2);display:flex;align-items:center;gap:6px;}
-.data-section h4 i{font-size:12px;color:var(--blue);}
-.data-row{display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-radius:var(--radius-xs);margin-bottom:4px;font-size:12px;}
-.data-row .dr-label{color:var(--text2);}
-.data-row .dr-value{font-weight:600;color:var(--text);max-width:60%;text-align:left;word-break:break-all;}
-.data-msg{padding:8px 12px;background:var(--bg2);border-radius:var(--radius-xs);margin-bottom:4px;font-size:12px;}
-.data-msg .dm-sender{font-weight:600;color:var(--blue);font-size:11px;}
-.data-msg .dm-text{color:var(--text);margin-top:2px;}
-.data-msg .dm-time{font-size:10px;color:var(--text3);margin-top:2px;}
-
-.settings-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;}
-.settings-item:last-child{border-bottom:none;}
-.settings-item .si-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.settings-item .si-text h4{font-size:13px;font-weight:600;}
-.settings-item .si-text p{font-size:11px;color:var(--text2);}
-.settings-item .si-arrow{margin-right:auto;color:var(--text3);font-size:13px;}
-
-.modal-overlay{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;}
-.modal-overlay.show{display:flex;}
-.modal-content{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:slideUp .3s;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));}
-@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
-.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px;}
-.modal-content h3{font-size:16px;font-weight:700;margin-bottom:12px;}
-.modal-field{margin-bottom:14px;}
-.modal-field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
-.modal-field input,.modal-field textarea,.modal-field select{width:100%;padding:10px 14px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xs);font-size:14px;color:var(--text);}
-.modal-field textarea{resize:none;min-height:80px;}
-.modal-field input:focus,.modal-field textarea:focus{border-color:var(--blue);}
-.modal-btns{display:flex;gap:8px;margin-top:16px;}
-.modal-btns button{flex:1;padding:12px;border-radius:var(--radius-xs);font-size:14px;font-weight:600;cursor:pointer;border:none;}
-.modal-btns .btn-primary{background:var(--blue);color:#fff;}
-.modal-btns .btn-secondary{background:var(--bg2);color:var(--text2);}
-
-.toast-container{position:absolute;top:12px;left:12px;right:12px;z-index:500;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
-.toast{padding:12px 16px;border-radius:var(--radius-xs);font-size:12px;font-weight:600;box-shadow:var(--shadow-lg);animation:toastIn .3s;pointer-events:auto;display:flex;align-items:center;gap:8px;}
-.toast.success{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
-.toast.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
-.toast.info{background:#eff6ff;color:var(--blue);border:1px solid #dbeafe;}
-@keyframes toastIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
-
-.search-results{max-height:300px;overflow-y:auto;}
-.search-result-item{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
-.search-result-item:hover{background:var(--bg2);}
-.search-result-item .sr-avatar{width:40px;height:40px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);}
-.search-result-item .sr-info h4{font-size:13px;font-weight:600;}
-.search-result-item .sr-info p{font-size:11px;color:var(--text2);}
-
-.blocked-screen{position:absolute;inset:0;z-index:200;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
-.blocked-screen.show{display:flex;}
-.blocked-screen i{font-size:48px;color:var(--danger);margin-bottom:16px;}
-.blocked-screen h2{font-size:20px;font-weight:700;margin-bottom:8px;}
-.blocked-screen p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.7;}
-
-.toggle-switch{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:background .2s;}
-.toggle-switch.on{background:var(--blue);}
-.toggle-switch .toggle-dot{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-.toggle-switch.on .toggle-dot{transform:translateX(-20px);}
-
-.firebase-status{position:absolute;bottom:62px;left:8px;right:8px;z-index:8;display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:600;pointer-events:none;}
-.firebase-status.connected{background:#dcfce7;color:#16a34a;}
-.firebase-status.disconnected{background:#fef2f2;color:#dc2626;}
+:root{--blue:#2563eb;--blue-dk:#1d4ed8;--bg:#fff;--bg2:#f8fafc;--bg3:#f1f5f9;--text:#1e293b;--text2:#64748b;--text3:#94a3b8;--border:#e2e8f0;--ok:#22c55e;--no:#ef4444;--warn:#f59e0b;--r:14px;--rs:10px;--rxs:8px;--sh:0 1px 3px rgba(0,0,0,.08);--shl:0 10px 40px rgba(0,0,0,.12)}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Cairo',sans-serif;background:var(--bg3);color:var(--text);overflow:hidden;height:100vh;height:100dvh}input,textarea,select,button{font-family:'Cairo',sans-serif;outline:none;border:none}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.af{width:100%;max-width:430px;height:100vh;height:100dvh;margin:0 auto;background:var(--bg);position:relative;overflow:hidden;box-shadow:var(--shl)}
+@media(min-width:500px){body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f,#0f172a)}.af{border-radius:24px;height:92vh}}
+.splash{position:absolute;inset:0;z-index:1000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s,transform .6s}.splash.hide{opacity:0;transform:scale(1.1);pointer-events:none}.sl{width:90px;height:90px;background:var(--bg3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}.sl i{font-size:42px;color:var(--blue)}.splash h1{font-size:28px;font-weight:900}.splash p{font-size:12px;color:var(--text2);margin-top:2px;letter-spacing:2px;font-weight:600}
+.as{position:absolute;inset:0;z-index:900;background:var(--bg);display:none;flex-direction:column;padding:24px}.al{width:60px;height:60px;background:var(--bg3);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}.al i{font-size:28px;color:var(--blue)}.at{font-size:22px;font-weight:700}.asub{font-size:12px;color:var(--text2);margin-bottom:32px}.af2{margin-bottom:16px}.af2 label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text2)}.af2 input{width:100%;padding:14px 16px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--rs);font-size:15px;color:var(--text);transition:border .2s}.af2 input:focus{border-color:var(--blue)}
+.abtn{width:100%;padding:14px;background:var(--blue);color:#fff;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:8px}.abtn:hover{background:var(--blue-dk)}.abtn:disabled{opacity:.5;cursor:not-allowed}
+.aerr{color:var(--no);font-size:12px;margin-top:8px;display:none;text-align:center;line-height:1.6}.aerr.show{display:block}
+.tb{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border-bottom:1px solid var(--border);position:relative;z-index:10;min-height:56px}.tb .r{display:flex;align-items:center;gap:10px}.tb .av{width:38px;height:38px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);cursor:pointer;border:2px solid var(--border)}.tb .nfo h3{font-size:14px;font-weight:700;line-height:1.2}.tb .nfo p{font-size:10px;color:var(--text2)}.tb .acts{display:flex;gap:4px}.tb .acts button{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:none;color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}.tb .acts button:hover{background:var(--bg3);color:var(--text)}.tb .acts .abn{color:var(--warn)}
+.bn{display:flex;background:var(--bg);border-top:1px solid var(--border);position:absolute;bottom:0;left:0;right:0;z-index:10;padding:4px 0 env(safe-area-inset-bottom,8px)}.bn button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0;background:none;cursor:pointer;border:none;color:var(--text3);font-size:9px;font-weight:600;transition:color .2s}.bn button i{font-size:17px}.bn button.active{color:var(--blue)}
+.vs{position:absolute;top:56px;bottom:54px;left:0;right:0;overflow:hidden}.v{position:absolute;inset:0;overflow-y:auto;padding:16px;display:none;animation:fi .25s}.v.active{display:block}@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hh{background:linear-gradient(135deg,var(--blue),var(--blue-dk));border-radius:var(--r);padding:20px;color:#fff;margin-bottom:16px;position:relative;overflow:hidden}.hh::after{content:'';position:absolute;top:-20px;left:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08)}.hh h2{font-size:18px;font-weight:700;margin-bottom:4px}.hh p{font-size:12px;opacity:.85}
+.hs{display:flex;align-items:center;gap:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--rs);padding:0 14px;margin-bottom:16px;transition:border .2s}.hs:focus-within{border-color:var(--blue)}.hs i{color:var(--text3);font-size:14px}.hs input{flex:1;padding:12px 0;background:none;font-size:14px;color:var(--text)}.hs input::placeholder{color:var(--text3)}
+.sc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.sc2{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:14px;text-align:center}.sc2 .nm{font-size:24px;font-weight:900;color:var(--blue)}.sc2 .lb{font-size:11px;color:var(--text2);margin-top:2px}
+.ic{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s}.ic:hover{background:var(--bg2)}.ic .ii{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.ic .it h4{font-size:13px;font-weight:600}.ic .it p{font-size:11px;color:var(--text2)}
+.jb{background:linear-gradient(135deg,var(--blue),#7c3aed);border-radius:var(--r);padding:20px;color:#fff;text-align:center;margin-bottom:16px;cursor:pointer;transition:transform .2s}.jb:hover{transform:scale(1.02)}.jb i{font-size:32px;margin-bottom:8px}.jb h3{font-size:16px;font-weight:700;margin-bottom:4px}.jb p{font-size:12px;opacity:.85}
+.ci2{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}.ci2:hover{background:var(--bg2);margin:0 -16px;padding:12px 16px;border-radius:var(--rxs)}.ci2 .ca{width:48px;height:48px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--blue);flex-shrink:0;position:relative}.ci2 .ca .od{position:absolute;bottom:1px;left:1px;width:10px;height:10px;border-radius:50%;background:var(--ok);border:2px solid var(--bg)}.ci2 .ca .gd{position:absolute;bottom:-2px;left:-2px;width:18px;height:18px;border-radius:50%;background:var(--blue);border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff}.ci2 .cinf{flex:1;min-width:0}.ci2 .ct{display:flex;justify-content:space-between;align-items:center}.ci2 .cn{font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px}.ci2 .ctm{font-size:11px;color:var(--text3)}.ci2 .cb{display:flex;justify-content:space-between;align-items:center;margin-top:2px}.ci2 .cl{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}.ci2 .cbdg{min-width:20px;height:20px;border-radius:10px;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 6px;flex-shrink:0}
+.vb{color:#53bdeb;font-size:13px;flex-shrink:0}
+.cr{position:absolute;inset:0;z-index:50;background:var(--bg);display:none;flex-direction:column;animation:sl .25s}.cr.show{display:flex}@keyframes sl{from{transform:translateX(100%)}to{transform:translateX(0)}}.cr .rh{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);min-height:56px}.cr .rh .bb{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:none;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}.cr .rh .ra{width:38px;height:38px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue)}.cr .rh .ri h4{font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px}.cr .rh .ri p{font-size:10px;color:var(--text2)}.cr .rh .rac{margin-right:auto;display:flex;gap:4px}.cr .rh .rac button{width:34px;height:34px;border-radius:50%;background:none;border:none;color:var(--text2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ma{flex:1;overflow-y:auto;padding:12px 16px;background:var(--bg2)}.md{text-align:center;margin:12px 0}.md span{background:var(--bg3);color:var(--text2);padding:4px 12px;border-radius:10px;font-size:11px}
+.mr{display:flex;margin-bottom:4px;animation:mp .2s}.mr.me{justify-content:flex-end}.mr.them{justify-content:flex-start}@keyframes mp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.mb{max-width:78%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;word-wrap:break-word}.mr.me .mb{background:var(--blue);color:#fff;border-bottom-left:4px}.mr.them .mb{background:var(--bg);border:1px solid var(--border);border-bottom-right:4px}
+.mb .mt{font-size:10px;opacity:.6;margin-top:4px;display:flex;align-items:center;gap:3px;justify-content:flex-end}
+.mb .art{font-size:9px;background:rgba(255,255,255,.15);padding:2px 6px;border-radius:4px;margin-bottom:4px;display:inline-block}.mr.them .art{background:var(--bg3);color:var(--text2)}
+.mb .sn{font-size:10px;font-weight:600;margin-bottom:2px;display:block}
+.typ{display:flex;justify-content:flex-start;margin-bottom:4px}.typb{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:10px 16px;display:flex;gap:4px}.typb span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:tp 1.2s infinite}.typb span:nth-child(2){animation-delay:.2s}.typb span:nth-child(3){animation-delay:.4s}@keyframes tp{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+.cia{display:flex;align-items:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--bg)}.cia textarea{flex:1;resize:none;background:var(--bg2);border:2px solid var(--border);border-radius:22px;padding:10px 16px;font-size:14px;color:var(--text);max-height:100px;min-height:40px;line-height:1.4;transition:border .2s}.cia textarea:focus{border-color:var(--blue)}.cia button{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ats{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}.ats button{padding:8px 12px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .2s}.ats button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ac{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px}.ac .atp{display:flex;align-items:center;gap:10px;margin-bottom:8px}.ac .aa{width:40px;height:40px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue)}.ac .ai{flex:1;min-width:0}.ac .ai h4{font-size:13px;font-weight:600}.ac .ai p{font-size:11px;color:var(--text2)}.ac .aac{display:flex;gap:6px;flex-wrap:wrap}.ac .aac button{padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.bv{background:#dcfce7;color:#16a34a}.bb{background:#fef2f2;color:#dc2626}.bu{background:#dcfce7;color:#16a34a}.bvw{background:#eff6ff;color:var(--blue)}.bd{background:#fef2f2;color:#dc2626}.ba{background:#dcfce7;color:#16a34a}.brj{background:#fef2f2;color:#dc2626}
+.sb{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600}.sb.v{background:#dcfce7;color:#16a34a}.sb.uv{background:#fef9c3;color:#ca8a04}.sb.bk{background:#fef2f2;color:#dc2626}.sb.pn{background:#eff6ff;color:var(--blue}
+.ds{margin-bottom:16px}.ds h4{font-size:13px;font-weight:700;margin-bottom:8px;color:var(--text2);display:flex;align-items:center;gap:6px}.ds h4 i{font-size:12px;color:var(--blue)}.dr{display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-radius:var(--rxs);margin-bottom:4px;font-size:12px}.dr .dl{color:var(--text2)}.dr .dv{font-weight:600;color:var(--text);max-width:60%;text-align:left;word-break:break-all}.dm{padding:8px 12px;background:var(--bg2);border-radius:var(--rxs);margin-bottom:4px;font-size:12px}.dm .dms{font-weight:600;color:var(--blue);font-size:11px}.dm .dmt{color:var(--text);margin-top:2px}.dm .dmt2{font-size:10px;color:var(--text3);margin-top:2px}
+.si{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer}.si .sii{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}.si .sit h4{font-size:13px;font-weight:600}.si .sit p{font-size:11px;color:var(--text2)}.si .sia{margin-right:auto;color:var(--text3);font-size:13px}
+.mo{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center}.mo.show{display:flex}.mc{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-height:85vh;overflow-y:auto;animation:su .3s;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}.mh{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px}.mc h3{font-size:16px;font-weight:700;margin-bottom:12px}.mf{margin-bottom:14px}.mf label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px}.mf input,.mf textarea,.mf select{width:100%;padding:10px 14px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--rxs);font-size:14px;color:var(--text)}.mf textarea{resize:none;min-height:80px}.mf input:focus,.mf textarea:focus{border-color:var(--blue)}.mbs{display:flex;gap:8px;margin-top:16px}.mbs button{flex:1;padding:12px;border-radius:var(--rxs);font-size:14px;font-weight:600;cursor:pointer;border:none}.mbs .bp{background:var(--blue);color:#fff}.mbs .bs{background:var(--bg2);color:var(--text2)}
+.tc{position:absolute;top:12px;left:12px;right:12px;z-index:500;display:flex;flex-direction:column;gap:6px;pointer-events:none}.tt{padding:12px 16px;border-radius:var(--rxs);font-size:12px;font-weight:600;box-shadow:var(--shl);animation:ti .3s;pointer-events:auto;display:flex;align-items:center;gap:8px}.tt.ok{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0}.tt.no{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}.tt.inf{background:#eff6ff;color:var(--blue);border:1px solid #dbeafe}@keyframes ti{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.sr{max-height:300px;overflow-y:auto}.sri{display:flex;align-items:center;gap:10px;padding:10px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15px}.sri:hover{background:var(--bg2)}.sri .sra{width:40px;height:40px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue)}.sri .srn h4{font-size:13px;font-weight:600}.sri .srn p{font-size:11px;color:var(--text2)}
+.bks{position:absolute;inset:0;z-index:200;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}.bks.show{display:flex}.bks i{font-size:48px;color:var(--no);margin-bottom:16px}.bks h2{font-size:20px;font-weight:700;margin-bottom:8px}.bks p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.7}
+.tsw{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:background .2s}.tsw.on{background:var(--blue)}.tsw .td{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}.tsw.on .td{transform:translateX(-20px)}
+.fst{position:absolute;bottom:56px;left:8px;right:8px;z-index:8;display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;font-size:10px;font-weight:600;pointer-events:none;transition:opacity .3s}.fst.c{background:#dcfce7;color:#16a34a}.fst.d{background:#fef2f2;color:#dc2626}
+.tab-btns{display:flex;gap:0;margin-bottom:16px;background:var(--bg2);border-radius:var(--rs);padding:3px}.tab-btns button{flex:1;padding:10px;border-radius:var(--rxs);background:none;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s;border:none}.tab-btns button.active{background:var(--bg);color:var(--blue);box-shadow:var(--sh)}
+.sti{display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer}.sti .sta{width:50px;height:50px;border-radius:50%;border:3px solid var(--ok);padding:2px;display:flex;align-items:center;justify-content:center}.sti .sta .stai{width:100%;height:100%;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--text2);overflow:hidden}.sti .sta .stai img{width:100%;height:100%;object-fit:cover}.sti .stn{flex:1}.sti .stn h4{font-size:14px;font-weight:600}.sti .stn p{font-size:11px;color:var(--text2)}
+.stv{position:absolute;inset:0;z-index:150;background:#000;display:none;flex-direction:column}.stv.show{display:flex}.stvp{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:3px;height:3px}.stvp .stpb{flex:1;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden}.stvp .stpf{height:100%;background:#fff;width:0%;transition:width 5s linear}.stvh{position:absolute;top:18px;left:12px;right:12px;display:flex;align-items:center;gap:10px;color:#fff}.stvh .sva{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:14px}.stvh .svn{font-size:13px;font-weight:600}.stvh .svt{font-size:11px;color:rgba(255,255,255,.6);margin-right:auto}.stvc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:40px}.stvc .stcc{max-width:340px;width:100%;text-align:center;color:#fff;font-size:18px;line-height:1.8;padding:30px;border-radius:16px}.stv .cls{position:absolute;top:20px;right:12px;background:none;border:none;color:#fff;font-size:20px;cursor:pointer}.stv .nst{position:absolute;top:0;bottom:0;width:35%;cursor:pointer}.stv .nst.nx{left:0}.stv .nst.pv{right:0}
+.chl{background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:10px;cursor:pointer;transition:all .2s}.chl:hover{border-color:var(--blue)}.chl .chlt{display:flex;align-items:center;gap:12px;margin-bottom:8px}.chl .chli{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0}.chl .chln{flex:1}.chl .chln h4{font-size:14px;font-weight:600}.chl .chln p{font-size:11px;color:var(--text2)}.chl .chls{font-size:11px;color:var(--text3)}.chl .chla{display:flex;gap:6px;margin-top:8px}
+.gmsi{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer}.gmsi input[type=checkbox]{width:18px;height:18px;accent-color:var(--blue);cursor:pointer}.gmsi .gmsn{font-size:13px;flex:1}.gmsi .gmsp{font-size:11px;color:var(--text2)}
+.not-reg{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--rs);padding:16px;text-align:center;margin-top:12px}.not-reg i{font-size:28px;color:var(--no);display:block;margin-bottom:8px}.not-reg p{font-size:13px;color:var(--no);font-weight:600}
 </style>
 </head>
 <body>
+<div class="af" id="app">
+<div class="tc" id="tc"></div>
+<div class="fst" id="fst"></div>
 
-<div class="app-frame" id="appFrame">
-  <div class="toast-container" id="toastContainer"></div>
+<div class="splash" id="sp"><div class="sl"><i class="fas fa-bolt"></i></div><h1>Kimoup</h1><p>BUSINESS MASTER VIP</p></div>
 
-  <!-- حالة Firebase -->
-  <div class="firebase-status" id="firebaseStatus"></div>
+<div class="bks" id="bks"><i class="fas fa-ban"></i><h2>تم حظر حسابك</h2><p id="bkr">تم حظر حسابك من قبل الإدارة.</p><button class="abtn" onclick="showAF()" style="max-width:250px;margin-bottom:10px"><i class="fas fa-gavel" style="margin-left:6px"></i> تقديم اعتراض</button><button class="abtn" onclick="logout()" style="max-width:250px;background:var(--bg2);color:var(--text2)">خروج</button></div>
 
-  <!-- شاشة البداية -->
-  <div class="splash" id="splashScreen">
-    <div class="splash-logo"><i class="fas fa-bolt"></i></div>
-    <h1>Kimoup</h1>
-    <p>BUSINESS MASTER VIP</p>
-  </div>
+<div class="as" id="as">
+<div class="al"><i class="fas fa-bolt"></i></div>
+<div class="at">Kimoup</div><div class="asub">WE HERE TO HELP YOU</div>
+<div class="af2"><label>اسمك الكامل</label><input type="text" id="aN" placeholder="أدخل اسمك..." maxlength="30"></div>
+<div class="af2"><label>رقم الهاتف</label><input type="tel" id="aP" placeholder="01xxxxxxxxx" dir="ltr" maxlength="11" style="text-align:left"></div>
+<button class="abtn" id="aB" onclick="doReg()"><i class="fas fa-arrow-left" style="margin-left:6px"></i> سجل في</button>
+<div class="aerr" id="aE"></div>
+<p style="text-align:center;font-size:11px;color:var(--text3);margin-top:16px">بالتسجيل أنت توافق على شروط الاستخدام</p>
+</div>
 
-  <!-- شاشة الحظر -->
-  <div class="blocked-screen" id="blockedScreen">
-    <i class="fas fa-ban"></i>
-    <h2>تم حظر حسابك</h2>
-    <p id="blockedReason">تم حظر حسابك من قبل الإدارة. يمكنك تقديم اعتراض إذا كنت تعتقد أن هذا كان خطأ.</p>
-    <button class="auth-btn" onclick="showAppealForm()" style="max-width:250px;margin-bottom:10px;">
-      <i class="fas fa-gavel" style="margin-left:6px;"></i> تقديم اعتراض
-    </button>
-    <button class="auth-btn" onclick="logout()" style="max-width:250px;background:var(--bg2);color:var(--text2);">تسجيل الخروج</button>
-  </div>
+<div id="ma" style="display:none;position:absolute;inset:0">
+<div class="tb">
+<div class="r"><div class="av" onclick="sv('pr')"><i class="fas fa-bolt"></i></div><div class="nfo"><h3 id="tN">Kimoup</h3><p id="tS">WE HERE TO HELP YOU</p></div></div>
+<div class="acts"><button class="abn" id="adB" onclick="sv('ad')" style="display:none"><i class="fas fa-crown"></i></button><button onclick="sv('pr')"><i class="fas fa-gear"></i></button><button onclick="logout()"><i class="fas fa-right-from-bracket"></i></button></div>
+</div>
 
-  <!-- شاشة الدخول -->
-  <div class="auth-screen" id="authScreen">
-    <div class="auth-logo"><i class="fas fa-bolt"></i></div>
-    <div class="auth-title">Kimoup</div>
-    <div class="auth-sub">WE HERE TO HELP YOU</div>
-    <div class="auth-field">
-      <label>اسمك الكامل</label>
-      <input type="text" id="authName" placeholder="أدخل اسمك..." maxlength="30">
-    </div>
-    <div class="auth-field">
-      <label>رقم الهاتف</label>
-      <input type="tel" id="authPhone" placeholder="01xxxxxxxxx" dir="ltr" maxlength="11" style="text-align:left;">
-    </div>
-    <button class="auth-btn" id="authBtn" onclick="doRegister()">
-      <i class="fas fa-arrow-left" style="margin-left:6px;"></i> سجل في
-    </button>
-    <div class="auth-error" id="authError"></div>
-    <div class="auth-success" id="authSuccess"></div>
-    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:16px;">
-      بالتسجيل أنت توافق على شروط الاستخدام وسياسة الخصوصية
-    </p>
-  </div>
+<div class="vs">
+<!-- الرئيسية -->
+<div class="v active" id="hmV">
+<div class="hh"><h2 id="hG">مرحباً بك</h2><p>نحن هنا لمساعدتك في أي وقت</p></div>
+<div class="sc"><div class="sc2"><div class="nm" id="sU">0</div><div class="lb">المستخدمين</div></div><div class="sc2"><div class="nm" id="sC">0</div><div class="lb">المحادثات</div></div></div>
+<div class="jb" onclick="oJM()"><i class="fas fa-user-plus"></i><h3>انضم إلى فريق العمل</h3><p>كن جزءاً من فريقنا المميز</p></div>
+<div class="ic" onclick="oPS()"><div class="ii" style="background:#eff6ff;color:var(--blue)"><i class="fas fa-paper-plane"></i></div><div class="it"><h4>اكلم مع حد</h4><p>كلم شخص أو اعمل جروب</p></div></div>
+<div class="ic" onclick="sv('sv')"><div class="ii" style="background:#fef3c7;color:var(--warn)"><i class="fas fa-circle-dot"></i></div><div class="it"><h4>الحالات</h4><p>شارك حالتك أو شوف حالات غيرك</p></div></div>
+<div class="ic" onclick="sv('ch')"><div class="ii" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-bullhorn"></i></div><div class="it"><h4>القنوات</h4><p>تابع القنوات واعرف آخر الأخبار</p></div></div>
+<div class="ic" onclick="sv('sv2')"><div class="ii" style="background:#dcfce7;color:var(--ok)"><i class="fas fa-concierge-bell"></i></div><div class="it"><h4>الخدمات</h4><p>تصفح الخدمات المتاحة</p></div></div>
+</div>
 
-  <!-- التطبيق الرئيسي -->
-  <div id="mainApp" style="display:none;position:absolute;inset:0;">
-    <div class="top-bar">
-      <div class="right">
-        <div class="avatar" id="topAvatar" onclick="showView('profile')"><i class="fas fa-bolt"></i></div>
-        <div class="info">
-          <h3 id="topName">Kimoup</h3>
-          <p id="topSub">WE HERE TO HELP YOU</p>
-        </div>
-      </div>
-      <div class="actions">
-        <button class="admin-btn" id="adminBtn" onclick="showView('admin')" title="لوحة التحكم" style="display:none;"><i class="fas fa-crown"></i></button>
-        <button onclick="showView('profile')" title="الإعدادات"><i class="fas fa-gear"></i></button>
-        <button onclick="logout()" title="خروج"><i class="fas fa-right-from-bracket"></i></button>
-      </div>
-    </div>
+<!-- المحادثات -->
+<div class="v" id="ctV">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">المحادثات</h3><button style="background:var(--blue);color:#fff;border:none;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px" onclick="oPS()"><i class="fas fa-plus"></i> جديد</button></div>
+<div id="cL"></div><div id="nC" style="text-align:center;padding:40px 0;color:var(--text3);display:none"><i class="fas fa-comments" style="font-size:40px;margin-bottom:12px;display:block"></i><p style="font-size:13px">لا توجد محادثات</p></div>
+</div>
 
-    <div class="views">
-      <!-- الرئيسية -->
-      <div class="view active" id="homeView">
-        <div class="home-header">
-          <h2 id="homeGreeting">مرحباً بك</h2>
-          <p>نحن هنا لمساعدتك في أي وقت</p>
-        </div>
-        <div class="home-search">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="ابحث عن خدمة..." id="homeSearch">
-          <button style="background:none;border:none;color:var(--blue);font-size:16px;cursor:pointer;" onclick="openPersonSearch()"><i class="fas fa-camera"></i></button>
-        </div>
-        <div class="stat-cards">
-          <div class="stat-card"><div class="num" id="statUsers">0</div><div class="lbl">المستخدمين</div></div>
-          <div class="stat-card"><div class="num" id="statChats">0</div><div class="lbl">المحادثات</div></div>
-        </div>
-        <div class="join-banner" onclick="openJoinModal()">
-          <i class="fas fa-user-plus"></i>
-          <h3>انضم إلى فريق العمل</h3>
-          <p>كن جزءاً من فريقنا المميز</p>
-        </div>
-        <div class="info-card" onclick="openPersonSearch()">
-          <div class="ic-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-search"></i></div>
-          <div class="ic-text"><h4>ابحث عن شخص</h4><p>ابحث عن المستخدمين بالاسم أو الرقم</p></div>
-        </div>
-        <div class="info-card" onclick="showView('services')">
-          <div class="ic-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-concierge-bell"></i></div>
-          <div class="ic-text"><h4>الخدمات المتاحة</h4><p>تصفح جميع الخدمات التي نقدمها</p></div>
-        </div>
-        <div class="info-card" onclick="showView('chats')">
-          <div class="ic-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-comments"></i></div>
-          <div class="ic-text"><h4>المحادثات</h4><p>تابع محادثاتك مع العملاء والفريق</p></div>
-        </div>
-      </div>
+<!-- الحالات -->
+<div class="v" id="svV">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">الحالات</h3><button style="background:var(--blue);color:#fff;border:none;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer" onclick="oNS()"><i class="fas fa-plus" style="margin-left:4px"></i> حالة جديدة</button></div>
+<div id="mySt" style="margin-bottom:16px"></div>
+<div style="font-size:12px;color:var(--text2);margin-bottom:8px">التحديثات الأخيرة</div>
+<div id="stL"></div>
+<div id="nstL" style="text-align:center;padding:40px 0;color:var(--text3);display:none"><i class="fas fa-circle-dot" style="font-size:40px;margin-bottom:12px;display:block"></i><p>لا توجد حالات</p></div>
+</div>
 
-      <!-- الخدمات -->
-      <div class="view" id="servicesView">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">الخدمات المتاحة</h3>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-headset"></i></div>
-          <div class="sv-text"><h4>خدمة العملاء</h4><p>دعم فني على مدار الساعة</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-bullhorn"></i></div>
-          <div class="sv-text"><h4>التسويق الرقمي</h4><p>إدارة الحملات الإعلانية</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-store"></i></div>
-          <div class="sv-text"><h4>إدارة المتاجر</h4><p>حلول متكاملة للتجارة الإلكترونية</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#fef2f2;color:var(--danger);"><i class="fas fa-shield-halved"></i></div>
-          <div class="sv-text"><h4>الحماية والأمان</h4><p>تأمين حساباتك وبياناتك</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#f3e8ff;color:#7c3aed;"><i class="fas fa-laptop-code"></i></div>
-          <div class="sv-text"><h4>تطوير المواقع</h4><p>تصميم وبرمجة المواقع والتطبيقات</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-        <div class="service-card" onclick="toast('سيتم فتح الخدمة قريباً','info')">
-          <div class="sv-icon" style="background:#ecfdf5;color:#059669;"><i class="fas fa-chart-line"></i></div>
-          <div class="sv-text"><h4>تحليل البيانات</h4><p>تقارير وإحصائيات مفصلة</p></div>
-          <i class="fas fa-chevron-left sv-arrow"></i>
-        </div>
-      </div>
+<!-- القنوات -->
+<div class="v" id="chV">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="font-size:16px;font-weight:700">القنوات</h3><button id="crChB" style="background:var(--blue);color:#fff;border:none;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:none" onclick="oCrCh()"><i class="fas fa-plus" style="margin-left:4px"></i> إنشاء قناة</button></div>
+<div id="chL"></div>
+<div id="nCh" style="text-align:center;padding:40px 0;color:var(--text3);display:none"><i class="fas fa-bullhorn" style="font-size:40px;margin-bottom:12px;display:block"></i><p>لا توجد قنوات</p></div>
+</div>
 
-      <!-- المحادثات -->
-      <div class="view" id="chatsView">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;">المحادثات</h3>
-        <div id="chatsList"></div>
-        <div id="noChats" style="text-align:center;padding:40px 0;color:var(--text3);display:none;">
-          <i class="fas fa-comments" style="font-size:40px;margin-bottom:12px;display:block;"></i>
-          <p style="font-size:13px;">لا توجد محادثات بعد</p>
-          <p style="font-size:11px;margin-top:4px;">ابحث عن شخص وابدأ محادثة</p>
-        </div>
-      </div>
+<!-- الخدمات -->
+<div class="v" id="sv2V">
+<h3 style="font-size:16px;font-weight:700;margin-bottom:14px">الخدمات المتاحة</h3>
+<div class="ic" onclick="toast('سيتم فتح الخدمة قريباً','inf')"><div class="ii" style="background:#eff6ff;color:var(--blue)"><i class="fas fa-headset"></i></div><div class="it"><h4>خدمة العملاء</h4><p>دعم فني على مدار الساعة</p></div></div>
+<div class="ic" onclick="toast('سيتم فتح الخدمة قريباً','inf')"><div class="ii" style="background:#dcfce7;color:var(--ok)"><i class="fas fa-bullhorn"></i></div><div class="it"><h4>التسويق الرقمي</h4><p>إدارة الحملات الإعلانية</p></div></div>
+<div class="ic" onclick="toast('سيتم فتح الخدمة قريباً','inf')"><div class="ii" style="background:#fef3c7;color:var(--warn)"><i class="fas fa-store"></i></div><div class="it"><h4>إدارة المتاجر</h4><p>حلول التجارة الإلكترونية</p></div></div>
+<div class="ic" onclick="toast('سيتم فتح الخدمة قريباً','inf')"><div class="ii" style="background:#fef2f2;color:var(--no)"><i class="fas fa-shield-halved"></i></div><div class="it"><h4>الحماية والأمان</h4><p>تأمين حساباتك وبياناتك</p></div></div>
+<div class="ic" onclick="toast('سيتم فتح الخدمة قريباً','inf')"><div class="ii" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-laptop-code"></i></div><div class="it"><h4>تطوير المواقع</h4><p>تصميم وبرمجة المواقع</p></div></div>
+</div>
 
-      <!-- لوحة الأدمن -->
-      <div class="view" id="adminView" style="display:none;">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:4px;">
-          <i class="fas fa-crown" style="color:var(--warning);margin-left:6px;"></i> لوحة التحكم
-        </h3>
-        <p style="font-size:11px;color:var(--text2);margin-bottom:14px;">إدارة المستخدمين والمراقبة</p>
-        <div class="admin-tabs" id="adminTabs">
-          <button class="active" onclick="switchAdminTab('all-users',this)">الكل</button>
-          <button onclick="switchAdminTab('verify',this)">توثيق</button>
-          <button onclick="switchAdminTab('blocked',this)">محظورين</button>
-          <button onclick="switchAdminTab('appeals',this)">اعتراضات</button>
-          <button onclick="switchAdminTab('data',this)">داتا فيور</button>
-          <button onclick="switchAdminTab('autoreply',this)">رد تلقائي</button>
-        </div>
-        <div id="adminContent"></div>
-      </div>
+<!-- الأدمن -->
+<div class="v" id="adV" style="display:none">
+<h3 style="font-size:16px;font-weight:700;margin-bottom:4px"><i class="fas fa-crown" style="color:var(--warn);margin-left:6px"></i> لوحة التحكم</h3>
+<p style="font-size:11px;color:var(--text2);margin-bottom:14px">إدارة المستخدمين والمراقبة</p>
+<div class="ats" id="adT"><button class="active" onclick="sat('all',this)">الكل</button><button onclick="sat('vrf',this)">توثيق</button><button onclick="sat('blk',this)">محظورين</button><button onclick="sat('apl',this)">اعتراضات</button><button onclick="sat('dat',this)">داتا فيور</button><button onclick="sat('ar',this)">رد تلقائي</button></div>
+<div id="adC"></div>
+</div>
 
-      <!-- الإعدادات -->
-      <div class="view" id="profileView" style="display:none;">
-        <div style="text-align:center;margin-bottom:24px;">
-          <div class="avatar" id="profileAvatar" style="width:70px;height:70px;font-size:28px;margin:0 auto 10px;cursor:pointer;" onclick="changePhoto()"><i class="fas fa-bolt"></i></div>
-          <h3 id="profileName" style="font-size:18px;font-weight:700;">-</h3>
-          <p id="profilePhone" style="font-size:13px;color:var(--text2);">-</p>
-          <div id="profileBadges" style="margin-top:6px;display:flex;gap:6px;justify-content:center;"></div>
-        </div>
-        <div class="settings-item" onclick="editProfile()">
-          <div class="si-icon" style="background:#eff6ff;color:var(--blue);"><i class="fas fa-pen"></i></div>
-          <div class="si-text"><h4>تعديل الملف الشخصي</h4><p>تغيير الاسم والصورة</p></div>
-          <i class="fas fa-chevron-left si-arrow"></i>
-        </div>
-        <div class="settings-item" onclick="showView('services')">
-          <div class="si-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-concierge-bell"></i></div>
-          <div class="si-text"><h4>الخدمات</h4><p>تصفح الخدمات المتاحة</p></div>
-          <i class="fas fa-chevron-left si-arrow"></i>
-        </div>
-        <div class="settings-item" onclick="showView('chats')">
-          <div class="si-icon" style="background:#dcfce7;color:var(--success);"><i class="fas fa-comments"></i></div>
-          <div class="si-text"><h4>المحادثات</h4><p>إدارة محادثاتك</p></div>
-          <i class="fas fa-chevron-left si-arrow"></i>
-        </div>
-        <div id="adminSettings" style="display:none;">
-          <div class="settings-item" onclick="showView('admin')">
-            <div class="si-icon" style="background:#fef3c7;color:var(--warning);"><i class="fas fa-crown"></i></div>
-            <div class="si-text"><h4>لوحة التحكم</h4><p>إدارة المستخدمين والنظام</p></div>
-            <i class="fas fa-chevron-left si-arrow"></i>
-          </div>
-        </div>
-        <div class="settings-item" onclick="logout()" style="color:var(--danger);">
-          <div class="si-icon" style="background:#fef2f2;color:var(--danger);"><i class="fas fa-right-from-bracket"></i></div>
-          <div class="si-text"><h4 style="color:var(--danger);">تسجيل الخروج</h4><p>خروج من الحساب</p></div>
-          <i class="fas fa-chevron-left si-arrow"></i>
-        </div>
-      </div>
+<!-- البروفايل -->
+<div class="v" id="prV" style="display:none">
+<div style="text-align:center;margin-bottom:24px"><div class="av" style="width:70px;height:70px;font-size:28px;margin:0 auto 10px"><i class="fas fa-bolt"></i></div><h3 id="pN" style="font-size:18px;font-weight:700">-</h3><p id="pP" style="font-size:13px;color:var(--text2)">-</p><div id="pB" style="margin-top:6px;display:flex;gap:6px;justify-content:center"></div></div>
+<div class="si" onclick="ePr()"><div class="sii" style="background:#eff6ff;color:var(--blue)"><i class="fas fa-pen"></i></div><div class="sit"><h4>تعديل الاسم</h4><p>تغيير اسمك فقط</p></div><i class="fas fa-chevron-left sia"></i></div>
+<div class="si" onclick="sv('sv')"><div class="sii" style="background:#fef3c7;color:var(--warn)"><i class="fas fa-circle-dot"></i></div><div class="sit"><h4>الحالات</h4><p>حالاتك</p></div><i class="fas fa-chevron-left sia"></i></div>
+<div class="si" onclick="sv('ch')"><div class="sii" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-bullhorn"></i></div><div class="sit"><h4>القنوات</h4><p>القنوات المشتركة</p></div><i class="fas fa-chevron-left sia"></i></div>
+<div id="adS" style="display:none"><div class="si" onclick="sv('ad')"><div class="sii" style="background:#fef3c7;color:var(--warn)"><i class="fas fa-crown"></i></div><div class="sit"><h4>لوحة التحكم</h4><p>إدارة المستخدمين</p></div><i class="fas fa-chevron-left sia"></i></div></div>
+<div class="si" onclick="logout()" style="color:var(--no)"><div class="sii" style="background:#fef2f2;color:var(--no)"><i class="fas fa-right-from-bracket"></i></div><div class="sit"><h4 style="color:var(--no)">تسجيل الخروج</h4></div><i class="fas fa-chevron-left sia"></i></div>
+</div>
 
-      <!-- عرض بيانات -->
-      <div class="view" id="dataViewerView" style="display:none;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-          <button style="width:34px;height:34px;border-radius:50%;background:var(--bg2);border:none;color:var(--text);cursor:pointer;font-size:14px;" onclick="showView('admin')"><i class="fas fa-arrow-right"></i></button>
-          <h3 style="font-size:15px;font-weight:700;">بيانات المستخدم</h3>
-        </div>
-        <div id="dataViewerContent"></div>
-      </div>
-    </div>
+<!-- Data Viewer -->
+<div class="v" id="dvV" style="display:none">
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px"><button style="width:34px;height:34px;border-radius:50%;background:var(--bg2);border:none;color:var(--text);cursor:pointer;font-size:14px" onclick="sv('ad')"><i class="fas fa-arrow-right"></i></button><h3 style="font-size:15px;font-weight:700">بيانات المستخدم</h3></div>
+<div id="dvC"></div>
+</div>
+</div>
 
-    <div class="bottom-nav">
-      <button class="active" onclick="showView('home')" id="navHome"><i class="fas fa-home"></i><span>الرئيسية</span></button>
-      <button onclick="showView('services')" id="navServices"><i class="fas fa-th-large"></i><span>الخدمات</span></button>
-      <button onclick="showView('chats')" id="navChats"><i class="fas fa-comments"></i><span>المحادثات</span></button>
-    </div>
+<div class="bn">
+<button class="active" onclick="sv('hm')" id="nH"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+<button onclick="sv('ct')" id="nC2"><i class="fas fa-comments"></i><span>المحادثات</span></button>
+<button onclick="sv('sv')" id="nS"><i class="fas fa-circle-dot"></i><span>الحالات</span></button>
+<button onclick="sv('ch')" id="nCh2"><i class="fas fa-bullhorn"></i><span>القنوات</span></button>
+</div>
 
-    <!-- غرفة المحادثة -->
-    <div class="chat-room" id="chatRoom">
-      <div class="room-header">
-        <button class="back-btn" onclick="closeChatRoom()"><i class="fas fa-arrow-right"></i></button>
-        <div class="rh-avatar" id="roomAvatar"><i class="fas fa-user"></i></div>
-        <div class="rh-info"><h4 id="roomName">-</h4><p id="roomStatus">-</p></div>
-        <div class="rh-actions"><button onclick="toast('مكالمة صوتية','info')"><i class="fas fa-phone"></i></button></div>
-      </div>
-      <div class="messages-area" id="messagesArea"></div>
-      <div class="chat-input-area">
-        <textarea id="chatMsgInput" rows="1" placeholder="اكتب رسالة..." oninput="autoResizeTA(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"></textarea>
-        <button onclick="sendChatMsg()"><i class="fas fa-paper-plane"></i></button>
-      </div>
-    </div>
-  </div>
+<!-- غرفة محادثة -->
+<div class="cr" id="cR">
+<div class="rh"><button class="bb" onclick="cCR()"><i class="fas fa-arrow-right"></i></button><div class="ra" id="rA"><i class="fas fa-user"></i></div><div class="ri"><h4 id="rN">-</h4><p id="rS">-</p></div><div class="rac"><button onclick="toast('مكالمة','inf')"><i class="fas fa-phone"></i></button></div></div>
+<div class="ma" id="mA"></div>
+<div class="cia"><textarea id="cI" rows="1" placeholder="اكتب رسالة..." oninput="aR(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sCM()}"></textarea><button onclick="sCM()"><i class="fas fa-paper-plane"></i></button></div>
+</div>
 
-  <!-- نوافذ -->
-  <div class="modal-overlay" id="personSearchModal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <h3><i class="fas fa-search" style="margin-left:8px;color:var(--blue);"></i>ابحث عن شخص</h3>
-      <div class="modal-field"><input type="text" id="personSearchInput" placeholder="أدخل الاسم أو الرقم..." oninput="searchPersons(this.value)"></div>
-      <div class="search-results" id="personSearchResults"></div>
-    </div>
-  </div>
+<!-- غرفة قناة -->
+<div class="cr" id="chR">
+<div class="rh"><button class="bb" onclick="cChR()"><i class="fas fa-arrow-right"></i></button><div class="ra" style="background:linear-gradient(135deg,var(--blue),#7c3aed);color:#fff;border:none"><i class="fas fa-bullhorn"></i></div><div class="ri"><h4 id="chRN">-</h4><p id="chRS">-</p></div></div>
+<div class="ma" id="chMA"></div>
+<div id="chIA" style="display:none;padding:10px 12px;border-top:1px solid var(--border);background:var(--bg)"><div class="cia" style="padding:0"><textarea id="chI" rows="1" placeholder="اكتب رسالة في القناة..." oninput="aR(this)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sChM()}"></textarea><button onclick="sChM()"><i class="fas fa-paper-plane"></i></button></div></div>
+</div>
+</div>
 
-  <div class="modal-overlay" id="joinModal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <h3><i class="fas fa-user-plus" style="margin-left:8px;color:var(--blue);"></i>انضم إلى فريق العمل</h3>
-      <div class="modal-field"><label>الاسم الكامل</label><input type="text" id="joinName"></div>
-      <div class="modal-field"><label>الرقم</label><input type="tel" id="joinPhone" dir="ltr"></div>
-      <div class="modal-field"><label>لماذا تريد الانضمام؟</label><textarea id="joinReason" placeholder="اكتب سبب انضمامك..."></textarea></div>
-      <div class="modal-btns"><button class="btn-secondary" onclick="closeModal('joinModal')">إلغاء</button><button class="btn-primary" onclick="submitJoin()">إرسال الطلب</button></div>
-    </div>
-  </div>
+<!-- مودالات -->
+<div class="mo" id="psM"><div class="mc"><div class="mh"></div><h3><i class="fas fa-paper-plane" style="margin-left:8px;color:var(--blue)"></i>اكلم مع حد</h3>
+<div class="tab-btns"><button class="active" onclick="psTab('person',this)">كلم شخص</button><button onclick="psTab('group',this)">اعمل جروب</button></div>
+<div id="psPerson"><div class="mf"><label>رقم الهاتف</label><input type="tel" id="psPh" placeholder="01xxxxxxxxx" dir="ltr" maxlength="11" style="text-align:left"><div class="not-reg" id="notReg" style="display:none"><i class="fas fa-user-slash"></i><p>هذا الرقم غير مسجل في التطبيق</p></div></div><button class="abtn" onclick="sCP()">ابحث واكلم</button></div>
+<div id="psGroup" style="display:none"><div class="mf"><label>اسم الجروب</label><input type="text" id="gpN" placeholder="اسم الجروب"></div><div style="font-size:12px;color:var(--text2);margin-bottom:8px">اختر الأعضاء:</div><div id="gpM"></div><button class="abtn" onclick="cGr()">إنشاء الجروب</button></div>
+</div></div>
 
-  <div class="modal-overlay" id="editProfileModal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <h3>تعديل الملف الشخصي</h3>
-      <div class="modal-field"><label>الاسم</label><input type="text" id="editNameInput" maxlength="30"></div>
-      <div class="modal-btns"><button class="btn-secondary" onclick="closeModal('editProfileModal')">إلغاء</button><button class="btn-primary" onclick="saveProfile()">حفظ</button></div>
-    </div>
-  </div>
+<div class="mo" id="jM"><div class="mc"><div class="mh"></div><h3><i class="fas fa-user-plus" style="margin-left:8px;color:var(--blue)"></i>انضم للفريق</h3>
+<div class="mf"><label>الاسم</label><input type="text" id="jN"></div><div class="mf"><label>الرقم</label><input type="tel" id="jP" dir="ltr"></div><div class="mf"><label>السبب</label><textarea id="jR" placeholder="لماذا تريد الانضمام؟"></textarea></div>
+<div class="mbs"><button class="bs" onclick="cm('jM')">إلغاء</button><button class="bp" onclick="sJ()">إرسال</button></div></div></div>
 
-  <div class="modal-overlay" id="appealModal">
-    <div class="modal-content">
-      <div class="modal-handle"></div>
-      <h3 style="color:var(--danger);"><i class="fas fa-gavel" style="margin-left:8px;"></i>تقديم اعتراض</h3>
-      <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">اشرح سبب اعتراضك على الحظر</p>
-      <div class="modal-field"><textarea id="appealText" placeholder="اكتب سبب الاعتراض هنا..." rows="4"></textarea></div>
-      <div class="modal-btns"><button class="btn-secondary" onclick="closeModal('appealModal')">إلغاء</button><button class="btn-primary" onclick="submitAppeal()">إرسال الاعتراض</button></div>
-    </div>
-  </div>
+<div class="mo" id="eM"><div class="mc"><div class="mh"></div><h3>تعديل الاسم</h3><div class="mf"><label>الاسم الجديد</label><input type="text" id="eN" maxlength="30"></div><div class="mbs"><button class="bs" onclick="cm('eM')">إلغاء</button><button class="bp" onclick="sPr()">حفظ</button></div></div></div>
 
-  <div class="modal-overlay" id="confirmModal">
-    <div class="modal-content" style="text-align:center;">
-      <div class="modal-handle"></div>
-      <i class="fas fa-triangle-exclamation" style="font-size:36px;color:var(--warning);margin-bottom:12px;"></i>
-      <h3 id="confirmTitle">تأكيد</h3>
-      <p id="confirmMsg" style="font-size:13px;color:var(--text2);margin-bottom:16px;"></p>
-      <div class="modal-btns"><button class="btn-secondary" onclick="closeModal('confirmModal')">إلغاء</button><button class="btn-primary" id="confirmAction" style="background:var(--danger);">تأكيد</button></div>
-    </div>
-  </div>
+<div class="mo" id="apM"><div class="mc"><div class="mh"></div><h3 style="color:var(--no)"><i class="fas fa-gavel" style="margin-left:8px"></i>تقديم اعتراض</h3><p style="font-size:12px;color:var(--text2);margin-bottom:14px">اشرح سبب اعتراضك</p><div class="mf"><textarea id="apT" rows="4"></textarea></div><div class="mbs"><button class="bs" onclick="cm('apM')">إلغاء</button><button class="bp" onclick="sAp()">إرسال</button></div></div></div>
+
+<div class="mo" id="nsM"><div class="mc"><div class="mh"></div><h3><i class="fas fa-circle-dot" style="margin-left:8px;color:var(--blue)"></i>حالة جديدة</h3>
+<div class="mf"><label>نص الحالة</label><textarea id="nsT" rows="3" placeholder="اكتب حالتك..."></textarea></div>
+<div class="mf"><label>لون الخلفية</label><div id="nsC" style="display:flex;gap:8px;flex-wrap:wrap"></div></div>
+<div class="mbs"><button class="bs" onclick="cm('nsM')">إلغاء</button><button class="bp" onclick="pSt()">نشر</button></div></div></div>
+
+<div class="mo" id="crChM"><div class="mc"><div class="mh"></div><h3><i class="fas fa-bullhorn" style="margin-left:8px;color:#7c3aed"></i>إنشاء قناة</h3>
+<div class="mf"><label>اسم القناة</label><input type="text" id="crChN" placeholder="اسم القناة"></div>
+<div class="mf"><label>الوصف</label><textarea id="crChD" rows="2" placeholder="وصف مختصر..."></textarea></div>
+<div class="mbs"><button class="bs" onclick="cm('crChM')">إلغاء</button><button class="bp" onclick="cCh()">إنشاء</button></div></div></div>
+
+<div class="mo" id="cfM"><div class="mc" style="text-align:center"><div class="mh"></div><i class="fas fa-triangle-exclamation" style="font-size:36px;color:var(--warn);margin-bottom:12px"></i><h3 id="cfT">تأكيد</h3><p id="cfM2" style="font-size:13px;color:var(--text2);margin-bottom:16px"></p><div class="mbs"><button class="bs" onclick="cm('cfM')">إلغاء</button><button class="bp" id="cfA" style="background:var(--no)">تأكيد</button></div></div></div>
+
+<!-- عارض الحالات -->
+<div class="stv" id="stV"><div class="stvp" id="stVP"></div><div class="stvh"><div class="sva"><i class="fas fa-user"></i></div><span class="svn" id="stVN">-</span><span class="svt" id="stVT">-</span></div><button class="cls" onclick="cStV()"><i class="fas fa-xmark"></i></button><div class="nst nx" onclick="nxSt()"></div><div class="nst pv" onclick="pvSt()"></div><div class="stvc"><div class="stcc" id="stVC"></div></div></div>
 </div>
 
 <script>
-// ===== Firebase - بدون Auth =====
-const firebaseConfig = {
-  apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
-  authDomain:"whatsapp-fcd3c.firebaseapp.com",
-  projectId:"whatsapp-fcd3c",
-  storageBucket:"whatsapp-fcd3c.firebasestorage.app",
-  messagingSenderId:"369090984748",
-  appId:"1:369090984748:web:cba013025b108578cd0a89"
-};
+// Firebase بدون Auth
+const fc={apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",authDomain:"whatsapp-fcd3c.firebaseapp.com",projectId:"whatsapp-fcd3c",storageBucket:"whatsapp-fcd3c.firebasestorage.app",messagingSenderId:"369090984748",appId:"1:369090984748:web:cba013025b108578cd0a89"};
+let db=null,fR=false;const AP='01112215950';
+try{firebase.initializeApp(fc);db=firebase.firestore();db.collection('_p').doc('c').set({t:Date.now()}).then(()=>{fR=true;uFS(true)}).catch(()=>{fR=false;uFS(false)})}catch(e){fR=false;uFS(false)}
+function uFS(ok){const e=document.getElementById('fst');e.className='fst '+(ok?'c':'d');e.innerHTML=ok?'<i class="fas fa-cloud"></i> متصل':'<i class="fas fa-cloud-slash"></i> وضع محلي';setTimeout(()=>e.style.opacity='0',3000)}
+function lg(k,d){try{return JSON.parse(localStorage.getItem('k_'+k))||d}catch{return d}}
+function ls(k,v){localStorage.setItem('k_'+k,JSON.stringify(v))}
+function gid(){return 'u_'+Date.now().toString(36)+Math.random().toString(36).substr(2,6)}
 
-let db = null;
-let firebaseReady = false;
-const ADMIN_PHONE = '01112215950';
+// واجهة بيانات موحدة
+async function dS(c,id,d){if(fR&&db)try{await db.collection(c).doc(id).set(d);return}catch(e){}let col=lg(c,{});col[id]=d;ls(c,col)}
+async function dU(c,id,d){if(fR&&db)try{await db.collection(c).doc(id).update(d);return}catch(e){}let col=lg(c,{});if(col[id])Object.assign(col[id],d);ls(c,col)}
+async function dG(c,id){if(fR&&db)try{const doc=await db.collection(c).doc(id).get();return doc.exists?doc.data():null}catch(e){}return lg(c,{})[id]||null}
+async function dA(c){if(fR&&db)try{const s=await db.collection(c).get();return s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){}return Object.entries(lg(c,{})).map(([id,d])=>({id,...d}))}
+async function dAS(c,id,sc,d){const sid=gid();if(fR&&db)try{await db.collection(c).doc(id).collection(sc).doc(sid).set(d);return sid}catch(e){}let col=lg(c+'_'+sc,{});if(!col[id])col[id]=[];col[id].push({id:sid,...d});ls(c+'_'+sc,col);return sid}
+async function dGS(c,id,sc){if(fR&&db)try{const s=await db.collection(c).doc(id).collection(sc).orderBy('timestamp','asc').get();return s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){}return(lg(c+'_'+sc,{})[id]||[]).sort((a,b)=>(a.timestamp||0)-(b.timestamp||0))}
+async function dD(c,id){if(fR&&db)try{await db.collection(c).doc(id).delete();return}catch(e){}let col=lg(c,{});delete col[id];ls(c,col)}
 
-// حاول تشغيل Firebase بدون Auth
-try {
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-  // اختبار الاتصال
-  db.collection('_ping').doc('conn').set({t: firebase.firestore.FieldValue.serverTimestamp()})
-    .then(() => { firebaseReady = true; updateFirebaseStatus(true); })
-    .catch(() => { firebaseReady = false; updateFirebaseStatus(false); });
-} catch(e) {
-  firebaseReady = false;
-  updateFirebaseStatus(false);
+let CU=null,cCI=null,cCP=null,aT='all',cPI=null,stIdx=0,stCl=[],selStC='#145a32';
+const STC=['#145a32','#7d3c98','#1a5276','#943126','#0e6251','#6c3483','#b7950b','#1b4f72','#cb4335','#7f8c8d'];
+
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('sp').classList.add('hide');const s=localStorage.getItem('kp_s');if(s)try{CU=JSON.parse(s);ckU()}catch{shA()}else shA()},1500)});
+
+function shA(){document.getElementById('as').style.display='flex';document.getElementById('ma').style.display='none';document.getElementById('bks').classList.remove('show')}
+function shM(){document.getElementById('as').style.display='none';document.getElementById('ma').style.display='block';document.getElementById('bks').classList.remove('show');uUI();lC();lSt();lCh();lSt2();if(isAd())sv('ad')}
+
+function shB(r){document.getElementById('as').style.display='none';document.getElementById('ma').style.display='none';document.getElementById('bks').classList.add('show');document.getElementById('bkr').textContent=r||'تم حظر حسابك.'}
+
+async function doReg(){
+const n=document.getElementById('aN').value.trim(),p=document.getElementById('aP').value.trim(),e=document.getElementById('aE');e.classList.remove('show');
+if(!n){e.textContent='أدخل اسمك';e.classList.add('show');return}
+if(!p||p.length<11){e.textContent='أدخل رقم صحيح (11 رقم)';e.classList.add('show');return}
+const b=document.getElementById('aB');b.disabled=true;b.textContent='جاري التسجيل...';
+const uid=gid(),ud={uid,name:n,phone:p,verified:p===AP,blocked:false,blockedReason:'',appeal:'',appealStatus:'',online:true,lastSeen:Date.now(),createdAt:Date.now()};
+try{await dS('users',uid,ud);CU=ud;localStorage.setItem('kp_s',JSON.stringify(CU));shM();toast('مرحباً '+n+'!','ok')}catch(er){e.textContent='خطأ';e.classList.add('show')}
+b.disabled=false;b.innerHTML='<i class="fas fa-arrow-left" style="margin-left:6px"></i> سجل في'}
+
+async function ckU(){if(!CU){shA();return}try{const d=await dG('users',CU.uid);if(d){CU={...CU,...d};localStorage.setItem('kp_s',JSON.stringify(CU));if(d.blocked){if(d.appealStatus==='accepted'){await dU('users',CU.uid,{blocked:false,blockedReason:'',appeal:'',appealStatus:''});CU.blocked=false;localStorage.setItem('kp_s',JSON.stringify(CU));shM();toast('تم قبول اعتراضك!','ok')}else shB(d.blockedReason)}else shM()}else shA()}catch{shA()}}
+
+function logout(){if(cPI)clearInterval(cPI);localStorage.removeItem('kp_s');CU=null;document.getElementById('aN').value='';document.getElementById('aP').value='';shA()}
+function isAd(){return CU&&CU.phone===AP}
+
+// تنقل
+function sv(vn){
+document.querySelectorAll('.v').forEach(v=>{v.classList.remove('active');v.style.display='none'});
+const v=document.getElementById(vn+'V');if(v){v.style.display='block';v.classList.add('active')}
+document.querySelectorAll('.bn button').forEach(b=>b.classList.remove('active'));
+const nm={hm:'nH',ct:'nC2',sv:'nS',ch:'nCh2'};if(nm[vn])document.getElementById(nm[vn]).classList.add('active');
+if(vn==='ad')rAT();if(vn==='hm')lSt2();if(vn==='sv')lSt();if(vn==='ch')lCh();
 }
 
-function updateFirebaseStatus(ok) {
-  const el = document.getElementById('firebaseStatus');
-  if (ok) {
-    el.className = 'firebase-status connected';
-    el.innerHTML = '<i class="fas fa-cloud"></i> متصل بالسحابة';
-    setTimeout(() => el.style.display = 'none', 3000);
-  } else {
-    el.className = 'firebase-status disconnected';
-    el.innerHTML = '<i class="fas fa-cloud-slash"></i> وضع محلي (البيانات محفوظة على الجهاز)';
-  }
+function uUI(){
+if(!CU)return;
+document.getElementById('tN').textContent=CU.name;
+document.getElementById('tS').textContent=isAd()?'مدير النظام':'WE HERE TO HELP YOU';
+document.getElementById('pN').textContent=CU.name;document.getElementById('pP').textContent=CU.phone;
+document.getElementById('hG').textContent='مرحباً، '+CU.name;
+document.getElementById('adB').style.display=isAd()?'flex':'none';
+document.getElementById('adS').style.display=isAd()?'block':'none';
+document.getElementById('crChB').style.display=isAd()?'inline-flex':'none';
+const b=document.getElementById('pB');let h='';
+if(isAd())h+='<span class="sb v"><i class="fas fa-crown"></i> أدمن</span>';
+else if(CU.verified)h+='<span class="sb v"><i class="fas fa-check-circle"></i> موثق</span>';
+else h+='<span class="sb uv"><i class="fas fa-clock"></i> غير موثق</span>';b.innerHTML=h;
 }
 
-// ===== تخزين محلي (fallback) =====
-function localGet(key, def) { try { return JSON.parse(localStorage.getItem('kp_'+key)) || def; } catch { return def; } }
-function localSet(key, val) { localStorage.setItem('kp_'+key, JSON.stringify(val)); }
-function genId() { return 'u_' + Date.now().toString(36) + Math.random().toString(36).substr(2,6); }
-
-// ===== واجهة موحدة للبيانات =====
-async function dbSet(collection, docId, data) {
-  if (firebaseReady && db) {
-    try { await db.collection(collection).doc(docId).set(data); return; } catch(e) { console.warn('Firestore write fail, using local', e); }
-  }
-  // fallback محلي
-  let col = localGet(collection, {});
-  col[docId] = data;
-  localSet(collection, col);
-}
-
-async function dbUpdate(collection, docId, data) {
-  if (firebaseReady && db) {
-    try { await db.collection(collection).doc(docId).update(data); return; } catch(e) { console.warn('Firestore update fail, using local', e); }
-  }
-  let col = localGet(collection, {});
-  if (col[docId]) { Object.assign(col[docId], data); localSet(collection, col); }
-}
-
-async function dbGet(collection, docId) {
-  if (firebaseReady && db) {
-    try { const doc = await db.collection(collection).doc(docId).get(); return doc.exists ? doc.data() : null; } catch(e) { console.warn('Firestore get fail, using local', e); }
-  }
-  let col = localGet(collection, {});
-  return col[docId] || null;
-}
-
-async function dbGetAll(collection) {
-  if (firebaseReady && db) {
-    try {
-      const snap = await db.collection(collection).get();
-      return snap.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.warn('Firestore getAll fail, using local', e); }
-  }
-  let col = localGet(collection, {});
-  return Object.entries(col).map(([id, data]) => ({id, ...data}));
-}
-
-async function dbAddSub(collection, docId, subCol, data) {
-  const subId = genId();
-  if (firebaseReady && db) {
-    try { await db.collection(collection).doc(docId).collection(subCol).doc(subId).set(data); return subId; } catch(e) { console.warn('Firestore sub add fail', e); }
-  }
-  let col = localGet(collection+'_'+subCol, {});
-  if (!col[docId]) col[docId] = [];
-  col[docId].push({id: subId, ...data});
-  localSet(collection+'_'+subCol, col);
-  return subId;
-}
-
-async function dbGetSub(collection, docId, subCol) {
-  if (firebaseReady && db) {
-    try {
-      const snap = await db.collection(collection).doc(docId).collection(subCol).orderBy('timestamp','asc').get();
-      return snap.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.warn('Firestore sub get fail', e); }
-  }
-  let col = localGet(collection+'_'+subCol, {});
-  return (col[docId] || []).sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
-}
-
-async function dbDelete(collection, docId) {
-  if (firebaseReady && db) {
-    try { await db.collection(collection).doc(docId).delete(); return; } catch(e) {}
-  }
-  let col = localGet(collection, {});
-  delete col[docId];
-  localSet(collection, col);
-}
-
-// ===== حالة التطبيق =====
-let currentUser = null;
-let currentChatId = null;
-let currentChatPartner = null;
-let adminTab = 'all-users';
-let chatPollInterval = null;
-
-// ===== بدء =====
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('splashScreen').classList.add('hide');
-    const saved = localStorage.getItem('kimoup_session');
-    if (saved) {
-      try { currentUser = JSON.parse(saved); checkUserStatus(); } catch { showAuth(); }
-    } else {
-      showAuth();
-    }
-  }, 1500);
-});
-
-function showAuth() {
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('blockedScreen').classList.remove('show');
-}
-
-function showMainApp() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'block';
-  document.getElementById('blockedScreen').classList.remove('show');
-  updateUI();
-  loadChats();
-  loadStats();
-  if (isAdmin()) showView('admin');
-}
-
-function showBlocked(reason) {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('blockedScreen').classList.add('show');
-  document.getElementById('blockedReason').textContent = reason || 'تم حظر حسابك من قبل الإدارة.';
-}
-
-async function doRegister() {
-  const name = document.getElementById('authName').value.trim();
-  const phone = document.getElementById('authPhone').value.trim();
-  const errEl = document.getElementById('authError');
-  const sucEl = document.getElementById('authSuccess');
-  errEl.classList.remove('show'); sucEl.classList.remove('show');
-
-  if (!name) { errEl.textContent = 'أدخل اسم المستخدم'; errEl.classList.add('show'); return; }
-  if (!phone || phone.length < 11) { errEl.textContent = 'أدخل رقم هاتف صحيح (11 رقم)'; errEl.classList.add('show'); return; }
-
-  const btn = document.getElementById('authBtn');
-  btn.disabled = true; btn.textContent = 'جاري التسجيل...';
-
-  const uid = genId();
-  const userData = {
-    uid, name, phone,
-    verified: phone === ADMIN_PHONE,
-    blocked: false, blockedReason: '',
-    appeal: '', appealStatus: '',
-    online: true, lastSeen: Date.now(),
-    createdAt: Date.now(), photo: ''
-  };
-
-  try {
-    await dbSet('users', uid, userData);
-    currentUser = userData;
-    localStorage.setItem('kimoup_session', JSON.stringify(currentUser));
-    sucEl.textContent = 'تم التسجيل بنجاح! جاري التحويل...';
-    sucEl.classList.add('show');
-    setTimeout(() => showMainApp(), 800);
-    toast('مرحباً ' + name + '!', 'success');
-  } catch(e) {
-    errEl.textContent = 'حدث خطأ في التسجيل';
-    errEl.classList.add('show');
-  }
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-arrow-left" style="margin-left:6px;"></i> سجل في';
-}
-
-async function checkUserStatus() {
-  if (!currentUser) { showAuth(); return; }
-  try {
-    const data = await dbGet('users', currentUser.uid);
-    if (data) {
-      currentUser = { ...currentUser, ...data };
-      localStorage.setItem('kimoup_session', JSON.stringify(currentUser));
-      if (data.blocked) {
-        if (data.appealStatus === 'accepted') {
-          await dbUpdate('users', currentUser.uid, { blocked:false, blockedReason:'', appeal:'', appealStatus:'' });
-          currentUser.blocked = false;
-          localStorage.setItem('kimoup_session', JSON.stringify(currentUser));
-          showMainApp();
-          toast('تم قبول اعتراضك ورفع الحظر!', 'success');
-        } else {
-          showBlocked(data.blockedReason);
-        }
-      } else {
-        showMainApp();
-      }
-    } else {
-      showAuth();
-    }
-  } catch(e) { showAuth(); }
-}
-
-function logout() {
-  if (chatPollInterval) clearInterval(chatPollInterval);
-  localStorage.removeItem('kimoup_session');
-  currentUser = null;
-  document.getElementById('authName').value = '';
-  document.getElementById('authPhone').value = '';
-  showAuth();
-}
-
-function isAdmin() { return currentUser && currentUser.phone === ADMIN_PHONE; }
-
-// ===== التنقل =====
-function showView(vn) {
-  document.querySelectorAll('.view').forEach(v => { v.classList.remove('active'); v.style.display = 'none'; });
-  const view = document.getElementById(vn + 'View');
-  if (view) { view.style.display = 'block'; view.classList.add('active'); }
-  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-  const nm = {home:'navHome',services:'navServices',chats:'navChats'};
-  if (nm[vn]) document.getElementById(nm[vn]).classList.add('active');
-  if (vn === 'admin') renderAdminTab();
-  if (vn === 'home') loadStats();
-}
-
-// ===== واجهة المستخدم =====
-function updateUI() {
-  if (!currentUser) return;
-  document.getElementById('topName').textContent = currentUser.name;
-  document.getElementById('topSub').textContent = isAdmin() ? 'مدير النظام' : 'WE HERE TO HELP YOU';
-  document.getElementById('profileName').textContent = currentUser.name;
-  document.getElementById('profilePhone').textContent = currentUser.phone;
-  document.getElementById('homeGreeting').textContent = 'مرحباً، ' + currentUser.name;
-  document.getElementById('adminBtn').style.display = isAdmin() ? 'flex' : 'none';
-  document.getElementById('adminSettings').style.display = isAdmin() ? 'block' : 'none';
-  const badges = document.getElementById('profileBadges');
-  let h = '';
-  if (isAdmin()) h += '<span class="status-badge verified"><i class="fas fa-crown"></i> أدمن</span>';
-  else if (currentUser.verified) h += '<span class="status-badge verified"><i class="fas fa-check-circle"></i> موثق</span>';
-  else h += '<span class="status-badge unverified"><i class="fas fa-clock"></i> غير موثق</span>';
-  badges.innerHTML = h;
-}
-
-// ===== الإحصائيات =====
-async function loadStats() {
-  try {
-    const users = await dbGetAll('users');
-    document.getElementById('statUsers').textContent = users.length;
-    const chats = await dbGetAll('chats');
-    document.getElementById('statChats').textContent = chats.length;
-  } catch(e) {}
-}
-
-// ===== المحادثات =====
-async function loadChats() {
-  if (!currentUser) return;
-  try {
-    const allChats = await dbGetAll('chats');
-    const myChats = allChats.filter(c => c.participants && c.participants.includes(currentUser.uid));
-    myChats.sort((a,b) => (b.lastTime||0) - (a.lastTime||0));
-    renderChatsList(myChats);
-  } catch(e) { renderChatsList([]); }
-}
-
-async function renderChatsList(chatArr) {
-  const container = document.getElementById('chatsList');
-  const noChats = document.getElementById('noChats');
-  if (!chatArr || chatArr.length === 0) { container.innerHTML = ''; noChats.style.display = 'block'; return; }
-  noChats.style.display = 'none';
-  let html = '';
-  for (const chat of chatArr) {
-    const partnerId = chat.participants.find(p => p !== currentUser.uid);
-    let pName = 'مستخدم', pVerified = false;
-    try {
-      const u = await dbGet('users', partnerId);
-      if (u) { pName = u.name; pVerified = u.verified; }
-    } catch(e) {}
-    const lastMsg = chat.lastMessage || '';
-    const lastTime = chat.lastTime ? fmtTime(chat.lastTime) : '';
-    const unread = chat.unread && chat.unread[currentUser.uid] ? chat.unread[currentUser.uid] : 0;
-    html += `<div class="chat-item" onclick="openChatRoom('${chat.id}','${partnerId}','${esc(pName)}',${pVerified})">
-      <div class="ch-avatar"><i class="fas fa-user"></i></div>
-      <div class="ch-info">
-        <div class="ch-top"><span class="ch-name">${pVerified?'<i class="fas fa-check-circle verified-badge"></i>':''}${esc(pName)}</span><span class="ch-time">${lastTime}</span></div>
-        <div class="ch-bottom"><span class="ch-last">${esc(lastMsg)}</span>${unread>0?`<span class="ch-badge">${unread}</span>`:''}</div>
-      </div>
-    </div>`;
-  }
-  container.innerHTML = html;
-}
-
-function fmtTime(ts) {
-  if (!ts) return '';
-  const d = new Date(ts);
-  const now = new Date();
-  if (d.toDateString() === now.toDateString()) return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
-  return d.getDate()+'/'+(d.getMonth()+1);
-}
-function fmtTimeFull(ts) {
-  if (!ts) return '';
-  const d = new Date(ts);
-  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
-}
-
-// ===== غرفة المحادثة =====
-async function openChatRoom(chatId, partnerId, partnerName, partnerVerified) {
-  currentChatId = chatId;
-  currentChatPartner = {id:partnerId, name:partnerName, verified:partnerVerified};
-  document.getElementById('roomName').innerHTML = (partnerVerified?'<i class="fas fa-check-circle verified-badge"></i> ':'')+esc(partnerName);
-  document.getElementById('roomStatus').textContent = 'متصل';
-  document.getElementById('chatRoom').classList.add('show');
-
-  // إعادة تعيين غير المقروء
-  try {
-    let chat = await dbGet('chats', chatId);
-    if (chat && chat.unread) {
-      chat.unread[currentUser.uid] = 0;
-      await dbUpdate('chats', chatId, {unread: chat.unread, lastTime: Date.now()});
-    }
-  } catch(e) {}
-
-  loadMessages();
-  // تحديث كل 2 ثانية
-  if (chatPollInterval) clearInterval(chatPollInterval);
-  chatPollInterval = setInterval(loadMessages, 2000);
-  loadChats();
-}
-
-async function loadMessages() {
-  if (!currentChatId) return;
-  const area = document.getElementById('messagesArea');
-  try {
-    const msgs = await dbGetSub('chats', currentChatId, 'messages');
-    renderMessages(msgs);
-  } catch(e) {
-    area.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">لا توجد رسائل</div>';
-  }
-}
-
-function renderMessages(msgs) {
-  const area = document.getElementById('messagesArea');
-  let html = '', lastDate = '';
-  for (const msg of msgs) {
-    const d = new Date(msg.timestamp || 0);
-    const dateStr = d.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
-    if (dateStr !== lastDate) { html += `<div class="msg-date"><span>${dateStr}</span></div>`; lastDate = dateStr; }
-    const isMe = msg.senderId === currentUser.uid;
-    html += `<div class="msg-row ${isMe?'me':'them'}"><div class="msg-bubble">
-      ${msg.isAutoReply?'<div class="auto-reply-tag"><i class="fas fa-robot" style="margin-left:3px;"></i> رد تلقائي</div>':''}
-      ${esc(msg.text||'').replace(/\n/g,'<br>')}
-      <div class="msg-time">${fmtTimeFull(msg.timestamp)}${isMe?'<i class="fas fa-check-double" style="font-size:11px;margin-right:3px;"></i>':''}</div>
-    </div></div>`;
-  }
-  area.innerHTML = html;
-  area.scrollTop = area.scrollHeight;
-}
-
-async function sendChatMsg() {
-  const input = document.getElementById('chatMsgInput');
-  const text = input.value.trim();
-  if (!text || !currentChatId) return;
-  input.value = ''; autoResizeTA(input);
-
-  await dbAddSub('chats', currentChatId, 'messages', {
-    senderId: currentUser.uid, senderName: currentUser.name,
-    text, timestamp: Date.now(), isAutoReply: false
-  });
-  await dbUpdate('chats', currentChatId, { lastMessage: text.substring(0,50), lastTime: Date.now() });
-
-  // تحقق من الرد التلقائي
-  checkAutoReply(currentChatId, text);
-  loadMessages();
-}
-
-async function checkAutoReply(chatId, userMsg) {
-  try {
-    const settings = await dbGet('settings_autoReply');
-    if (!settings || !settings.enabled) return;
-    const msgs = await dbGetSub('chats', chatId, 'messages');
-    const myMsgs = msgs.filter(m => m.senderId === currentUser.uid);
-    if (myMsgs.length <= 1) {
-      setTimeout(async () => {
-        await dbAddSub('chats', chatId, 'messages', {
-          senderId: 'system', senderName: 'نظام Kimoup',
-          text: settings.message, timestamp: Date.now(), isAutoReply: true
-        });
-        await dbUpdate('chats', chatId, {
-          lastMessage: '[رد تلقائي] ' + (settings.message||'').substring(0,40),
-          lastTime: Date.now()
-        });
-        loadMessages();
-      }, 1500);
-    }
-  } catch(e) {}
-}
-
-function closeChatRoom() {
-  document.getElementById('chatRoom').classList.remove('show');
-  if (chatPollInterval) { clearInterval(chatPollInterval); chatPollInterval = null; }
-  currentChatId = null; currentChatPartner = null;
-  loadChats();
-}
-
-function autoResizeTA(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
-
-// ===== بدء محادثة =====
-async function startChatWith(partnerId) {
-  closeModal('personSearchModal');
-  if (partnerId === currentUser.uid) { toast('لا يمكن المحادثة مع نفسك','error'); return; }
-  try {
-    const pBlocked = await dbGet('users', partnerId);
-    if (pBlocked && pBlocked.blocked) { toast('هذا المستخدم محظور','error'); return; }
-    // هل المحادثة موجودة؟
-    const allChats = await dbGetAll('chats');
-    const existing = allChats.find(c => c.participants && c.participants.includes(currentUser.uid) && c.participants.includes(partnerId));
-    if (existing) {
-      const pName = pBlocked ? pBlocked.name : 'مستخدم';
-      openChatRoom(existing.id, partnerId, pName, pBlocked?.verified||false);
-      return;
-    }
-    // محادثة جديدة
-    const newId = genId();
-    const chatData = {
-      participants: [currentUser.uid, partnerId],
-      lastMessage: '', lastTime: Date.now(),
-      unread: {[currentUser.uid]:0, [partnerId]:0}
-    };
-    await dbSet('chats', newId, chatData);
-    openChatRoom(newId, partnerId, pBlocked ? pBlocked.name : 'مستخدم', pBlocked?.verified||false);
-    loadChats();
-  } catch(e) { toast('خطأ في بدء المحادثة','error'); }
-}
-
-// ===== بحث =====
-function openPersonSearch() {
-  document.getElementById('personSearchInput').value = '';
-  document.getElementById('personSearchResults').innerHTML = '';
-  openModal('personSearchModal');
-}
-
-async function searchPersons(q) {
-  const container = document.getElementById('personSearchResults');
-  if (!q || q.length < 1) { container.innerHTML = ''; return; }
-  try {
-    const users = await dbGetAll('users');
-    const results = users.filter(u => u.uid !== currentUser.uid && !u.blocked && (u.name.includes(q) || u.phone.includes(q)));
-    if (results.length === 0) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">لا توجد نتائج</div>'; return; }
-    container.innerHTML = results.map(r => `<div class="search-result-item" onclick="startChatWith('${r.uid}')">
-      <div class="sr-avatar"><i class="fas fa-user"></i></div>
-      <div class="sr-info"><h4>${r.verified?'<i class="fas fa-check-circle" style="color:var(--success);font-size:11px;margin-left:4px;"></i>':''}${esc(r.name)}</h4><p>${esc(r.phone)}</p></div>
-    </div>`).join('');
-  } catch(e) { container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">خطأ في البحث</div>'; }
-}
-
-// ===== لوحة الأدمن =====
-function switchAdminTab(tab, btn) {
-  adminTab = tab;
-  document.querySelectorAll('#adminTabs button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderAdminTab();
-}
-
-async function renderAdminTab() {
-  const c = document.getElementById('adminContent');
-  c.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
-  try {
-    const allUsers = (await dbGetAll('users')).filter(u => u.phone !== ADMIN_PHONE);
-    switch(adminTab) {
-      case 'all-users': renderAdminUsers(c, allUsers); break;
-      case 'verify': renderAdminVerify(c, allUsers); break;
-      case 'blocked': renderAdminBlocked(c, allUsers); break;
-      case 'appeals': renderAdminAppeals(c, allUsers); break;
-      case 'data': renderAdminDataSelector(c, allUsers); break;
-      case 'autoreply': renderAdminAutoReply(c); break;
-    }
-  } catch(e) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">خطأ في تحميل البيانات</div>'; }
-}
-
-function renderAdminUsers(c, users) {
-  if (!users.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);">لا يوجد مستخدمين</div>'; return; }
-  c.innerHTML = users.map(u => `<div class="admin-card"><div class="ac-top">
-    <div class="ac-avatar"><i class="fas fa-user"></i></div>
-    <div class="ac-info"><h4>${esc(u.name)} ${u.verified?'<span class="status-badge verified"><i class="fas fa-check"></i> موثق</span>':'<span class="status-badge unverified"><i class="fas fa-clock"></i></span>'} ${u.blocked?'<span class="status-badge blocked"><i class="fas fa-ban"></i> محظور</span>':''}</h4><p>${esc(u.phone)}</p></div></div>
-    <div class="ac-actions">
-    ${!u.verified?`<button class="btn-verify" onclick="verifyUser('${u.uid}')"><i class="fas fa-check"></i> توثيق</button>`:''}
-    ${!u.blocked?`<button class="btn-block" onclick="blockUser('${u.uid}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button>`:`<button class="btn-unblock" onclick="unblockUser('${u.uid}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك حظر</button>`}
-    <button class="btn-view" onclick="viewUserData('${u.uid}')"><i class="fas fa-eye"></i> عرض البيانات</button>
-    <button class="btn-delete" onclick="deleteUser('${u.uid}','${esc(u.name)}')"><i class="fas fa-trash"></i> حذف</button>
-    </div></div>`).join('');
-}
-
-function renderAdminVerify(c, users) {
-  const uv = users.filter(u => !u.verified && !u.blocked);
-  if (!uv.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-check-circle" style="font-size:32px;display:block;margin-bottom:8px;color:var(--success);"></i>الكل موثقين</div>'; return; }
-  c.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">غير الموثقين ('+uv.length+')</p>'+uv.map(u=>`<div class="admin-card"><div class="ac-top"><div class="ac-avatar"><i class="fas fa-user"></i></div><div class="ac-info"><h4>${esc(u.name)} <span class="status-badge unverified"><i class="fas fa-clock"></i> غير موثق</span></h4><p>${esc(u.phone)}</p></div></div><div class="ac-actions"><button class="btn-verify" onclick="verifyUser('${u.uid}')"><i class="fas fa-check-circle"></i> توثيق</button><button class="btn-block" onclick="blockUser('${u.uid}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button></div></div>`).join('');
-}
-
-function renderAdminBlocked(c, users) {
-  const bl = users.filter(u => u.blocked);
-  if (!bl.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-shield-halved" style="font-size:32px;display:block;margin-bottom:8px;"></i>لا يوجد محظورين</div>'; return; }
-  c.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">المحظورين ('+bl.length+')</p>'+bl.map(u=>`<div class="admin-card" style="border-color:#fecaca;"><div class="ac-top"><div class="ac-avatar" style="color:var(--danger);"><i class="fas fa-ban"></i></div><div class="ac-info"><h4>${esc(u.name)} <span class="status-badge blocked"><i class="fas fa-ban"></i> محظور</span></h4><p>${esc(u.phone)}</p>${u.blockedReason?`<p style="color:var(--danger);font-size:10px;margin-top:2px;">سبب: ${esc(u.blockedReason)}</p>`:''}${u.appeal?`<p style="color:var(--warning);font-size:10px;margin-top:2px;"><i class="fas fa-gavel"></i> اعتراض: ${esc(u.appeal).substring(0,50)}...</p>`:''}${u.appealStatus==='pending'?'<span class="status-badge pending"><i class="fas fa-clock"></i> اعتراض قيد المراجعة</span>':''}</div></div><div class="ac-actions"><button class="btn-unblock" onclick="unblockUser('${u.uid}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك حظر</button>${u.appealStatus==='pending'?`<button class="btn-accept" onclick="acceptAppeal('${u.uid}')"><i class="fas fa-check"></i> قبول</button><button class="btn-reject" onclick="rejectAppeal('${u.id}')"><i class="fas fa-times"></i> رفض</button>`:''}<button class="btn-view" onclick="viewUserData('${u.uid}')"><i class="fas fa-eye"></i> البيانات</button></div></div>`).join('');
-}
-
-function renderAdminAppeals(c, users) {
-  const wa = users.filter(u => u.appeal && u.appealStatus === 'pending');
-  if (!wa.length) { c.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);"><i class="fas fa-gavel" style="font-size:32px;display:block;margin-bottom:8px;"></i>لا يوجد اعتراضات</div>'; return; }
-  c.innerHTML = '<p style="font-size:12px;color:var(--text2);margin-bottom:12px;">اعتراضات قيد المراجعة ('+wa.length+')</p>'+wa.map(u=>`<div class="admin-card" style="border-color:#fde68a;"><div class="ac-top"><div class="ac-avatar" style="color:var(--warning);"><i class="fas fa-gavel"></i></div><div class="ac-info"><h4>${esc(u.name)}</h4><p>${esc(u.phone)}</p></div></div><div style="background:var(--bg2);padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;line-height:1.6;color:var(--text2);"><strong style="color:var(--text);">نص الاعتراض:</strong><br>${esc(u.appeal)}</div><div class="ac-actions"><button class="btn-accept" onclick="acceptAppeal('${u.uid}')"><i class="fas fa-check"></i> قبول ورفع الحظر</button><button class="btn-reject" onclick="rejectAppeal('${u.uid}')"><i class="fas fa-times"></i> رفض</button><button class="btn-view" onclick="viewUserData('${u.uid}')"><i class="fas fa-eye"></i> البيانات</button></div></div>`).join('');
-}
-
-function renderAdminDataSelector(c, users) {
-  c.innerHTML = `<div style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border-radius:var(--radius);padding:20px;color:#fff;text-align:center;margin-bottom:16px;">
-    <i class="fas fa-database" style="font-size:32px;margin-bottom:8px;display:block;"></i><h4 style="font-size:16px;">Data Viewer</h4><p style="font-size:11px;opacity:.7;">عرض بيانات أي مستخدم بالكامل</p></div>
-    <div class="modal-field"><label>اختر المستخدم</label><select id="dataViewerSelect" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xs);font-size:14px;color:var(--text);"><option value="">-- اختر --</option>${users.map(u=>`<option value="${u.uid}">${esc(u.name)} (${esc(u.phone)})</option>`).join('')}</select></div>
-    <button class="auth-btn" onclick="viewSelectedUserData()" style="margin-top:8px;"><i class="fas fa-eye" style="margin-left:6px;"></i> عرض البيانات</button>`;
-}
-
-async function renderAdminAutoReply(c) {
-  const s = await dbGet('settings_autoReply') || {enabled:false,message:''};
-  c.innerHTML = `<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px;">
-    <h4 style="font-size:14px;font-weight:700;margin-bottom:4px;"><i class="fas fa-robot" style="margin-left:8px;color:var(--blue);"></i>الرد التلقائي على أول رسالة</h4>
-    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">يتم إرسال رسالة تلقائية عند أول رسالة من أي مستخدم</p>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <span style="font-size:13px;font-weight:600;">تفعيل</span>
-      <div class="toggle-switch ${s.enabled?'on':''}" id="arToggle" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div>
-    </div>
-    <div class="modal-field"><label>نص الرسالة</label><textarea id="arMessage" rows="4" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--radius-xs);font-size:14px;color:var(--text);resize:none;">${esc(s.message||'مرحباً بك! شكراً لتواصلك معنا. سيتم الرد عليك في أقرب وقت.')}</textarea></div>
-    <button class="auth-btn" onclick="saveAutoReply()"><i class="fas fa-save" style="margin-left:6px;"></i> حفظ</button>
-  </div>`;
-}
-
-// ===== إجراءات الأدمن =====
-async function verifyUser(uid) {
-  await dbUpdate('users',uid,{verified:true});
-  toast('تم توثيق المستخدم','success'); renderAdminTab();
-}
-
-function blockUser(uid,name) {
-  document.getElementById('confirmTitle').textContent='حظر المستخدم';
-  document.getElementById('confirmMsg').textContent=`حظر "${name}"؟ أضف سبب الحظر.`;
-  document.getElementById('confirmAction').onclick=async()=>{
-    const reason=prompt('سبب الحظر:')||'انتهاك شروط الاستخدام';
-    await dbUpdate('users',uid,{blocked:true,blockedReason:reason,appeal:'',appealStatus:''});
-    toast('تم حظر المستخدم','success'); renderAdminTab(); closeModal('confirmModal');
-  };
-  openModal('confirmModal');
-}
-
-async function unblockUser(uid,name) {
-  await dbUpdate('users',uid,{blocked:false,blockedReason:'',appeal:'',appealStatus:''});
-  toast('تم فك حظر '+name,'success'); renderAdminTab();
-}
-
-async function acceptAppeal(uid) {
-  await dbUpdate('users',uid,{blocked:false,blockedReason:'',appealStatus:'accepted'});
-  toast('تم قبول الاعتراض','success'); renderAdminTab();
-}
-
-async function rejectAppeal(uid) {
-  await dbUpdate('users',uid,{appealStatus:'rejected'});
-  toast('تم رفض الاعتراض','info'); renderAdminTab();
-}
-
-function deleteUser(uid,name) {
-  document.getElementById('confirmTitle').textContent='حذف المستخدم';
-  document.getElementById('confirmMsg').textContent=`حذف "${name}" نهائياً؟ لا يمكن التراجع.`;
-  document.getElementById('confirmAction').onclick=async()=>{
-    await dbDelete('users',uid);
-    // حذف المحادثات
-    try {
-      const chats=await dbGetAll('chats');
-      for(const ch of chats){
-        if(ch.participants&&ch.participants.includes(uid)){
-          await dbDelete('chats',ch.id);
-          // حذف الرسائل من التخزين المحلي
-          localStorage.removeItem('kp_chats_messages_'+ch.id);
-        }
-      }
-    }catch(e){}
-    toast('تم حذف المستخدم','success'); renderAdminTab(); closeModal('confirmModal');
-  };
-  openModal('confirmModal');
-}
-
-// ===== Data Viewer =====
-async function viewUserData(uid) {
-  showView('dataViewer');
-  const c = document.getElementById('dataViewerContent');
-  c.innerHTML = '<div style="text-align:center;padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
-  try {
-    const u = await dbGet('users',uid);
-    if(!u){c.innerHTML='<div style="text-align:center;color:var(--danger);">غير موجود</div>';return;}
-    const allChats=await dbGetAll('chats');
-    const myChats=allChats.filter(ch=>ch.participants&&ch.participants.includes(uid));
-    let allMsgs=[];
-    for(const ch of myChats){
-      const msgs=await dbGetSub('chats',ch.id,'messages');
-      allMsgs.push(...msgs);
-    }
-    allMsgs.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-
-    c.innerHTML=`<div class="data-section"><h4><i class="fas fa-user"></i> البيانات الأساسية</h4>
-      <div class="data-row"><span class="dr-label">الاسم</span><span class="dr-value">${esc(u.name)}</span></div>
-      <div class="data-row"><span class="dr-label">الهاتف</span><span class="dr-value">${esc(u.phone)}</span></div>
-      <div class="data-row"><span class="dr-label">المعرف</span><span class="dr-value" style="font-size:10px;">${uid}</span></div>
-      <div class="data-row"><span class="dr-label">موثق</span><span class="dr-value">${u.verified?'<span class="status-badge verified">نعم</span>':'<span class="status-badge unverified">لا</span>'}</span></div>
-      <div class="data-row"><span class="dr-label">محظور</span><span class="dr-value">${u.blocked?'<span class="status-badge blocked">نعم</span>':'لا'}</span></div>
-      <div class="data-row"><span class="dr-label">تاريخ التسجيل</span><span class="dr-value">${u.createdAt?new Date(u.createdAt).toLocaleString('ar-EG'):'-'}</span></div>
-      ${u.blockedReason?`<div class="data-row"><span class="dr-label">سبب الحظر</span><span class="dr-value" style="color:var(--danger);">${esc(u.blockedReason)}</span></div>`:''}
-      ${u.appeal?`<div class="data-row"><span class="dr-label">الاعتراض</span><span class="dr-value">${esc(u.appeal)}</span></div>`:''}
-      ${u.appealStatus?`<div class="data-row"><span class="dr-label">حالة الاعتراض</span><span class="dr-value">${u.appealStatus==='pending'?'<span class="status-badge pending">قيد المراجعة</span>':u.appealStatus==='accepted'?'<span class="status-badge verified">مقبول</span>':'<span class="status-badge blocked">مرفوض</span>'}</span></div>`:''}
-    </div>
-    <div class="data-section"><h4><i class="fas fa-comments"></i> المحادثات (${myChats.length})</h4></div>
-    <div class="data-section"><h4><i class="fas fa-envelope"></i> آخر الرسائل (${Math.min(allMsgs.length,30)})</h4>
-      ${allMsgs.slice(0,30).map(m=>`<div class="data-msg"><div class="dm-sender">${esc(m.senderName||'نظام')} ${m.isAutoReply?'<span style="color:var(--warning);font-size:10px;">[رد تلقائي]</span>':''}</div><div class="dm-text">${esc(m.text||'')}</div><div class="dm-time">${fmtTimeFull(m.timestamp)}</div></div>`).join('')}
-    </div>`;
-  }catch(e){c.innerHTML='<div style="text-align:center;color:var(--danger);">خطأ</div>';}
-}
-
-function viewSelectedUserData(){
-  const sel=document.getElementById('dataViewerSelect');
-  if(!sel||!sel.value){toast('اختر مستخدم','error');return;}
-  viewUserData(sel.value);
-}
-
-// ===== رد تلقائي =====
-async function saveAutoReply(){
-  const enabled=document.getElementById('arToggle').classList.contains('on');
-  const message=document.getElementById('arMessage').value.trim();
-  await dbSet('settings_autoReply','main',{enabled,message});
-  toast('تم حفظ إعدادات الرد التلقائي','success');
-}
-
-// ===== اعتراض =====
-function showAppealForm(){openModal('appealModal');}
-async function submitAppeal(){
-  const text=document.getElementById('appealText').value.trim();
-  if(!text){toast('اكتب سبب الاعتراض','error');return;}
-  await dbUpdate('users',currentUser.uid,{appeal:text,appealStatus:'pending'});
-  currentUser.appeal=text;currentUser.appealStatus='pending';
-  localStorage.setItem('kimoup_session',JSON.stringify(currentUser));
-  closeModal('appealModal');toast('تم إرسال الاعتراض بنجاح','success');
-}
-
-// ===== الانضمام =====
-function openJoinModal(){
-  document.getElementById('joinName').value=currentUser?.name||'';
-  document.getElementById('joinPhone').value=currentUser?.phone||'';
-  document.getElementById('joinReason').value='';
-  openModal('joinModal');
-}
-async function submitJoin(){
-  const n=document.getElementById('joinName').value.trim();
-  const p=document.getElementById('joinPhone').value.trim();
-  const r=document.getElementById('joinReason').value.trim();
-  if(!n||!p||!r){toast('أكمل جميع الحقول','error');return;}
-  await dbAddSub('joinRequests','all','requests',{name:n,phone:p,reason:r,userId:currentUser.uid,timestamp:Date.now()});
-  closeModal('joinModal');toast('تم إرسال طلب الانضمام!','success');
-}
-
-// ===== الملف الشخصي =====
-function editProfile(){document.getElementById('editNameInput').value=currentUser.name;openModal('editProfileModal');}
-async function saveProfile(){
-  const name=document.getElementById('editNameInput').value.trim();
-  if(!name){toast('أدخل الاسم','error');return;}
-  await dbUpdate('users',currentUser.uid,{name});
-  currentUser.name=name;localStorage.setItem('kimoup_session',JSON.stringify(currentUser));
-  updateUI();closeModal('editProfileModal');toast('تم التحديث','success');
-}
-function changePhoto(){
-  const i=document.createElement('input');i.type='file';i.accept='image/*';
-  i.onchange=async(e)=>{
-    const f=e.target.files[0];if(!f)return;
-    const r=new FileReader();r.onload=async(ev)=>{
-      await dbUpdate('users',currentUser.uid,{photo:ev.target.result});
-      currentUser.photo=ev.target.result;localStorage.setItem('kimoup_session',JSON.stringify(currentUser));
-      toast('تم تغيير الصورة','success');
-    };r.readAsDataURL(f);
-  };i.click();
-}
-
-// ===== نوافذ =====
-function openModal(id){document.getElementById(id).classList.add('show');}
-function closeModal(id){document.getElementById(id).classList.remove('show');}
-document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');});});
-
-// ===== توست =====
-function toast(msg,type='info'){
-  const c=document.getElementById('toastContainer');
-  const el=document.createElement('div');el.className='toast '+type;
-  const icons={success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle'};
-  el.innerHTML=`<i class="fas ${icons[type]||icons.info}"></i> ${msg}`;
-  c.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(-10px)';setTimeout(()=>el.remove(),300);},3000);
-}
-
-// ===== أدوات =====
-function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function vb(v){return v?'<i class="fas fa-check-circle vb"></i>':''}
+
+async function lSt2(){try{const u=await dA('users');document.getElementById('sU').textContent=u.length;const c=await dA('chats');document.getElementById('sC').textContent=c.length}catch{}}
+
+// المحادثات
+async function lC(){if(!CU)return;try{const all=await dA('chats');const my=all.filter(c=>c.participants&&c.participants.includes(CU.uid)).sort((a,b)=>(b.lastTime||0)-(a.lastTime||0));rCL(my)}catch{rCL([])}}
+
+async function rCL(arr){
+const c=document.getElementById('cL'),nc=document.getElementById('nC');
+if(!arr||!arr.length){c.innerHTML='';nc.style.display='block';return}nc.style.display='none';
+let h='';
+for(const ch of arr){
+const isGrp=ch.isGroup;const pid=isGrp?null:ch.participants.find(p=>p!==CU.uid);
+let pN=isGrp?ch.groupName:'مستخدم',pV=false;
+if(!isGrp){try{const u=await dG('users',pid);if(u){pN=u.name;pV=u.verified}}catch{}}
+const lm=ch.lastMessage||'',lt=fT(ch.lastTime),ur=ch.unread&&ch.unread[CU.uid]?ch.unread[CU.uid]:0;
+h+=`<div class="ci2" onclick="oCR('${ch.id}','${pid||''}','${esc(pN)}',${pV},${isGrp})">
+<div class="ca">${isGrp?'<i class="fas fa-users"></i>':'<i class="fas fa-user"></i>'}${isGrp&&ch.members?'<span class="gd">'+ch.members.length+'</span>':''}</div>
+<div class="cinf"><div class="ct"><span class="cn">${isGrp?'':vb(pV)}${esc(pN)}</span><span class="ctm">${lt}</span></div>
+<div class="cb"><span class="cl">${esc(lm)}</span>${ur>0?'<span class="cbdg">'+ur+'</span>':''}</div></div></div>`}c.innerHTML=h}
+
+function fT(ts){if(!ts)return'';const d=new Date(ts),n=new Date();if(d.toDateString()===n.toDateString())return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');return d.getDate()+'/'+(d.getMonth()+1)}
+function fTF(ts){if(!ts)return'';const d=new Date(ts);return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}
+
+async function oCR(cid,pid,pN,pV,isGrp){
+cCI=cid;cCP={id:pid,name:pN,verified:pV,isGroup:!!isGrp};
+document.getElementById('rN').innerHTML=(isGrp?'<i class="fas fa-users" style="margin-left:4px;color:var(--text2)"></i>':vb(pV))+esc(pN);
+document.getElementById('rS').textContent=isGrp?'مجموعة':'متصل';
+document.getElementById('rA').innerHTML=isGrp?'<i class="fas fa-users"></i>':'<i class="fas fa-user"></i>';
+document.getElementById('cR').classList.add('show');
+try{let ch=await dG('chats',cid);if(ch&&ch.unread){ch.unread[CU.uid]=0;await dU('chats',cid,{unread:ch.unread})}}catch{}
+lM();if(cPI)clearInterval(cPI);cPI=setInterval(lM,2000);lC()}
+
+async function lM(){if(!cCI)return;const a=document.getElementById('mA');try{const msgs=await dGS('chats',cCI,'messages');rM(msgs)}catch{a.innerHTML=''}}
+
+function rM(msgs){
+const a=document.getElementById('mA');let h='',ld='';
+for(const m of msgs){
+const d=new Date(m.timestamp||0),ds=d.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'});
+if(ds!==ld){h+='<div class="md"><span>'+ds+'</span></div>';ld=ds}
+const me=m.senderId===CU.uid;const isGrp=cCP&&cCP.isGroup;
+h+=`<div class="mr ${me?'me':'them'}"><div class="mb">${m.isAutoReply?'<div class="art"><i class="fas fa-robot" style="margin-left:3px"></i> رد تلقائي</div>':''}${isGrp&&!me?'<span class="sn">'+esc(m.senderName||'')+'</span>':''}${esc(m.text||'').replace(/\n/g,'<br>')}<div class="mt">${fTF(m.timestamp)}${me?'<i class="fas fa-check-double" style="font-size:11px;margin-right:3px"></i>':''}</div></div></div>`}
+a.innerHTML=h;a.scrollTop=a.scrollHeight}
+
+async function sCM(){
+const i=document.getElementById('cI'),t=i.value.trim();if(!t||!cCI)return;i.value='';aR(i);
+await dAS('chats',cCI,'messages',{senderId:CU.uid,senderName:CU.name,text:t,timestamp:Date.now(),isAutoReply:false});
+await dU('chats',cCI,{lastMessage:t.substring(0,50),lastTime:Date.now()});
+ckAR(cCI,t);lM()}
+
+async function ckAR(cid){
+try{const s=await dG('settings_ar');if(!s||!s.enabled)return;const msgs=await dGS('chats',cid,'messages');if(msgs.filter(m=>m.senderId===CU.uid).length<=1){setTimeout(async()=>{await dAS('chats',cid,'messages',{senderId:'system',senderName:'نظام Kimoup',text:s.message,timestamp:Date.now(),isAutoReply:true});await dU('chats',cid,{lastMessage:'[رد تلقائي] '+(s.message||'').substring(0,40),lastTime:Date.now()});lM()},1500)}}catch{}}
+
+function cCR(){document.getElementById('cR').classList.remove('show');if(cPI)clearInterval(cPI);cCI=null;cCP=null;lC()}
+function aR(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px'}
+
+// اكلم مع حد
+function oPS(){document.getElementById('psPh').value='';document.getElementById('notReg').style.display='none';document.getElementById('gpN').value='';om('psM');psTab('person',document.querySelector('.tab-btns button'));lGM()}
+function psTab(t,btn){document.querySelectorAll('.tab-btns button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('psPerson').style.display=t==='person'?'block':'none';document.getElementById('psGroup').style.display=t==='group'?'block':'none'}
+async function lGM(){const c=document.getElementById('gpM');try{const us=await dA('users');const others=us.filter(u=>u.uid!==CU.uid);c.innerHTML=others.map(u=>`<div class="gmsi"><input type="checkbox" value="${u.uid}"><span class="gmsn">${esc(u.name)}</span><span class="gmsp">${esc(u.phone)}</span></div>`).join('')}catch{c.innerHTML=''}}
+
+async function sCP(){
+const ph=document.getElementById('psPh').value.trim();document.getElementById('notReg').style.display='none';
+if(!ph||ph.length<11){toast('أدخل رقم صحيح','no');return}
+try{const us=await dA('users');const found=us.find(u=>u.phone===ph);if(!found){document.getElementById('notReg').style.display='block';toast('الرقم غير مسجل','no');return}
+if(found.blocked){toast('هذا المستخدم محظور','no');return}
+if(found.uid===CU.uid){toast('لا يمكنك الكلام مع نفسك','no');return}
+// هل محادثة موجودة؟
+const all=await dA('chats');const ex=all.find(c=>!c.isGroup&&c.participants&&c.participants.includes(CU.uid)&&c.participants.includes(found.uid));
+if(ex){cm('psM');oCR(ex.id,found.uid,found.name,found.verified,false);return}
+const nid=gid();await dS('chats',nid,{participants:[CU.uid,found.uid],isGroup:false,lastMessage:'',lastTime:Date.now(),unread:{[CU.uid]:0,[found.uid]:0}});
+cm('psM');oCR(nid,found.uid,found.name,found.verified,false);lC()}catch{toast('خطأ','no')}}
+
+async function cGr(){
+const gn=document.getElementById('gpN').value.trim();if(!gn){toast('أدخل اسم الجروب','no');return}
+const cbs=document.querySelectorAll('#gpM input[type=checkbox]:checked');if(cbs.length<2){toast('اختر عضوين على الأقل','no');return}
+const members=[CU.uid,...Array.from(cbs).map(c=>c.value)];const nid=gid();
+await dS('chats',nid,{participants:members,isGroup:true,groupName:gn,members:members,createdBy:CU.uid,lastMessage:'',lastTime:Date.now(),unread:{}});
+cm('psM');oCR(nid,'',gn,false,true);lC();toast('تم إنشاء الجروب','ok')}
+
+// الحالات
+async function lSt(){
+const myDiv=document.getElementById('mySt'),listDiv=document.getElementById('stL'),noDiv=document.getElementById('nstL');
+try{const all=await dA('statuses');const now=Date.now(),day=86400000;
+const my=all.filter(s=>s.uid===CU.uid&&now-s.timestamp<day).sort((a,b)=>b.timestamp-a.timestamp);
+const others={};all.filter(s=>s.uid!==CU.uid&&now-s.timestamp<day).forEach(s=>{if(!others[s.uid])others[s.uid]=[];others[s.uid].push(s)});
+if(my.length){myDiv.innerHTML=`<div class="sti" onclick="vSt('${CU.uid}')"><div class="sta"><div class="stai"><i class="fas fa-bolt" style="color:var(--blue)"></i></div></div><div class="stn"><h4>حالتي</h4><p>${my.length} حالة</p></div><button style="background:var(--blue);color:#fff;border:none;width:32px;height:32px;border-radius:50%;font-size:14px;cursor:pointer" onclick="event.stopPropagation();oNS()"><i class="fas fa-plus"></i></button></div>`}else{myDiv.innerHTML=`<div class="sti" onclick="oNS()"><div class="sta" style="border-color:var(--text3)"><div class="stai"><i class="fas fa-plus" style="color:var(--text3)"></i></div></div><div class="stn"><h4>حالتي</h4><p>اضيف حالة</p></div></div>`}
+const oKeys=Object.keys(others);if(oKeys.length){noDiv.style.display='none';let h='';for(const uid of oKeys){const sts=others[uid];let uname='مستخدم';try{const u=await dG('users',uid);if(u)uname=u.name}catch{}h+=`<div class="sti" onclick="vSt('${uid}')"><div class="sta"><div class="stai"><i class="fas fa-user"></i></div></div><div class="stn"><h4>${vb(false)}${esc(uname)}</h4><p>${fT(sts[0].timestamp)} - ${sts.length} حالة</p></div></div>`}listDiv.innerHTML=h}else{noDiv.style.display='block';listDiv.innerHTML=''}
+}catch{noDiv.style.display='block';listDiv.innerHTML=''}}
+
+function oNS(){om('nsM');document.getElementById('nsT').value='';selStC=STC[0];rStC()}
+function rStC(){document.getElementById('nsC').innerHTML=STC.map(c=>`<div style="width:36px;height:36px;border-radius:50%;background:${c};cursor:pointer;border:3px solid ${c===selStC?'#fff':'transparent'}" onclick="selStC='${c}';rStC()"></div>`).join('')}
+async function pSt(){const t=document.getElementById('nsT').value.trim();if(!t){toast('اكتب حالة','no');return}await dAS('statuses','all','list',{uid:CU.uid,userName:CU.name,text:t,bg:selStC,timestamp:Date.now()});cm('nsM');lSt();toast('تم نشر الحالة','ok')}
+
+async function vSt(uid){
+try{const all=await dA('statuses');const now=Date.now(),day=86400000;
+stCl=all.filter(s=>s.uid===uid&&now-s.timestamp<day).sort((a,b)=>a.timestamp-b.timestamp);
+if(!stCl.length){toast('لا توجد حالات','inf');return}
+let uname='مستخدم';try{const u=await dG('users',uid);if(u)uname=u.name}catch{}
+stIdx=0;shStV(uname)}catch{}}
+
+function shStV(name){
+document.getElementById('stVN').textContent=name;const v=document.getElementById('stV');v.classList.add('show');dStV()}
+function dStV(){
+if(stIdx>=stCl.length){cStV();return}
+const s=stCl[stIdx];document.getElementById('stVT').textContent=fT(s.timestamp);
+document.getElementById('stVC').style.background=s.bg||'#145a32';document.getElementById('stVC').textContent=s.text||'';
+const p=document.getElementById('stVP');p.innerHTML=stCl.map((_,i)=>`<div class="stpb"><div class="stpf" id="stf${i}" style="width:0%"></div></div>`).join('');
+setTimeout(()=>{const f=document.getElementById('stf'+stIdx);if(f)f.style.width='100%'},50);
+setTimeout(()=>{if(stIdx<stCl.length-1)nxSt();else cStV()},5200)}
+function nxSt(){if(stIdx<stCl.length-1){stIdx++;dStV()}}
+function pvSt(){if(stIdx>0){stIdx--;dStV()}}
+function cStV(){document.getElementById('stV').classList.remove('show');stCl=[]}
+
+// القنوات
+async function lCh(){
+const c=document.getElementById('chL'),nc=document.getElementById('nCh');
+try{const all=await dA('channels');if(!all.length){nc.style.display='block';c.innerHTML='';return}nc.style.display='none';
+c.innerHTML=all.map(ch=>{const sub=ch.subscribers&&ch.subscribers.includes(CU.uid);const cnt=(ch.subscribers||[]).length;
+return`<div class="chl" onclick="oChR('${ch.id}','${esc(ch.name)}')"><div class="chlt"><div class="chli"><i class="fas fa-bullhorn"></i></div><div class="chln"><h4>${esc(ch.name)}</h4><p>${esc(ch.description||'')}</p></div></div><div class="chls"><i class="fas fa-users" style="margin-left:4px"></i>${cnt} مشترك</div><div class="chla"><button style="padding:6px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:${sub?'var(--bg2)':'var(--blue)'};color:${sub?'var(--text2)':'#fff'}" onclick="event.stopPropagation();tSub('${ch.id}',${!sub})">${sub?'الغاء الاشتراك':'اشترك'}</button></div></div>`}).join('')}catch{nc.style.display='block';c.innerHTML=''}}
+
+async function tSub(chid,sub){
+try{let ch=await dG('channels',chid);if(!ch)return;let subs=ch.subscribers||[];
+if(sub){if(!subs.includes(CU.uid))subs.push(CU.uid)}else{subs=subs.filter(s=>s!==CU.uid)}
+await dU('channels',chid,{subscribers:subs});lCh();toast(sub?'تم الاشتراك':'تم إلغاء الاشتراك','ok')}catch{toast('خطأ','no')}}
+
+function oCrCh(){om('crChM');document.getElementById('crChN').value='';document.getElementById('crChD').value=''}
+async function cCh(){
+const n=document.getElementById('crChN').value.trim(),d=document.getElementById('crChD').value.trim();
+if(!n){toast('أدخل اسم القناة','no');return}
+await dS('channels',gid(),{name:n,description:d,createdBy:CU.uid,subscribers:[CU.uid],createdAt:Date.now()});
+cm('crChM');lCh();toast('تم إنشاء القناة','ok')}
+
+async function oChR(chid,name){
+document.getElementById('chRN').textContent=name;
+const isOwner=await chkChOwn(chid);
+document.getElementById('chRS').textContent=isOwner?'أنت المدير':'مشترك';
+document.getElementById('chIA').style.display=isOwner?'block':'none';
+document.getElementById('chR').classList.add('show');lChM(chid);
+if(cPI)clearInterval(cPI);cPI=setInterval(()=>lChM(chid),2000)}
+
+async function chkChOwn(chid){try{const ch=await dG('channels',chid);return ch&&ch.createdBy===CU.uid}catch{return false}}
+
+async function lChM(chid){
+const a=document.getElementById('chMA');try{const msgs=await dGS('channels',chid,'messages');
+let h='';for(const m of msgs){const me=m.senderId===CU.uid;h+=`<div class="mr ${me?'me':'them'}"><div class="mb">${esc(m.text||'').replace(/\n/g,'<br>')}<div class="mt"><span style="font-size:10px;font-weight:600;margin-left:4px">${esc(m.senderName||'')}</span>${fTF(m.timestamp)}</div></div></div>`}
+a.innerHTML=h;a.scrollTop=a.scrollHeight}catch{a.innerHTML=''}}
+
+async function sChM(){
+const i=document.getElementById('chI'),t=i.value.trim();if(!t)return;i.value='';aR(i);
+const chid=document.getElementById('chRN').getAttribute('data-id');if(!chid)return;
+try{const all=await dA('channels');const ch=all.find(c=>document.getElementById('chRN').textContent===c.name);if(!ch)return;
+await dAS('channels',ch.id,'messages',{senderId:CU.uid,senderName:CU.name,text:t,timestamp:Date.now()});lChM(ch.id)}catch{toast('خطأ','no')}}
+
+function cChR(){document.getElementById('chR').classList.remove('show');if(cPI)clearInterval(cPI)}
+
+// الأدمن
+function sat(t,btn){aT=t;document.querySelectorAll('#adT button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rAT()}
+async function rAT(){
+const c=document.getElementById('adC');c.innerHTML='<div style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i></div>';
+try{const all=(await dA('users')).filter(u=>u.phone!==AP);
+switch(aT){case'all':rAU(c,all);break;case'vrf':rAV(c,all);break;case'blk':rAB(c,all);break;case'apl':rAA(c,all);break;case'dat':rAD(c,all);break;case'ar':rAAR(c);break}}catch{c.innerHTML='<div style="text-align:center;color:var(--no)">خطأ</div>'}}
+
+function rAU(c,us){if(!us.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">لا يوجد مستخدمين</div>';return}
+c.innerHTML=us.map(u=>`<div class="ac"><div class="atp"><div class="aa"><i class="fas fa-user"></i></div><div class="ai"><h4>${esc(u.name)} ${u.verified?'<span class="sb v"><i class="fas fa-check"></i> موثق</span>':'<span class="sb uv"><i class="fas fa-clock"></i></span>'} ${u.blocked?'<span class="sb bk"><i class="fas fa-ban"></i></span>':''}</h4><p>${esc(u.phone)}</p></div></div><div class="aac">${!u.verified?`<button class="bv" onclick="vU('${u.uid}')"><i class="fas fa-check"></i> توثيق</button>`:''}${!u.blocked?`<button class="bb" onclick="bU('${u.uid}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button>`:`<button class="bu" onclick="uU('${u.uid}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك حظر</button>`}<button class="bvw" onclick="vUD('${u.uid}')"><i class="fas fa-eye"></i> البيانات</button><button class="bd" onclick="dU2('${u.uid}','${esc(u.name)}')"><i class="fas fa-trash"></i></button></div></div>`).join('')}
+
+function rAV(c,us){const uv=us.filter(u=>!u.verified&&!u.blocked);if(!uv.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)"><i class="fas fa-check-circle" style="font-size:32px;display:block;margin-bottom:8px;color:var(--ok)"></i>الكل موثقين</div>';return}
+c.innerHTML='<p style="font-size:12px;color:var(--text2);margin-bottom:12px">غير الموثقين ('+uv.length+')</p>'+uv.map(u=>`<div class="ac"><div class="atp"><div class="aa"><i class="fas fa-user"></i></div><div class="ai"><h4>${esc(u.name)} <span class="sb uv"><i class="fas fa-clock"></i></span></h4><p>${esc(u.phone)}</p></div></div><div class="aac"><button class="bv" onclick="vU('${u.uid}')"><i class="fas fa-check-circle"></i> توثيق</button><button class="bb" onclick="bU('${u.uid}','${esc(u.name)}')"><i class="fas fa-ban"></i> حظر</button></div></div>`).join('')}
+
+function rAB(c,us){const bl=us.filter(u=>u.blocked);if(!bl.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">لا يوجد محظورين</div>';return}
+c.innerHTML='<p style="font-size:12px;color:var(--text2);margin-bottom:12px">المحظورين ('+bl.length+')</p>'+bl.map(u=>`<div class="ac" style="border-color:#fecaca"><div class="atp"><div class="aa" style="color:var(--no)"><i class="fas fa-ban"></i></div><div class="ai"><h4>${esc(u.name)}</h4><p>${esc(u.phone)}</p>${u.blockedReason?`<p style="color:var(--no);font-size:10px">${esc(u.blockedReason)}</p>`:''}${u.appealStatus==='pending'?'<span class="sb pn">اعتراض قيد المراجعة</span>':''}</div></div><div class="aac"><button class="bu" onclick="uU('${u.uid}','${esc(u.name)}')"><i class="fas fa-unlock"></i> فك حظر</button>${u.appealStatus==='pending'?`<button class="ba" onclick="acA('${u.uid}')"><i class="fas fa-check"></i> قبول</button><button class="brj" onclick="rjA('${u.uid}')"><i class="fas fa-times"></i> رفض</button>`:''}<button class="bvw" onclick="vUD('${u.uid}')"><i class="fas fa-eye"></i></button></div></div>`).join('')}
+
+function rAA(c,us){const wa=us.filter(u=>u.appeal&&u.appealStatus==='pending');if(!wa.length){c.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">لا يوجد اعتراضات</div>';return}
+c.innerHTML='<p style="font-size:12px;color:var(--text2);margin-bottom:12px">اعتراضات ('+wa.length+')</p>'+wa.map(u=>`<div class="ac" style="border-color:#fde68a"><div class="atp"><div class="aa" style="color:var(--warn)"><i class="fas fa-gavel"></i></div><div class="ai"><h4>${esc(u.name)}</h4><p>${esc(u.phone)}</p></div></div><div style="background:var(--bg2);padding:10px;border-radius:8px;margin-bottom:10px;font-size:12px;color:var(--text2);line-height:1.6"><strong style="color:var(--text)">الاعتراض:</strong><br>${esc(u.appeal)}</div><div class="aac"><button class="ba" onclick="acA('${u.uid}')"><i class="fas fa-check"></i> قبول</button><button class="brj" onclick="rjA('${u.uid}')"><i class="fas fa-times"></i> رفض</button><button class="bvw" onclick="vUD('${u.uid}')"><i class="fas fa-eye"></i></button></div></div>`).join('')}
+
+function rAD(c,us){c.innerHTML=`<div style="background:linear-gradient(135deg,#1e3a5f,#0f172a);border-radius:var(--r);padding:20px;color:#fff;text-align:center;margin-bottom:16px"><i class="fas fa-database" style="font-size:32px;margin-bottom:8px;display:block"></i><h4>Data Viewer</h4><p style="font-size:11px;opacity:.7">بيانات المستخدمين (أدمن فقط)</p></div><div class="mf"><label>اختر المستخدم</label><select id="dvS" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--rxs);font-size:14px;color:var(--text)"><option value="">-- اختر --</option>${us.map(u=>`<option value="${u.uid}">${esc(u.name)} (${esc(u.phone)})</option>`).join('')}</select></div><button class="abtn" onclick="vSD()" style="margin-top:8px"><i class="fas fa-eye" style="margin-left:6px"></i> عرض</button>`}
+
+async function rAAR(c){const s=await dG('settings_ar')||{enabled:false,message:''};c.innerHTML=`<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:16px"><h4 style="font-size:14px;font-weight:700;margin-bottom:4px"><i class="fas fa-robot" style="margin-left:8px;color:var(--blue)"></i>الرد التلقائي</h4><p style="font-size:12px;color:var(--text2);margin-bottom:14px">أول رسالة من أي مستخدم ← رد تلقائي</p><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span style="font-size:13px;font-weight:600">تفعيل</span><div class="tsw ${s.enabled?'on':''}" id="arT" onclick="this.classList.toggle('on')"><div class="td"></div></div></div><div class="mf"><label>نص الرسالة</label><textarea id="arM" rows="4" style="width:100%;padding:10px;background:var(--bg2);border:2px solid var(--border);border-radius:var(--rxs);font-size:14px;color:var(--text);resize:none">${esc(s.message||'مرحباً بك! سيتم الرد في أقرب وقت.')}</textarea></div><button class="abtn" onclick="sAR()"><i class="fas fa-save" style="margin-left:6px"></i> حفظ</button></div>`}
+
+async function vU(uid){await dU('users',uid,{verified:true});toast('تم التوثيق ✓','ok');rAT()}
+function bU(uid,nm){document.getElementById('cfT').textContent='حظر';document.getElementById('cfM2').textContent='حظر "'+nm+'"؟';document.getElementById('cfA').onclick=async()=>{const r=prompt('سبب الحظر:')||'انتهاك الشروط';await dU('users',uid,{blocked:true,blockedReason:r,appeal:'',appealStatus:''});toast('تم الحظر','ok');rAT();cm('cfM')};om('cfM')}
+async function uU(uid,nm){await dU('users',uid,{blocked:false,blockedReason:'',appeal:'',appealStatus:''});toast('تم فك حظر '+nm,'ok');rAT()}
+async function acA(uid){await dU('users',uid,{blocked:false,blockedReason:'',appealStatus:'accepted'});toast('تم قبول الاعتراض','ok');rAT()}
+async function rjA(uid){await dU('users',uid,{appealStatus:'rejected'});toast('تم رفض الاعتراض','inf');rAT()}
+function dU2(uid,nm){document.getElementById('cfT').textContent='حذف';document.getElementById('cfM2').textContent='حذف "'+nm+'" نهائياً؟';document.getElementById('cfA').onclick=async()=>{await dD('users',uid);toast('تم الحذف','ok');rAT();cm('cfM')};om('cfM')}
+function vSD(){const s=document.getElementById('dvS');if(!s||!s.value){toast('اختر مستخدم','no');return}vUD(s.value)}
+async function vUD(uid){
+sv('dv');const c=document.getElementById('dvC');c.innerHTML='<div style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin"></i></div>';
+try{const u=await dG('users',uid);if(!u){c.innerHTML='<div style="text-align:center;color:var(--no)">غير موجود</div>';return}
+const allCh=await dA('chats');const myCh=allCh.filter(ch=>ch.participants&&ch.participants.includes(uid));
+let allM=[];for(const ch of myCh){const ms=await dGS('chats',ch.id,'messages');allM.push(...ms)}allM.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+c.innerHTML=`<div class="ds"><h4><i class="fas fa-user"></i> البيانات</h4>
+<div class="dr"><span class="dl">الاسم</span><span class="dv">${esc(u.name)}</span></div>
+<div class="dr"><span class="dl">الهاتف</span><span class="dv">${esc(u.phone)}</span></div>
+<div class="dr"><span class="dl">المعرف</span><span class="dv" style="font-size:10px">${uid}</span></div>
+<div class="dr"><span class="dl">موثق</span><span class="dv">${u.verified?'<span class="sb v">نعم</span>':'<span class="sb uv">لا</span>'}</span></div>
+<div class="dr"><span class="dl">محظور</span><span class="dv">${u.blocked?'<span class="sb bk">نعم</span>':'لا'}</span></div>
+<div class="dr"><span class="dl">التسجيل</span><span class="dv">${u.createdAt?new Date(u.createdAt).toLocaleString('ar-EG'):'-'}</span></div>
+ ${u.blockedReason?`<div class="dr"><span class="dl">سبب الحظر</span><span class="dv" style="color:var(--no)">${esc(u.blockedReason)}</span></div>`:''}
+ ${u.appeal?`<div class="dr"><span class="dl">اعتراض</span><span class="dv">${esc(u.appeal)}</span></div>`:''}
+</div><div class="ds"><h4><i class="fas fa-comments"></i> المحادثات (${myCh.length})</h4></div>
+<div class="ds"><h4><i class="fas fa-envelope"></i> الرسائل (${Math.min(allM.length,30)})</h4>
+ ${allM.slice(0,30).map(m=>`<div class="dm"><div class="dms">${esc(m.senderName||'نظام')} ${m.isAutoReply?'<span style="color:var(--warn);font-size:10px">[تلقائي]</span>':''}</div><div class="dmt">${esc(m.text||'')}</div><div class="dmt2">${fTF(m.timestamp)}</div></div>`).join('')}</div>`}catch{c.innerHTML='<div style="text-align:center;color:var(--no)">خطأ</div>'}}
+
+async function sAR(){const en=document.getElementById('arT').classList.contains('on'),mg=document.getElementById('arM').value.trim();await dS('settings_ar','main',{enabled:en,message:mg});toast('تم الحفظ','ok')}
+
+// اعتراض
+function showAF(){om('apM')}
+async function sAp(){const t=document.getElementById('apT').value.trim();if(!t){toast('اكتب الاعتراض','no');return}await dU('users',CU.uid,{appeal:t,appealStatus:'pending'});CU.appeal=t;CU.appealStatus='pending';localStorage.setItem('kp_s',JSON.stringify(CU));cm('apM');toast('تم إرسال الاعتراض','ok')}
+
+// فريق
+function oJM(){document.getElementById('jN').value=CU?.name||'';document.getElementById('jP').value=CU?.phone||'';document.getElementById('jR').value='';om('jM')}
+async function sJ(){const n=document.getElementById('jN').value.trim(),p=document.getElementById('jP').value.trim(),r=document.getElementById('jR').value.trim();if(!n||!p||!r){toast('أكمل الحقول','no');return}await dAS('joinReqs','all','reqs',{name:n,phone:p,reason:r,userId:CU.uid,timestamp:Date.now()});cm('jM');toast('تم إرسال الطلب!','ok')}
+
+// بروفايل
+function ePr(){document.getElementById('eN').value=CU.name;om('eM')}
+async function sPr(){const n=document.getElementById('eN').value.trim();if(!n){toast('أدخل الاسم','no');return}await dU('users',CU.uid,{name:n});CU.name=n;localStorage.setItem('kp_s',JSON.stringify(CU));uUI();cm('eM');toast('تم التحديث','ok')}
+
+// مودالات
+function om(id){document.getElementById(id).classList.add('show')}
+function cm(id){document.getElementById(id).classList.remove('show')}
+document.querySelectorAll('.mo').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')})});
+
+function toast(msg,type='inf'){const c=document.getElementById('tc'),el=document.createElement('div');el.className='tt '+type;const ic={ok:'fa-check-circle',no:'fa-times-circle',inf:'fa-info-circle'};el.innerHTML=`<i class="fas ${ic[type]||ic.inf}"></i> ${msg}`;c.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(-10px)';setTimeout(()=>el.remove(),300)},3000)}
+function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 </script>
 </body>
 </html>
