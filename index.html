@@ -9,7 +9,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
@@ -24,112 +26,152 @@
         .app-container { width: 100%; height: 100%; background: #ffffff; position: relative; display: flex; flex-direction: column; overflow: hidden; }
         @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 8px solid #1e293b; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); } }
 
+        /* الشات */
         #messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #f0f2f5; scroll-behavior: smooth; }
-        .msg-bubble { max-width: 80%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); position: relative; }
-        .msg-out { background-color: #dcf8c6; border-radius: 12px 12px 0 12px; align-self: flex-end; }
-        .msg-in { background-color: #ffffff; border-radius: 12px 12px 12px 0; align-self: flex-start; }
+        .msg-bubble { max-width: 85%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); position: relative; }
+        .msg-out { background-color: #dcf8c6; border-radius: 15px 15px 0 15px; align-self: flex-end; }
+        .msg-in { background-color: #ffffff; border-radius: 15px 15px 15px 0; align-self: flex-start; }
         
-        /* رسالة النظام (حساب أعمال) */
-        .sys-msg { background-color: #fef08a; color: #854d0e; font-size: 10px; text-align: center; padding: 4px 12px; border-radius: 10px; margin: 10px auto; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        /* رسائل النظام وأدوات الأعمال */
+        .sys-msg { background-color: #fef08a; color: #854d0e; font-size: 11px; text-align: center; padding: 6px 14px; border-radius: 12px; margin: 10px auto; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 90%; }
+        .cart-msg { background-color: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 15px; padding: 10px; width: 100%; }
 
         ::-webkit-scrollbar { width: 0px; }
         .hidden-view { display: none !important; }
         
         .verified-badge { background-color: #0ea5e9; color: white; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 8px; margin-right: 4px; box-shadow: 0 0 0 1.5px white; }
-        .label-badge { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .biz-label-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; border: 1px solid white; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 
         @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         .toast-show { animation: slideUp 0.3s ease-out forwards; }
         
-        /* Quick Reply Popup */
-        #quick-reply-popup { position: absolute; bottom: 70px; left: 10px; right: 10px; background: white; border-radius: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 50; max-height: 200px; overflow-y: auto; }
+        /* الردود السريعة Popup */
+        #quick-reply-popup { position: absolute; bottom: 70px; left: 10px; right: 10px; background: white; border-radius: 15px; box-shadow: 0 -5px 25px rgba(0,0,0,0.15); z-index: 50; max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; }
+        
+        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 10px 0; transition: 0.2s; }
+        .nav-btn.active { color: #0ea5e9; border-top: 2px solid #0ea5e9; background: #f0f9ff; }
+        .nav-btn.inactive { color: #94a3b8; border-top: 2px solid transparent; }
     </style>
 </head>
 <body>
 
+    <!-- Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center shadow-xl animate-pulse mb-4">
-            <i class="fas fa-bolt text-5xl text-sky-400"></i>
+        <div class="w-28 h-28 bg-slate-900 rounded-full flex items-center justify-center shadow-2xl animate-pulse mb-4 relative overflow-hidden">
+            <i class="fas fa-bolt text-6xl text-sky-400"></i>
         </div>
-        <h1 class="text-3xl font-black text-slate-800">Kimoup</h1>
-        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Business Edition</p>
+        <h1 class="text-4xl font-black text-slate-800">Kimoup</h1>
+        <p class="text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-2 bg-gray-100 px-3 py-1 rounded-full">Business VIP Edition</p>
     </div>
 
-    <div id="alert-toast" class="hidden-view fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl z-[9999] text-center w-5/6"></div>
+    <!-- Alert Toast -->
+    <div id="alert-toast" class="hidden-view fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl z-[9999] text-center w-[90%] border border-gray-700"></div>
 
     <div class="app-container">
 
-        <!-- ================= 1. الدخول ================= -->
+        <!-- ================= 1. شاشة الدخول ================= -->
         <div id="auth-view" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 hidden-view">
             <div class="w-full max-w-sm text-center">
-                <div class="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"><i class="fas fa-bolt text-4xl text-sky-400"></i></div>
-                <h2 class="text-2xl font-black text-slate-800 mb-1">Kimoup</h2>
-                <p class="text-gray-400 text-sm mb-8 font-bold">تسجيل الدخول</p>
+                <div class="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl"><i class="fas fa-bolt text-4xl text-sky-400"></i></div>
+                <h2 class="text-3xl font-black text-slate-800 mb-1">Kimoup</h2>
+                <p class="text-gray-500 text-sm mb-10 font-bold">تسجيل الدخول برقم الهاتف</p>
 
                 <div id="check-step" class="space-y-4">
-                    <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center focus-within:border-sky-500 transition-all">
+                    <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center focus-within:border-sky-500 transition-all shadow-sm">
                         <span class="text-gray-400 font-bold ml-3 border-l pl-3">+20</span>
                         <input type="tel" id="phone-input" placeholder="1112215950" class="w-full bg-transparent outline-none font-bold text-lg dir-ltr text-right">
                     </div>
-                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">متابعة الدخول</button>
+                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">متابعة الدخول</button>
                 </div>
 
                 <div id="pin-step" class="hidden-view space-y-4">
-                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-2xl"></i></div>
-                    <h3 class="font-bold text-lg">أدخل كود الدخول</h3>
-                    <p id="otp-message" class="text-xs text-gray-500 mb-2 font-bold">الكود الافتراضي: 000000</p>
-                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-2xl tracking-[0.3em] border-2 border-transparent">
-                    <button onclick="verifyAccess()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">دخول آمن</button>
+                    <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner"><i class="fas fa-unlock-keyhole text-2xl"></i></div>
+                    <h3 class="font-bold text-xl text-slate-800">أدخل كود الدخول</h3>
+                    <p id="otp-message" class="text-xs text-gray-500 mb-4 font-bold bg-gray-100 p-2 rounded-lg">الكود الافتراضي المبدئي: 000000</p>
+                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-3xl tracking-[0.4em] focus:border-green-500 border-2 border-transparent shadow-inner">
+                    <button onclick="verifyAccess()" id="btn-pin" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">دخول آمن</button>
                 </div>
             </div>
         </div>
 
         <!-- ================= 2. الواجهة الرئيسية ================= -->
         <div id="main-view" class="w-full h-full flex flex-col hidden-view bg-white">
-            <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.05)] z-20">
+            <div class="h-[75px] bg-white flex items-center justify-between px-5 shrink-0 shadow-[0_2px_15px_rgba(0,0,0,0.06)] z-20">
                 <div class="flex items-center gap-3">
-                    <button id="logout-btn" onclick="logout()" class="hidden-view text-red-400 text-xl p-2 active:scale-90"><i class="fas fa-power-off"></i></button>
-                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90"><i class="fas fa-user-shield"></i></button>
-                    <button onclick="openSettingsModal()" class="text-gray-400 text-xl p-2 active:scale-90"><i class="fas fa-cog"></i></button>
-                    <!-- زر أدوات الأعمال يظهر فقط لو كان حساب بيزنس -->
-                    <button id="biz-tools-btn" onclick="openBizTools()" class="hidden-view text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-store"></i></button>
+                    <button id="logout-btn" onclick="logout()" class="hidden-view text-red-500 text-xl p-2 active:scale-90 bg-red-50 rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-power-off"></i></button>
+                    <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-yellow-600 text-xl p-2 active:scale-90 bg-yellow-50 rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-user-shield"></i></button>
+                    <button onclick="openSettingsModal()" class="text-gray-500 text-xl p-2 active:scale-90 bg-gray-100 rounded-full w-10 h-10 flex items-center justify-center"><i class="fas fa-cog"></i></button>
+                    <button id="biz-tools-btn" onclick="openBizTools()" class="hidden-view text-sky-600 text-xl p-2 active:scale-90 bg-sky-50 rounded-full w-10 h-10 flex items-center justify-center animate-pulse"><i class="fas fa-store"></i></button>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right">
-                        <h1 class="font-black text-lg text-slate-800 leading-none">Kimoup</h1>
-                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-widest">we here to help you</p>
+                        <h1 class="font-black text-xl text-slate-800 leading-none">Kimoup</h1>
+                        <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">we here to help you</p>
                     </div>
-                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
-                        <i class="fas fa-bolt text-sky-400 text-xl"></i>
+                    <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+                        <i class="fas fa-bolt text-sky-400 text-2xl"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                <button onclick="openAddFriendModal()" class="w-full py-3.5 bg-gray-50 border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
-                    <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة جهة اتصال
+            <!-- TABS -->
+            <div id="tab-chats-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 bg-slate-50/50">
+                <button onclick="openAddFriendModal()" class="w-full py-4 bg-white border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
+                    <i class="fas fa-user-plus text-sky-500 text-xl"></i> إضافة جهة اتصال للدردشة
                 </button>
-                <div id="contacts-list" class="space-y-1 mt-4"></div>
+                <div id="contacts-list" class="space-y-2 mt-4"></div>
+            </div>
+
+            <div id="tab-groups-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50/50">
+                <button id="btn-create-group" onclick="createGroup()" class="hidden-view w-full py-4 bg-white border border-sky-200 rounded-2xl flex justify-center items-center gap-2 text-sky-500 font-bold shadow-sm active:scale-95 transition">
+                    <i class="fas fa-users text-xl"></i> إنشاء مجتمع / جروب رسمي 🔵
+                </button>
+                <h3 class="text-sm font-bold text-gray-500 mt-4 mb-2 px-2">الجروبات المتاحة</h3>
+                <div id="groups-list" class="space-y-3"></div>
+            </div>
+
+            <div id="tab-status-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50/50">
+                <button onclick="addStatus()" class="w-full py-4 bg-white border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
+                    <i class="fas fa-camera text-sky-500 text-xl"></i> إضافة حالة (Status)
+                </button>
+                <h3 class="text-sm font-bold text-gray-500 mt-4 mb-2 px-2">الحالات الحديثة</h3>
+                <div id="status-list" class="space-y-3"></div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="h-[65px] bg-white border-t border-gray-200 flex items-center shrink-0 z-20 shadow-[0_-5px_15px_rgba(0,0,0,0.03)]">
+                <button onclick="switchTab('chats')" id="tab-chats" class="nav-btn active">
+                    <i class="fas fa-comment-dots text-2xl mb-1"></i><span class="text-[11px] font-bold">الدردشات</span>
+                </button>
+                <button onclick="switchTab('groups')" id="tab-groups" class="nav-btn inactive">
+                    <i class="fas fa-users text-2xl mb-1"></i><span class="text-[11px] font-bold">المجتمعات</span>
+                </button>
+                <button onclick="switchTab('status')" id="tab-status" class="nav-btn inactive">
+                    <i class="fas fa-circle-notch text-2xl mb-1"></i><span class="text-[11px] font-bold">الحالات</span>
+                </button>
             </div>
         </div>
 
-        <!-- ================= 3. شاشة الشات ================= -->
-        <div id="chat-view" class="absolute inset-0 bg-[#f0f2f5] z-[60] flex flex-col hidden-view animate-fade-in">
-            <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-sm z-20">
-                <button onclick="closeChat()" class="p-2 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
+        <!-- ================= 3. شاشة الشات والكتالوج ================= -->
+        <div id="chat-view" class="absolute inset-0 bg-[#efeae2] z-[60] flex flex-col hidden-view animate-fade-in">
+            <div class="h-[75px] bg-white flex items-center justify-between px-4 shrink-0 shadow-md z-20">
+                <button onclick="closeChat()" class="p-3 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
                 
-                <!-- زر عرض كتالوج البيزنس (لو العميل بيكلم بيزنس) -->
-                <button id="shop-btn" onclick="openStoreCatalog()" class="hidden-view mr-auto p-2 text-sky-500 active:scale-110"><i class="fas fa-store text-xl"></i></button>
-
-                <div class="flex-1 flex flex-col items-end justify-center mr-3" onclick="openContactProfile()">
-                    <div class="flex items-center gap-1 cursor-pointer">
-                        <i id="active-chat-verified" class="fas fa-check-circle verified-badge hidden-view"></i>
-                        <h3 id="active-chat-name" class="font-bold text-[15px] text-slate-800"></h3>
-                    </div>
-                    <p id="active-chat-status" class="text-[10px] text-gray-500 font-bold mt-0.5"></p>
+                <!-- أيقونات البيزنس (متجر وتصنيف) -->
+                <div class="flex gap-2 mr-auto">
+                    <button id="shop-btn" onclick="openStoreCatalog()" class="hidden-view w-10 h-10 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center active:scale-95"><i class="fas fa-store text-lg"></i></button>
+                    <button id="label-chat-btn" onclick="openAssignLabelModal()" class="hidden-view w-10 h-10 bg-gray-50 text-gray-500 rounded-full flex items-center justify-center active:scale-95"><i class="fas fa-tag text-lg"></i></button>
                 </div>
-                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200 cursor-pointer" onclick="openContactProfile()">
-                    <img id="active-chat-img" src="" class="w-full h-full object-cover bg-white">
+
+                <div class="flex-1 flex flex-col items-end justify-center mr-3 cursor-pointer" onclick="openContactProfile()">
+                    <div class="flex items-center gap-1">
+                        <i id="active-chat-verified" class="fas fa-check-circle verified-badge hidden-view"></i>
+                        <h3 id="active-chat-name" class="font-bold text-[16px] text-slate-800"></h3>
+                    </div>
+                    <p id="active-chat-status" class="text-[11px] text-sky-600 font-bold mt-0.5 truncate max-w-[200px]"></p>
+                </div>
+                <div class="w-12 h-12 bg-gray-100 rounded-full overflow-hidden shrink-0 border border-gray-200 cursor-pointer shadow-sm" onclick="openContactProfile()">
+                    <img id="active-chat-img" src="" class="w-full h-full object-cover">
                 </div>
             </div>
             
@@ -138,412 +180,543 @@
             <!-- Quick Replies Popup -->
             <div id="quick-reply-popup" class="hidden-view p-2"></div>
 
-            <div id="chat-input-area" class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3 relative">
-                <button id="btn-voice" onmousedown="startVoice(event)" onmouseup="stopVoice(event)" ontouchstart="startVoice(event)" ontouchend="stopVoice(event)" class="w-11 h-11 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition shrink-0">
-                    <i class="fas fa-microphone text-lg"></i>
+            <!-- Input Area -->
+            <div id="chat-input-area" class="p-3 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3 relative">
+                <button id="btn-voice" onmousedown="startVoice(event)" onmouseup="stopVoice(event)" ontouchstart="startVoice(event)" ontouchend="stopVoice(event)" class="w-12 h-12 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0">
+                    <i class="fas fa-microphone text-xl"></i>
                 </button>
-                <div class="flex-1 bg-white rounded-full px-4 py-2.5 flex items-center shadow-sm">
-                    <input type="text" id="m-input" placeholder="اكتب رسالة... (اكتب / للردود السريعة)" class="w-full bg-transparent outline-none font-semibold text-sm" onkeyup="handleTyping(this.value)">
+                <div class="flex-1 bg-white rounded-full px-5 py-3 flex items-center shadow-md border border-gray-100">
+                    <input type="text" id="m-input" placeholder="رسالة... (اكتب / للردود السريعة)" class="w-full bg-transparent outline-none font-bold text-sm text-slate-700" onkeyup="handleTyping(this.value)">
                 </div>
-                <button onclick="sendText()" class="w-11 h-11 text-sky-500 bg-white rounded-full flex items-center justify-center shadow-sm active:scale-90 transition shrink-0">
-                    <i class="fas fa-paper-plane text-xl rotate-[225deg]"></i>
+                <button onclick="sendText()" class="w-12 h-12 text-sky-500 bg-white rounded-full flex items-center justify-center shadow-md border border-gray-100 active:scale-90 transition shrink-0">
+                    <i class="fas fa-paper-plane text-2xl rotate-[225deg]"></i>
                 </button>
             </div>
-            <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white px-5 py-2 rounded-full text-xs font-bold shadow-xl animate-pulse">جاري التسجيل...</div>
+            <div id="join-group-area" class="hidden-view p-4 bg-white border-t text-center z-30 shadow-lg">
+                <button onclick="joinActiveGroup()" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition text-lg">انضمام للجروب والمشاركة</button>
+            </div>
+            <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-2xl animate-pulse">جاري التسجيل...</div>
         </div>
 
-        <!-- ================= Modals و الإعدادات ================= -->
-        
-        <div id="add-friend-modal" class="hidden-view fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl relative mt-8 animate-slide-up">
-                <div class="w-16 h-16 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-14 border-[5px] border-white shadow-md text-2xl font-bold"><i class="fas fa-user-plus"></i></div>
-                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-6 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-100 dir-ltr">
-                <div class="flex gap-3 mt-6">
-                    <button onclick="closeAddFriendModal()" class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl active:scale-95">إلغاء</button>
-                    <button onclick="confirmAddFriend()" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl active:scale-95 shadow-md">إضافة</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- الإعدادات العامة -->
-        <div id="settings-modal" class="hidden-view fixed inset-0 bg-gray-50 z-[100] flex flex-col animate-slide-up">
-            <div class="bg-slate-800 h-[65px] flex items-center justify-between px-4 text-white shrink-0">
-                <div class="w-8"></div><h3 class="font-bold text-lg">الإعدادات</h3><button onclick="closeSettingsModal()" class="p-2"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <div class="relative flex justify-center -mt-10 mb-4 shrink-0">
-                <div class="relative w-[85px] h-[85px] bg-slate-900 rounded-full border-[4px] border-white shadow-lg flex items-center justify-center overflow-hidden">
-                    <img id="set-img-preview" src="" class="w-full h-full object-cover bg-white">
-                    <label class="absolute bottom-0 right-0 bg-sky-500 w-7 h-7 rounded-full flex items-center justify-center border-2 border-white text-white cursor-pointer z-10"><i class="fas fa-camera text-[10px]"></i><input type="file" id="set-photo-input" class="hidden" accept="image/*"></label>
-                </div>
-            </div>
-            <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-4 text-right">
-                <div class="bg-white border rounded-2xl p-4 shadow-sm">
-                    <div class="flex justify-between items-center mb-3 border-b pb-2">
-                        <input type="checkbox" id="set-is-business" class="w-4 h-4 accent-sky-500" onchange="toggleBusinessOptions()">
-                        <p class="font-bold text-sm text-sky-600">ترقية لحساب أعمال (Business)</p>
-                    </div>
-                    <input type="text" id="set-name" placeholder="اسمك / اسم النشاط" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100 mb-2">
-                    <input type="text" id="set-bio" placeholder="الحالة (البايو)" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100">
-                </div>
-                <div class="bg-white border rounded-2xl p-4 shadow-sm">
-                    <p class="text-[10px] text-gray-400 font-bold mb-2">تغيير الباسورد السري:</p>
-                    <input type="text" id="set-pass" placeholder="أدخل باسورد جديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center tracking-widest border border-gray-100">
-                </div>
-                <button onclick="saveProfile()" class="w-full py-4 bg-slate-800 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">حفظ التعديلات</button>
-            </div>
-        </div>
-
-        <!-- أدوات الأعمال (الكنز المفقود) -->
-        <div id="biz-tools-modal" class="hidden-view fixed inset-0 bg-gray-50 z-[110] flex flex-col animate-slide-up">
-            <div class="bg-yellow-500 h-[65px] flex items-center justify-between px-4 text-white shrink-0 shadow-md">
-                <div class="w-8"></div><h3 class="font-bold text-lg"><i class="fas fa-store mr-2"></i> أدوات الأعمال</h3><button onclick="closeBizTools()" class="p-2"><i class="fas fa-arrow-left text-xl"></i></button>
+        <!-- ================= أدوات الأعمال (Business Tools) ================= -->
+        <div id="biz-tools-modal" class="hidden-view fixed inset-0 bg-slate-50 z-[110] flex flex-col animate-slide-up">
+            <div class="bg-slate-900 h-[70px] flex items-center justify-between px-5 text-white shrink-0 shadow-lg">
+                <div class="w-8"></div><h3 class="font-bold text-xl text-yellow-400"><i class="fas fa-store mr-2"></i> أدوات الأعمال</h3><button onclick="closeBizTools()" class="p-2 bg-white/10 rounded-full w-10 h-10"><i class="fas fa-arrow-left text-xl"></i></button>
             </div>
             
-            <div class="flex-1 overflow-y-auto px-5 py-6 space-y-4 text-right">
-                
-                <!-- ملف النشاط التجاري (الغلاف) -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="h-24 bg-gray-200 relative">
-                        <img id="biz-cover-preview" src="https://via.placeholder.com/400x150?text=Cover+Photo" class="w-full h-full object-cover">
-                        <label class="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-[10px] cursor-pointer"><i class="fas fa-camera"></i> غلاف<input type="file" id="biz-cover-input" class="hidden" accept="image/*"></label>
+            <div class="flex-1 overflow-y-auto px-5 py-6 space-y-5 text-right">
+                <!-- Profile Setup -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="h-32 bg-gray-200 relative">
+                        <img id="biz-cover-preview" src="https://via.placeholder.com/400x200?text=Cover+Photo" class="w-full h-full object-cover">
+                        <label class="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer backdrop-blur-sm"><i class="fas fa-camera mr-1"></i> غلاف<input type="file" id="biz-cover-input" class="hidden" accept="image/*"></label>
                     </div>
-                    <div class="p-4 space-y-3">
-                        <input type="text" id="biz-category" placeholder="الفئة (مثال: ملابس، خدمات برمجية)" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none">
-                        <input type="text" id="biz-address" placeholder="الموقع الجغرافي" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none">
-                        <select id="biz-hours" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none dir-rtl text-right">
+                    <div class="p-5 space-y-4">
+                        <h4 class="font-bold text-slate-800 border-b pb-2">بيانات النشاط</h4>
+                        <input type="text" id="biz-category" placeholder="الفئة (ملابس، خدمات، طبي..)" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none focus:border-sky-500">
+                        <input type="text" id="biz-address" placeholder="العنوان أو الموقع الجغرافي" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none focus:border-sky-500">
+                        <select id="biz-hours" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none dir-rtl text-right focus:border-sky-500">
                             <option value="مفتوح دائماً">مفتوح دائماً</option>
                             <option value="ساعات محددة">ساعات محددة</option>
                             <option value="بموعد فقط">بموعد فقط</option>
                         </select>
-                        <input type="url" id="biz-link" placeholder="رابط الويب سايت" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none dir-ltr text-right">
+                        <input type="url" id="biz-link" placeholder="رابط الموقع / السوشيال ميديا" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none dir-ltr text-right focus:border-sky-500">
                     </div>
                 </div>
 
                 <!-- الكتالوج -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <button onclick="addNewProduct()" class="text-sky-500 text-xs font-bold"><i class="fas fa-plus"></i> منتج</button>
-                        <h4 class="font-bold text-sm text-slate-800">الكتالوج والمنتجات</h4>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-5">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <button onclick="addNewProduct()" class="bg-sky-50 text-sky-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm"><i class="fas fa-plus"></i> منتج جديد</button>
+                        <h4 class="font-bold text-slate-800"><i class="fas fa-box-open text-sky-500 mr-2"></i> الكتالوج</h4>
                     </div>
-                    <div id="biz-catalog-list" class="space-y-2 max-h-[150px] overflow-y-auto"></div>
+                    <div id="biz-catalog-list" class="space-y-3 max-h-[200px] overflow-y-auto pr-1 hide-scrollbar"></div>
                 </div>
 
                 <!-- أدوات المراسلة الآلية -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-3">
-                    <h4 class="font-bold text-sm text-slate-800 mb-2">أدوات المراسلة</h4>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-5 space-y-4">
+                    <h4 class="font-bold text-slate-800 border-b pb-2"><i class="fas fa-robot text-sky-500 mr-2"></i> المراسلة الآلية</h4>
                     <div>
-                        <p class="text-[10px] text-gray-500 font-bold">رسالة الترحيب (للعملاء الجدد):</p>
-                        <textarea id="biz-greeting" rows="2" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none"></textarea>
+                        <p class="text-xs text-gray-500 font-bold mb-1">رسالة الترحيب (للعملاء الجدد):</p>
+                        <textarea id="biz-greeting" rows="2" placeholder="أهلاً بك! كيف يمكنني مساعدتك؟" class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none focus:border-sky-500"></textarea>
                     </div>
                     <div>
-                        <p class="text-[10px] text-gray-500 font-bold">رسالة خارج أوقات العمل:</p>
-                        <textarea id="biz-away" rows="2" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none"></textarea>
+                        <p class="text-xs text-gray-500 font-bold mb-1">رسالة خارج أوقات العمل:</p>
+                        <textarea id="biz-away" rows="2" placeholder="نحن مغلقون الآن، سنرد في أقرب وقت." class="w-full p-3 bg-gray-50 rounded-xl text-sm font-bold border border-gray-100 outline-none focus:border-sky-500"></textarea>
                     </div>
                 </div>
 
                 <!-- الردود السريعة -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <button onclick="addQuickReply()" class="text-sky-500 text-xs font-bold"><i class="fas fa-plus"></i> إضافة</button>
-                        <h4 class="font-bold text-sm text-slate-800">الردود السريعة (اكتب / للبحث)</h4>
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-5">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <button onclick="addQuickReply()" class="bg-sky-50 text-sky-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm"><i class="fas fa-plus"></i> إضافة رد</button>
+                        <h4 class="font-bold text-slate-800"><i class="fas fa-bolt text-yellow-500 mr-2"></i> الردود السريعة</h4>
                     </div>
-                    <div id="biz-replies-list" class="space-y-2 text-xs"></div>
+                    <p class="text-[10px] text-gray-400 mb-3 font-bold">اكتب / في المحادثة لاستخدامها</p>
+                    <div id="biz-replies-list" class="space-y-2 text-sm max-h-[150px] overflow-y-auto hide-scrollbar"></div>
                 </div>
 
-                <button onclick="saveBizProfile()" class="w-full py-4 bg-yellow-500 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">حفظ أدوات الأعمال</button>
+                <!-- التصنيفات Labels -->
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-200 p-5">
+                    <div class="flex justify-between items-center mb-4 border-b pb-2">
+                        <button onclick="addLabel()" class="bg-sky-50 text-sky-600 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm"><i class="fas fa-plus"></i> تصنيف</button>
+                        <h4 class="font-bold text-slate-800"><i class="fas fa-tags text-pink-500 mr-2"></i> تصنيفات العملاء</h4>
+                    </div>
+                    <div id="biz-labels-list" class="flex flex-wrap gap-2 text-xs"></div>
+                </div>
+
+                <button onclick="saveBizProfile()" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-xl active:scale-95 transition text-lg mt-4">حفظ إعدادات الأعمال</button>
             </div>
         </div>
 
-        <!-- مودال الكتالوج للعميل (المتجر والعربة) -->
+        <!-- مودال الكتالوج وعربة التسوق (للعميل) -->
         <div id="catalog-viewer-modal" class="hidden-view fixed inset-0 bg-white z-[120] flex flex-col animate-slide-up">
-            <div class="h-[150px] bg-gray-200 relative shrink-0">
-                <img id="store-cover" src="" class="w-full h-full object-cover">
-                <button onclick="closeStoreCatalog()" class="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
-                <div class="absolute -bottom-8 right-6 w-20 h-20 bg-white rounded-xl shadow-lg p-1">
-                    <img id="store-logo" src="" class="w-full h-full rounded-lg object-cover">
+            <div class="h-[180px] bg-slate-800 relative shrink-0">
+                <img id="store-cover" src="" class="w-full h-full object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                <button onclick="closeStoreCatalog()" class="absolute top-5 right-5 bg-white/20 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center active:scale-90"><i class="fas fa-times text-xl"></i></button>
+                <div class="absolute -bottom-10 right-6 w-24 h-24 bg-white rounded-2xl shadow-xl p-1 border border-gray-100">
+                    <img id="store-logo" src="" class="w-full h-full rounded-xl object-cover">
                 </div>
             </div>
-            <div class="pt-10 px-6 text-right shrink-0">
-                <h2 id="store-name" class="text-xl font-black text-slate-800"></h2>
-                <p id="store-category" class="text-xs text-gray-500 font-bold"></p>
-                <div class="flex gap-3 justify-end mt-2 text-[10px] text-gray-600 font-bold">
-                    <span id="store-hours"><i class="far fa-clock"></i> </span>
-                    <span id="store-location"><i class="fas fa-map-marker-alt"></i> </span>
+            <div class="pt-12 px-6 text-right shrink-0 border-b border-gray-100 pb-4">
+                <h2 id="store-name" class="text-2xl font-black text-slate-800"></h2>
+                <p id="store-category" class="text-sm text-sky-600 font-bold mt-1"></p>
+                <div class="flex flex-col gap-1 justify-end mt-3 text-xs text-gray-500 font-bold">
+                    <span id="store-hours"><i class="far fa-clock text-sky-500 w-4 text-center"></i> </span>
+                    <span id="store-location"><i class="fas fa-map-marker-alt text-sky-500 w-4 text-center"></i> </span>
+                    <span id="store-link" class="text-sky-500 cursor-pointer mt-1"></span>
                 </div>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 mt-2 bg-gray-50">
-                <h3 class="font-bold text-sm mb-3 text-right">المنتجات والخدمات</h3>
-                <div id="store-products-list" class="grid grid-cols-2 gap-3"></div>
+            <div class="flex-1 overflow-y-auto p-5 bg-slate-50">
+                <h3 class="font-black text-lg mb-4 text-right text-slate-800">المنتجات والخدمات</h3>
+                <div id="store-products-list" class="grid grid-cols-2 gap-4"></div>
             </div>
-            <div class="p-4 bg-white border-t shrink-0">
-                <button onclick="sendCartOrder()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md flex justify-between px-6">
-                    <span id="cart-total">0 ج.م</span>
-                    <span><i class="fas fa-shopping-cart"></i> إرسال الطلب (<span id="cart-count">0</span>)</span>
+            <div class="p-5 bg-white border-t shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
+                <button onclick="sendCartOrder()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg flex justify-between px-6 transition active:scale-95 text-lg">
+                    <span id="cart-total" class="font-black tracking-wider">0 ج</span>
+                    <span>إرسال الطلب <i class="fas fa-shopping-cart mr-2"></i> <span id="cart-count" class="bg-white text-green-600 px-2 py-0.5 rounded-full text-xs ml-1">0</span></span>
                 </button>
             </div>
         </div>
 
-        <!-- لوحة الإدارة المتطورة (للأدمن) -->
-        <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4">
-            <div class="bg-slate-900 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
-                <div class="p-4 text-white flex justify-between items-center border-b border-gray-700 shrink-0">
-                    <button onclick="closeAdminModal()"><i class="fas fa-times text-lg"></i></button>
-                    <h3 class="font-bold text-lg text-yellow-400">الإدارة العليا</h3>
+        <!-- ================= Modals (الإعدادات والإضافة) ================= -->
+        <div id="add-friend-modal" class="hidden-view fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 text-center shadow-2xl relative animate-slide-up">
+                <div class="w-20 h-20 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-16 border-[6px] border-white shadow-lg text-3xl font-bold"><i class="fas fa-user-plus"></i></div>
+                <h3 class="mt-5 font-black text-xl text-slate-800">إضافة جهة اتصال</h3>
+                <p class="text-xs text-gray-500 mt-2 font-bold leading-relaxed">أدخل رقم الهاتف للبدء في الدردشة. الخصوصية مضمونة.</p>
+                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-6 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-200 dir-ltr text-lg focus:border-sky-500 transition-all">
+                <div class="flex gap-3 mt-8">
+                    <button onclick="closeAddFriendModal()" class="flex-1 py-4 bg-gray-100 text-gray-600 font-bold rounded-2xl active:scale-95 transition">إلغاء</button>
+                    <button onclick="confirmAddFriend()" class="flex-1 py-4 bg-sky-500 text-white font-bold rounded-2xl active:scale-95 shadow-lg transition">إضافة وتحدث</button>
                 </div>
-                <div class="p-3 bg-gray-100 flex-1 overflow-y-auto space-y-3" id="admin-requests"></div>
+            </div>
+        </div>
+
+        <!-- إعدادات الحساب العادية -->
+        <div id="settings-modal" class="hidden-view fixed inset-0 bg-slate-50 z-[100] flex flex-col animate-slide-up">
+            <div class="bg-slate-800 h-[70px] flex items-center justify-between px-5 text-white shrink-0 shadow-lg">
+                <div class="w-10"></div><h3 class="font-bold text-xl">إعدادات الحساب</h3><button onclick="closeSettingsModal()" class="p-2 bg-white/10 rounded-full w-10 h-10"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="relative flex justify-center -mt-12 mb-6 shrink-0">
+                <div class="relative w-28 h-28 bg-slate-900 rounded-full border-[5px] border-white shadow-xl flex items-center justify-center overflow-hidden">
+                    <img id="set-img-preview" src="" class="w-full h-full object-cover bg-white">
+                    <label class="absolute bottom-0 right-0 bg-sky-500 w-8 h-8 rounded-full flex items-center justify-center border-2 border-white text-white cursor-pointer z-10 shadow-md"><i class="fas fa-camera text-xs"></i><input type="file" id="set-photo-input" class="hidden" accept="image/*"></label>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto px-5 pb-8 space-y-5">
+                <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm text-right">
+                    <div class="flex justify-between items-center mb-4 border-b pb-3">
+                        <input type="checkbox" id="set-is-business" class="w-5 h-5 accent-sky-500" onchange="toggleBusinessOptions()">
+                        <p class="font-black text-sm text-slate-800"><i class="fas fa-briefcase text-sky-500 mr-2"></i> ترقية لحساب أعمال (Business)</p>
+                    </div>
+                    <p class="text-xs text-gray-500 font-bold mb-2">المعلومات الأساسية:</p>
+                    <input type="text" id="set-name" placeholder="اسمك / اسم النشاط" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100 mb-3 focus:border-sky-500">
+                    <input type="text" id="set-bio" placeholder="الحالة (البايو)" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100 focus:border-sky-500">
+                </div>
+                <div class="bg-white border border-gray-200 rounded-3xl p-5 shadow-sm">
+                    <p class="text-[11px] text-gray-500 font-bold mb-2 text-right">تغيير الباسورد السري:</p>
+                    <input type="text" id="set-pass" placeholder="أدخل باسورد جديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center tracking-widest border border-gray-100 focus:border-sky-500 text-lg">
+                </div>
+                <button onclick="copyInviteLink()" class="w-full py-4 bg-sky-50 text-sky-600 border border-sky-200 font-bold rounded-2xl shadow-sm active:scale-95 transition flex justify-center items-center gap-2">
+                    <i class="fas fa-link text-lg"></i> نسخ رابط دعوة الأصدقاء
+                </button>
+                <button onclick="saveProfile()" class="w-full py-4 bg-slate-900 text-white font-bold rounded-2xl shadow-xl active:scale-95 transition mt-2 text-lg">حفظ التعديلات</button>
+            </div>
+        </div>
+
+        <!-- ================= لوحة الإدارة العليا (الأدمن فقط) ================= -->
+        <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-slate-900 w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl flex flex-col h-[85vh] border border-gray-700">
+                <div class="p-5 text-white flex justify-between items-center border-b border-gray-700 shrink-0 bg-slate-800">
+                    <button onclick="closeAdminModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-times text-xl"></i></button>
+                    <h3 class="font-black text-xl text-yellow-400"><i class="fas fa-crown mr-2"></i> الإدارة والتوثيق</h3>
+                </div>
+                <div class="p-4 bg-gray-100 flex-1 overflow-y-auto space-y-4" id="admin-requests"></div>
+            </div>
+        </div>
+
+        <!-- مودال التجسس -->
+        <div id="spy-modal" class="hidden-view fixed inset-0 bg-white z-[150] flex flex-col">
+            <div class="h-[70px] bg-slate-900 text-white flex items-center justify-between px-5 shrink-0 shadow-lg">
+                <button onclick="closeSpyModal()" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center"><i class="fas fa-times text-xl"></i></button>
+                <div class="text-right">
+                    <h3 class="font-black text-sm text-yellow-400"><i class="fas fa-eye mr-1"></i> وضع المراقبة</h3>
+                    <p id="spy-target-name" class="text-[10px] font-bold text-gray-300 mt-1"></p>
+                </div>
+            </div>
+            <div id="spy-contacts" class="p-3 bg-gray-100 border-b border-gray-200 shrink-0 overflow-x-auto flex gap-2 hide-scrollbar shadow-inner"></div>
+            <div id="spy-messages-container" class="flex-1 bg-[#efeae2] relative overflow-y-auto">
+                <div id="spy-msg-wrapper" class="flex flex-col gap-2 p-4"></div>
+                <div id="spy-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 font-bold text-sm bg-white/50 backdrop-blur-sm">
+                    <i class="fas fa-user-secret text-6xl text-gray-300 mb-4"></i>
+                    اختر محادثة للاطلاع عليها بسرية
+                </div>
+            </div>
+        </div>
+
+        <!-- مودال تخصيص تصنيف (Label) للعميل -->
+        <div id="assign-label-modal" class="hidden-view fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+            <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl relative animate-slide-up">
+                <h3 class="font-bold text-lg mb-4 text-slate-800 text-right"><i class="fas fa-tag text-pink-500 mr-2"></i> تصنيف العميل</h3>
+                <div id="label-selection-list" class="flex flex-wrap gap-2 mb-6 justify-end"></div>
+                <button onclick="closeAssignLabelModal()" class="w-full py-3 bg-gray-100 text-gray-600 font-bold rounded-xl active:scale-95 transition">إغلاق</button>
             </div>
         </div>
 
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
-            authDomain: "whatsapp-fcd3c.firebaseapp.com",
-            projectId: "whatsapp-fcd3c",
-            storageBucket: "whatsapp-fcd3c.firebasestorage.app",
-            messagingSenderId: "369090984748",
-            appId: "1:369090984748:web:cba013025b108578cd0a89"
-        };
+        // إعدادات فايربيز الصارمة والمستقرة
+        const firebaseConfig = { apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM", authDomain: "whatsapp-fcd3c.firebaseapp.com", projectId: "whatsapp-fcd3c", storageBucket: "whatsapp-fcd3c.firebasestorage.app", messagingSenderId: "369090984748", appId: "1:369090984748:web:cba013025b108578cd0a89" };
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        const db = firebase.firestore(); let auth; try{auth=firebase.auth();}catch(e){}
+
+        const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'kimo-vip-pro-v6';
+        const usersDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('users');
+        const chatsDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('chats');
+        const groupsDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('groups');
+        const statusDb = db.collection('artifacts').doc(APP_ID).collection('public').doc('data').collection('status');
 
         const ADMIN_PHONE = "+201112215950";
-        let currentUser = localStorage.getItem('kimo_vip_biz'); 
-        let activeChatId = null, uCache = {}, tempPhone = "";
-        let profileBase64 = '', coverBase64 = '';
-        let myProducts = [], myQuickReplies = [];
+        let currentUser = localStorage.getItem('kimo_vip_pro_v6'); 
+        let activeChatId = null, activeChatType = 'direct'; 
+        let uCache = {}, gCache = {}, tempPhone = "", profileBase64 = '', coverBase64 = '';
+        let mediaRec, audioChunks = [];
+        let spyTargetId = null;
+        let myProducts = [], myQuickReplies = [], myLabels = [];
         let shoppingCart = [];
 
         function showToast(msg) {
             const toast = document.getElementById('alert-toast');
             toast.innerText = msg; toast.classList.remove('hidden-view'); toast.classList.add('toast-show');
-            setTimeout(() => { toast.classList.add('hidden-view'); toast.classList.remove('toast-show'); }, 3000);
+            setTimeout(() => { toast.classList.add('hidden-view'); toast.classList.remove('toast-show'); }, 3500);
         }
 
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash-screen').classList.add('hidden-view'), 500);
-                if(currentUser) initApp(); else document.getElementById('auth-view').classList.remove('hidden-view');
-            }, 800);
+        // حماية الشاشة البيضاء والاتصال الآمن
+        window.addEventListener('load', async () => {
+            try {
+                if(auth) {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await auth.signInWithCustomToken(__initial_auth_token);
+                    else await auth.signInAnonymously();
+                }
+            } catch (e) { console.warn("Auth bypass active"); }
+            finally {
+                setTimeout(() => {
+                    const splash = document.getElementById('splash-screen');
+                    if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.classList.add('hidden-view'), 500); }
+                    if(currentUser) initApp(); else document.getElementById('auth-view').classList.remove('hidden-view');
+                }, 1000);
+            }
         });
 
-        // --- 1. Login ---
+        // --- 1. Login & OTP ---
         async function checkNumberReady() {
             let p = document.getElementById('phone-input').value.trim();
-            if(!p) return;
-            if(p.startsWith('0')) p = p.substring(1);
-            tempPhone = "+20" + p;
-            document.getElementById('btn-text').innerText = "جاري الفحص...";
+            if(!p) return showToast("أدخل رقم الهاتف!");
+            if(p.startsWith('0')) p = p.substring(1); tempPhone = "+20" + p;
+            
+            const btn = document.getElementById('btn-check'); btn.disabled=true; document.getElementById('btn-text').innerText = "جاري الفحص...";
             try {
-                const docSnap = await db.collection('users').doc(tempPhone).get();
+                const docSnap = await usersDb.doc(tempPhone).get();
                 if(!docSnap.exists) {
-                    await db.collection('users').doc(tempPhone).set({
-                        phone: tempPhone, displayName: "مستخدم " + tempPhone.slice(-4), bio: 'متاح',
+                    await usersDb.doc(tempPhone).set({
+                        phone: tempPhone, displayName: "مستخدم " + tempPhone.slice(-4), bio: 'متاح في Kimoup',
                         status: 'approved', loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE,
-                        isBusiness: false, contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        isBusiness: false, forceOtp: false, contacts: [], userLabels: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                } else if(docSnap.data().status === 'banned') {
-                    showToast("حسابك محظور 🚫"); document.getElementById('btn-text').innerText = "متابعة"; return;
+                    document.getElementById('otp-message').innerText = "الكود الافتراضي: 000000";
+                    document.getElementById('otp-message').classList.remove('text-red-500');
+                } else {
+                    const data = docSnap.data();
+                    if (data.status === 'banned') { showToast("حسابك محظور نهائياً 🚫"); btn.disabled=false; document.getElementById('btn-text').innerText = "متابعة الدخول"; return; }
+                    if (data.forceOtp && Date.now() > data.otpExpiry) { showToast("انتهت صلاحية הـ OTP. راجع الإدارة."); btn.disabled=false; document.getElementById('btn-text').innerText = "متابعة الدخول"; return; }
+                    if (data.forceOtp) {
+                        document.getElementById('otp-message').innerText = "أدخل الـ OTP السري المرسل لك (مؤقت):";
+                        document.getElementById('otp-message').classList.add('text-red-500');
+                    } else {
+                        document.getElementById('otp-message').innerText = "أدخل كود الدخول الخاص بك:";
+                        document.getElementById('otp-message').classList.remove('text-red-500');
+                    }
                 }
                 showStep('pin-step');
-            } catch(e) { showToast("خطأ بالاتصال"); }
-            document.getElementById('btn-text').innerText = "متابعة";
+            } catch(e) { showToast("لا يوجد اتصال بالإنترنت!"); }
+            btn.disabled=false; document.getElementById('btn-text').innerText = "متابعة الدخول";
         }
+
         function showStep(id) { ['check-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); }
+
         async function verifyAccess() {
-            const pin = document.getElementById('pin-input').value.trim();
-            const snap = await db.collection('users').doc(tempPhone).get();
-            if (snap.data().loginCode === pin) { currentUser = tempPhone; localStorage.setItem('kimo_vip_biz', currentUser); initApp(); } 
-            else showToast("الكود خطأ!");
+            const pin = document.getElementById('pin-input').value.trim(); if(!pin) return;
+            const btn = document.getElementById('btn-pin'); btn.innerText = "جاري الدخول...";
+            try {
+                const snap = await usersDb.doc(tempPhone).get();
+                if (snap.data().loginCode === pin) {
+                    currentUser = tempPhone; localStorage.setItem('kimo_vip_pro_v6', currentUser);
+                    if(snap.data().forceOtp) await usersDb.doc(tempPhone).update({ forceOtp: false });
+                    initApp();
+                } else showToast("الكود غير صحيح!");
+            } catch(e) { showToast("حدث خطأ!"); }
+            btn.innerText = "دخول آمن";
         }
 
         // --- 2. Main App ---
         function initApp() {
-            document.getElementById('auth-view').classList.add('hidden-view');
-            document.getElementById('main-view').classList.remove('hidden-view');
-
+            document.getElementById('auth-view').classList.add('hidden-view'); document.getElementById('main-view').classList.remove('hidden-view');
             if (currentUser === ADMIN_PHONE) {
                 document.getElementById('logout-btn').classList.remove('hidden-view');
                 document.getElementById('admin-panel-btn').classList.remove('hidden-view');
+                document.getElementById('btn-create-group').classList.remove('hidden-view');
             }
 
-            db.collection('users').doc(currentUser).onSnapshot(s => {
+            usersDb.doc(currentUser).onSnapshot(s => {
                 if(!s.exists) return logout();
                 const me = s.data();
-                if(me.status === 'banned') { alert("حسابك محظور"); logout(); return; }
+                if(me.status === 'banned') { alert("تم طردك من التطبيق لأن حسابك محظور 🚫"); logout(); return; }
                 
                 profileBase64 = me.avatar || '';
-                document.getElementById('set-img-preview').src = profileBase64 || `https://ui-avatars.com/api/?name=${me.displayName}`;
+                document.getElementById('set-img-preview').src = profileBase64 || `https://ui-avatars.com/api/?name=${me.displayName}&background=0ea5e9&color=fff`;
                 document.getElementById('set-name').value = me.displayName || '';
                 document.getElementById('set-bio').value = me.bio || '';
-                
-                // Business Logic
                 document.getElementById('set-is-business').checked = me.isBusiness || false;
-                if(me.isBusiness) document.getElementById('biz-tools-btn').classList.remove('hidden-view');
-                else document.getElementById('biz-tools-btn').classList.add('hidden-view');
                 
-                if(me.bizProfile) {
-                    coverBase64 = me.bizProfile.cover || '';
-                    document.getElementById('biz-cover-preview').src = coverBase64 || 'https://via.placeholder.com/400x150?text=Cover+Photo';
-                    document.getElementById('biz-category').value = me.bizProfile.category || '';
-                    document.getElementById('biz-address').value = me.bizProfile.address || '';
-                    document.getElementById('biz-hours').value = me.bizProfile.hours || '';
-                    document.getElementById('biz-link').value = me.bizProfile.link || '';
-                    document.getElementById('biz-greeting').value = me.bizProfile.greeting || '';
-                    document.getElementById('biz-away').value = me.bizProfile.away || '';
-                    myProducts = me.bizProfile.catalog || [];
-                    myQuickReplies = me.bizProfile.quickReplies || [];
-                    renderCatalogAdmin();
-                    renderQuickRepliesAdmin();
-                }
+                if(me.isBusiness) {
+                    document.getElementById('biz-tools-btn').classList.remove('hidden-view');
+                    if(me.bizProfile) {
+                        coverBase64 = me.bizProfile.cover || '';
+                        document.getElementById('biz-cover-preview').src = coverBase64 || 'https://via.placeholder.com/400x200?text=Cover+Photo';
+                        document.getElementById('biz-category').value = me.bizProfile.category || '';
+                        document.getElementById('biz-address').value = me.bizProfile.address || '';
+                        document.getElementById('biz-hours').value = me.bizProfile.hours || '';
+                        document.getElementById('biz-link').value = me.bizProfile.link || '';
+                        document.getElementById('biz-greeting').value = me.bizProfile.greeting || '';
+                        document.getElementById('biz-away').value = me.bizProfile.away || '';
+                        myProducts = me.bizProfile.catalog || [];
+                        myQuickReplies = me.bizProfile.quickReplies || [];
+                        myLabels = me.bizProfile.labels || [];
+                        renderCatalogAdmin(); renderQuickRepliesAdmin(); renderLabelsAdmin();
+                    }
+                } else { document.getElementById('biz-tools-btn').classList.add('hidden-view'); }
             });
 
-            db.collection('users').onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); renderContacts(); });
+            usersDb.onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); renderContacts(); });
+            groupsDb.onSnapshot(s => { s.docs.forEach(d => gCache[d.id] = d.data()); loadGroups(); });
+            switchTab('chats');
         }
 
         function renderContacts() {
             const list = document.getElementById('contacts-list'); list.innerHTML = '';
             const meData = uCache[currentUser];
+            const myContactsList = meData?.contacts || [];
+            let hasVisible = false;
+
             Object.values(uCache).forEach(u => {
                 if(u.phone === currentUser || u.status === 'banned') return;
-                // الخصوصية
-                if(currentUser !== ADMIN_PHONE && !meData?.contacts?.includes(u.phone)) return;
+                if(currentUser !== ADMIN_PHONE && !myContactsList.includes(u.phone)) return; // الخصوصية التامة
                 
+                hasVisible = true;
                 const verifiedIcon = u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : '';
-                const bizIcon = u.isBusiness ? '<span class="text-[8px] bg-yellow-100 text-yellow-700 px-1 rounded ml-1">أعمال</span>' : '';
+                const bizBadge = u.isBusiness ? '<span class="text-[8px] bg-yellow-100 text-yellow-700 px-1 rounded ml-1 font-bold">أعمال</span>' : '';
                 
+                // لو انا بيزنس ورابط اليوزر ده بـ label
+                let userLabelHtml = '';
+                if(meData?.isBusiness && meData.userLabels && meData.userLabels[u.phone]) {
+                    const labelId = meData.userLabels[u.phone];
+                    const labelObj = myLabels.find(l => l.id === labelId);
+                    if(labelObj) userLabelHtml = `<span class="biz-label-dot" style="background-color:${labelObj.color}" title="${labelObj.name}"></span>`;
+                }
+
                 list.innerHTML += `
-                    <div onclick="openChat('${u.phone}')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-xl transition">
-                        <div class="w-[50px] h-[50px] bg-slate-100 rounded-full shrink-0 overflow-hidden border">
+                    <div onclick="openChat('${u.phone}', 'direct')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-2xl transition">
+                        <div class="w-[52px] h-[52px] bg-slate-100 rounded-full shrink-0 overflow-hidden shadow-sm border border-gray-200">
                             <img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full object-cover">
                         </div>
-                        <div class="text-right flex-1">
+                        <div class="text-right flex-1 overflow-hidden">
                             <div class="flex items-center justify-end gap-1">
                                 ${verifiedIcon}
-                                <h3 class="font-bold text-[14px] text-slate-800 truncate">${u.displayName}</h3>
+                                <h3 class="font-bold text-[16px] text-slate-800 truncate">${u.displayName}</h3>
                             </div>
-                            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${bizIcon} ${u.bio || 'متاح'}</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 truncate">${userLabelHtml}${bizBadge} ${u.bio || 'متاح'}</p>
                         </div>
-                    </div><div class="w-[80%] mx-auto border-b border-gray-50 my-1"></div>`;
+                    </div>
+                    <div class="w-[85%] mx-auto border-b border-gray-100 my-1"></div>`;
             });
+            if(!hasVisible) list.innerHTML = `<div class="text-center py-10"><i class="fas fa-user-slash text-5xl text-gray-200 mb-3"></i><p class="text-sm text-gray-500 font-bold">لا يوجد أصدقاء. أضف صديق لتبدأ!</p></div>`;
         }
 
-        // --- 3. Chat & Business Logic ---
-        function openChat(id) {
-            activeChatId = id; const u = uCache[id];
+        function switchTab(tab) {
+            ['chats', 'groups', 'status'].forEach(t => {
+                document.getElementById(`tab-${t}-view`).classList.add('hidden-view');
+                document.getElementById(`tab-${t}`).className = 'nav-btn inactive';
+            });
+            document.getElementById(`tab-${tab}-view`).classList.remove('hidden-view');
+            document.getElementById(`tab-${tab}`).className = 'nav-btn active';
+            if(tab === 'groups') loadGroups(); if(tab === 'status') loadStatuses();
+        }
+
+        // --- 3. Chat & Business System ---
+        function openChat(id, type) {
+            activeChatId = id; activeChatType = type;
             document.getElementById('chat-view').classList.remove('hidden-view');
-            document.getElementById('active-chat-name').innerText = u.displayName;
-            document.getElementById('active-chat-status').innerText = u.isBusiness ? 'حساب أعمال' : (u.bio || 'متاح');
-            document.getElementById('active-chat-verified').classList.toggle('hidden-view', !u.isVerified);
-            document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
+            const u = uCache[id];
             
-            if(u.isBusiness && u.bizProfile?.catalog?.length > 0) document.getElementById('shop-btn').classList.remove('hidden-view');
-            else document.getElementById('shop-btn').classList.add('hidden-view');
-            
-            loadMsgs(u.isBusiness);
+            if (type === 'direct') {
+                document.getElementById('active-chat-name').innerText = u.displayName;
+                document.getElementById('active-chat-status').innerText = u.isBusiness ? 'حساب أعمال' : (u.bio || 'متاح');
+                document.getElementById('active-chat-verified').classList.toggle('hidden-view', !u.isVerified);
+                document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
+                document.getElementById('chat-input-area').classList.remove('hidden-view');
+                document.getElementById('join-group-area').classList.add('hidden-view');
+                
+                if(u.isBusiness && u.bizProfile?.catalog?.length > 0) document.getElementById('shop-btn').classList.remove('hidden-view'); else document.getElementById('shop-btn').classList.add('hidden-view');
+                if(uCache[currentUser]?.isBusiness) document.getElementById('label-chat-btn').classList.remove('hidden-view'); else document.getElementById('label-chat-btn').classList.add('hidden-view');
+            } else {
+                const g = gCache[id];
+                document.getElementById('active-chat-name').innerText = g.name;
+                document.getElementById('active-chat-status').innerText = `جروب رسمي • ${g.members?.length || 0} عضو`;
+                document.getElementById('active-chat-verified').classList.remove('hidden-view'); // Groups always verified
+                document.getElementById('active-chat-img').src = `https://ui-avatars.com/api/?name=${g.name}&background=0284c7&color=fff`;
+                document.getElementById('shop-btn').classList.add('hidden-view');
+                document.getElementById('label-chat-btn').classList.add('hidden-view');
+                
+                if(g.members?.includes(currentUser) || currentUser === ADMIN_PHONE) {
+                    document.getElementById('chat-input-area').classList.remove('hidden-view'); document.getElementById('join-group-area').classList.add('hidden-view');
+                } else {
+                    document.getElementById('chat-input-area').classList.add('hidden-view'); document.getElementById('join-group-area').classList.remove('hidden-view');
+                }
+            }
+            loadMsgs(type === 'direct' ? u.isBusiness : false);
         }
 
-        function loadMsgs(isTargetBusiness) {
-            const cid = [currentUser, activeChatId].sort().join('_');
-            const cont = document.getElementById('messages-container'), wrap = document.getElementById('msg-wrapper');
-            db.collection('messages').where('chatId', '==', cid).onSnapshot(s => {
+        let currentChatListener = null;
+        function loadMsgs(isTargetBiz) {
+            if(currentChatListener) currentChatListener(); 
+            const cid = activeChatType === 'group' ? activeChatId : [currentUser, activeChatId].sort().join('_');
+            const targetCol = activeChatType === 'group' ? groupsDb.doc(cid).collection('messages') : chatsDb.doc(cid).collection('messages');
+            const wrap = document.getElementById('msg-wrapper'), cont = document.getElementById('messages-container');
+            
+            currentChatListener = targetCol.onSnapshot(s => {
                 let msgs = []; s.forEach(d => msgs.push(d.data()));
                 msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
                 
                 let html = '';
-                // رسالة النظام لو بكلم بيزنس لاول مرة
-                if(isTargetBusiness) html += `<div class="sys-msg">أنت تدردش مع حساب أعمال</div>`;
+                if(isTargetBiz) html += `<div class="sys-msg"><i class="fas fa-store mr-1"></i> أنت تدردش مع حساب أعمال. قم بمراجعة المنتجات والخدمات بالضغط على أيقونة المتجر بالأعلى.</div>`;
                 
-                // رسالة الترحيب التلقائية لو مفيش رسايل
-                if(msgs.length === 0 && isTargetBusiness) {
+                // رسالة الترحيب
+                if(msgs.length === 0 && isTargetBiz) {
                     const u = uCache[activeChatId];
-                    if(u.bizProfile?.greeting) html += `<div class="flex flex-col items-start w-full"><div class="msg-bubble msg-in"><p class="text-[10px] text-yellow-600 font-bold mb-1">رد تلقائي</p><p>${u.bizProfile.greeting}</p></div></div>`;
+                    if(u.bizProfile?.greeting) html += `<div class="flex flex-col items-start w-full"><div class="msg-bubble msg-in border border-yellow-200"><p class="text-[9px] text-yellow-600 font-bold mb-1"><i class="fas fa-robot"></i> رد تلقائي</p><p style="white-space:pre-wrap;">${u.bizProfile.greeting}</p></div></div>`;
                 }
 
                 msgs.forEach(m => {
                     const isMe = m.s === currentUser;
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p style="white-space: pre-wrap;">${m.txt}</p>`;
-                    html += `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${content}</div></div>`;
+                    let senderInfo = (activeChatType === 'group' && !isMe) ? `<p class="text-[9px] text-sky-600 font-bold mb-1">${uCache[m.s]?.displayName || 'عضو'}</p>` : '';
+                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : (m.isCart ? `<div class="cart-msg"><p style="white-space:pre-wrap;" class="text-xs font-bold text-slate-800">${m.txt}</p></div>` : `<p style="white-space:pre-wrap;">${m.txt}</p>`);
+                    html += `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${senderInfo}${content}</div></div>`;
                 });
                 wrap.innerHTML = html;
                 cont.scrollTop = cont.scrollHeight;
             });
         }
 
-        async function sendText() {
-            const i = document.getElementById('m-input'), txt = i.value.trim(); if(!txt) return;
-            const cid = [currentUser, activeChatId].sort().join('_'); i.value = '';
-            document.getElementById('quick-reply-popup').classList.add('hidden-view'); // إخفاء المنيو
-            await db.collection('messages').add({ chatId: cid, s: currentUser, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+        async function sendText(customTxt = null, isCart = false) {
+            const i = document.getElementById('m-input');
+            const txt = customTxt || i.value.trim(); if(!txt) return;
+            const cid = activeChatType === 'group' ? activeChatId : [currentUser, activeChatId].sort().join('_'); 
+            if(!customTxt) i.value = '';
+            document.getElementById('quick-reply-popup').classList.add('hidden-view');
             
-            // Away message
-            const u = uCache[activeChatId];
-            if(u?.isBusiness && u.bizProfile?.away) {
-                setTimeout(async () => {
-                    await db.collection('messages').add({ chatId: cid, s: activeChatId, txt: "*(رد تلقائي)*\n" + u.bizProfile.away, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
-                }, 1000);
+            const targetCol = activeChatType === 'group' ? groupsDb.doc(cid).collection('messages') : chatsDb.doc(cid).collection('messages');
+            await targetCol.add({ s: currentUser, txt, type: 'text', isCart, t: firebase.firestore.FieldValue.serverTimestamp() });
+
+            if (activeChatType === 'direct') {
+                const recData = uCache[activeChatId];
+                if (recData?.isBusiness && recData.bizProfile?.away) {
+                    setTimeout(async () => {
+                        await targetCol.add({ s: activeChatId, txt: "*(رد تلقائي)*\n" + recData.bizProfile.away, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+                    }, 1000);
+                }
             }
         }
 
-        // Quick Reply Detection
         function handleTyping(val) {
             const popup = document.getElementById('quick-reply-popup');
             if(val.startsWith('/') && uCache[currentUser]?.isBusiness) {
                 const search = val.substring(1).toLowerCase();
                 const filtered = myQuickReplies.filter(r => r.shortcut.toLowerCase().includes(search));
                 if(filtered.length > 0) {
-                    popup.innerHTML = filtered.map(r => `<div onclick="selectQuickReply('${r.text}')" class="p-2 border-b border-gray-100 cursor-pointer active:bg-gray-50"><p class="font-bold text-sky-500 text-xs">/${r.shortcut}</p><p class="text-[10px] text-gray-500 truncate">${r.text}</p></div>`).join('');
+                    popup.innerHTML = filtered.map(r => `<div onclick="selectQuickReply('${r.text}')" class="p-3 border-b border-gray-100 cursor-pointer active:bg-gray-50 text-right"><p class="font-bold text-sky-600 text-xs">/${r.shortcut}</p><p class="text-[11px] text-gray-500 truncate mt-1">${r.text}</p></div>`).join('');
                     popup.classList.remove('hidden-view');
                 } else popup.classList.add('hidden-view');
-            } else { popup.classList.add('hidden-view'); }
+            } else popup.classList.add('hidden-view');
         }
-        function selectQuickReply(txt) { document.getElementById('m-input').value = txt; document.getElementById('quick-reply-popup').classList.add('hidden-view'); }
+        function selectQuickReply(txt) { document.getElementById('m-input').value = txt; document.getElementById('quick-reply-popup').classList.add('hidden-view'); document.getElementById('m-input').focus(); }
 
-        // --- 4. Business Tools (الإعدادات) ---
-        function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
-        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
+        // --- 4. Business Tools ---
         function toggleBusinessOptions() { const isBiz = document.getElementById('set-is-business').checked; if(isBiz) showToast("أنت الآن حساب أعمال! افتح 'أدوات الأعمال' من القائمة."); }
-        
-        async function saveProfile() {
-            const name = document.getElementById('set-name').value.trim(), bio = document.getElementById('set-bio').value.trim(), pass = document.getElementById('set-pass').value.trim();
-            const isBiz = document.getElementById('set-is-business').checked;
-            if(!name) return;
-            let updates = { displayName: name, bio, isBusiness: isBiz, avatar: profileBase64 };
-            if(pass && pass.length >= 4) updates.loginCode = pass;
-            await db.collection('users').doc(currentUser).update(updates);
-            closeSettingsModal(); showToast("تم الحفظ");
-        }
-
         function openBizTools() { document.getElementById('biz-tools-modal').classList.remove('hidden-view'); }
         function closeBizTools() { document.getElementById('biz-tools-modal').classList.add('hidden-view'); }
         
         document.getElementById('biz-cover-input').onchange = e => { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=ev=>{ coverBase64=ev.target.result; document.getElementById('biz-cover-preview').src=coverBase64; }; r.readAsDataURL(f); } };
 
         function addNewProduct() {
-            const name = prompt("اسم المنتج:"); if(!name) return;
-            const price = prompt("السعر:"); const desc = prompt("وصف صغير:");
-            myProducts.push({ id: Date.now().toString(), name, price, desc, active: true });
+            const name = prompt("اسم المنتج/الخدمة:"); if(!name) return;
+            const price = prompt("السعر بالجنيه:"); const desc = prompt("وصف صغير للمنتج:");
+            myProducts.push({ id: Date.now().toString(), name, price: parseFloat(price)||0, desc });
             renderCatalogAdmin();
         }
         function renderCatalogAdmin() {
             document.getElementById('biz-catalog-list').innerHTML = myProducts.map((p, i) => `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-xs">
-                    <button onclick="myProducts.splice(${i},1); renderCatalogAdmin();" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    <div class="text-right flex-1 mr-2"><p class="font-bold">${p.name}</p><p class="text-[9px] text-gray-500">${p.price} ج.م</p></div>
+                <div class="flex justify-between items-center bg-sky-50 p-3 rounded-xl border border-sky-100 text-xs mb-2">
+                    <button onclick="myProducts.splice(${i},1); renderCatalogAdmin();" class="text-red-500 bg-white w-7 h-7 rounded-full shadow-sm"><i class="fas fa-trash"></i></button>
+                    <div class="text-right flex-1 mr-3"><p class="font-bold text-slate-800 text-[13px]">${p.name}</p><p class="text-[10px] text-sky-600 font-bold">${p.price} ج.م</p></div>
                 </div>`).join('');
         }
+        
         function addQuickReply() {
-            const shortcut = prompt("الاختصار (بدون /):", "شكر"); if(!shortcut) return;
-            const text = prompt("الرسالة الكاملة:"); if(!text) return;
+            const shortcut = prompt("الاختصار (مثلاً: شكر):"); if(!shortcut) return;
+            const text = prompt("الرسالة الكاملة (مثلاً: شكراً لتواصلكم معنا...):"); if(!text) return;
             myQuickReplies.push({ shortcut, text }); renderQuickRepliesAdmin();
         }
         function renderQuickRepliesAdmin() {
             document.getElementById('biz-replies-list').innerHTML = myQuickReplies.map((r, i) => `
-                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border">
-                    <button onclick="myQuickReplies.splice(${i},1); renderQuickRepliesAdmin();" class="text-red-500"><i class="fas fa-trash"></i></button>
-                    <div class="text-right"><p class="font-bold text-sky-500">/${r.shortcut}</p><p class="text-[9px] truncate w-32">${r.text}</p></div>
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl border border-gray-200 mb-2">
+                    <button onclick="myQuickReplies.splice(${i},1); renderQuickRepliesAdmin();" class="text-red-500 w-6"><i class="fas fa-times"></i></button>
+                    <div class="text-right flex-1 overflow-hidden"><p class="font-bold text-sky-600">/${r.shortcut}</p><p class="text-[10px] text-gray-500 truncate">${r.text}</p></div>
+                </div>`).join('');
+        }
+
+        const LABEL_COLORS = ['#ef4444', '#f97316', '#84cc16', '#0ea5e9', '#8b5cf6', '#d946ef', '#ec4899'];
+        function addLabel() {
+            const name = prompt("اسم التصنيف (مثال: عميل جديد):"); if(!name) return;
+            const color = LABEL_COLORS[myLabels.length % LABEL_COLORS.length];
+            myLabels.push({ id: Date.now().toString(), name, color }); renderLabelsAdmin();
+        }
+        function renderLabelsAdmin() {
+            document.getElementById('biz-labels-list').innerHTML = myLabels.map((l, i) => `
+                <div class="px-3 py-1.5 rounded-full text-white font-bold flex items-center gap-2 shadow-sm" style="background-color:${l.color}">
+                    <span>${l.name}</span> <button onclick="myLabels.splice(${i},1); renderLabelsAdmin();"><i class="fas fa-times text-[10px]"></i></button>
                 </div>`).join('');
         }
 
@@ -552,108 +725,250 @@
                 cover: coverBase64, category: document.getElementById('biz-category').value,
                 address: document.getElementById('biz-address').value, hours: document.getElementById('biz-hours').value,
                 link: document.getElementById('biz-link').value, greeting: document.getElementById('biz-greeting').value,
-                away: document.getElementById('biz-away').value, catalog: myProducts, quickReplies: myQuickReplies
+                away: document.getElementById('biz-away').value, catalog: myProducts, quickReplies: myQuickReplies, labels: myLabels
             };
-            await db.collection('users').doc(currentUser).update({ bizProfile });
-            showToast("تم تحديث ملف الأعمال بنجاح"); closeBizTools();
+            await usersDb.doc(currentUser).update({ bizProfile });
+            showToast("تم تحديث أدوات الأعمال بنجاح"); closeBizTools();
         }
 
-        // --- 5. Shopping Catalog (للعميل) ---
+        // Labels Assignment
+        function openAssignLabelModal() {
+            const u = uCache[currentUser]; if(!u || !u.isBusiness) return;
+            document.getElementById('assign-label-modal').classList.remove('hidden-view');
+            const list = document.getElementById('label-selection-list');
+            const appliedLabelId = u.userLabels ? u.userLabels[activeChatId] : null;
+            
+            list.innerHTML = `<button onclick="assignLabelToChat(null)" class="w-full py-2 bg-gray-100 text-gray-700 font-bold rounded-xl mb-2">إزالة التصنيف</button>`;
+            list.innerHTML += myLabels.map(l => `
+                <button onclick="assignLabelToChat('${l.id}')" class="w-full py-3 text-white font-bold rounded-xl shadow-sm relative" style="background-color:${l.color}">
+                    ${l.name} ${appliedLabelId === l.id ? '<i class="fas fa-check absolute right-4 top-4"></i>' : ''}
+                </button>`).join('');
+        }
+        function closeAssignLabelModal() { document.getElementById('assign-label-modal').classList.add('hidden-view'); }
+        async function assignLabelToChat(labelId) {
+            const uRef = usersDb.doc(currentUser);
+            let userLabels = uCache[currentUser]?.userLabels || {};
+            if(labelId) userLabels[activeChatId] = labelId; else delete userLabels[activeChatId];
+            await uRef.update({ userLabels });
+            closeAssignLabelModal(); showToast("تم تحديث تصنيف العميل"); renderContacts();
+        }
+
+        // --- 5. Catalog & Cart ---
         function openStoreCatalog() {
             const u = uCache[activeChatId]; if(!u || !u.bizProfile) return;
             document.getElementById('catalog-viewer-modal').classList.remove('hidden-view');
-            document.getElementById('store-cover').src = u.bizProfile.cover || 'https://via.placeholder.com/400x150?text=Cover';
+            document.getElementById('store-cover').src = u.bizProfile.cover || 'https://via.placeholder.com/400x200?text=Business';
             document.getElementById('store-logo').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
             document.getElementById('store-name').innerText = u.displayName;
             document.getElementById('store-category').innerText = u.bizProfile.category || 'نشاط تجاري';
-            document.getElementById('store-hours').innerHTML = `<i class="far fa-clock"></i> ${u.bizProfile.hours||''}`;
-            document.getElementById('store-location').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${u.bizProfile.address||''}`;
+            document.getElementById('store-hours').innerHTML = `<i class="far fa-clock text-sky-500 w-4 text-center"></i> ${u.bizProfile.hours||'متاح'}`;
+            document.getElementById('store-location').innerHTML = `<i class="fas fa-map-marker-alt text-sky-500 w-4 text-center"></i> ${u.bizProfile.address||'أونلاين'}`;
+            if(u.bizProfile.link) document.getElementById('store-link').innerHTML = `<a href="${u.bizProfile.link}" target="_blank" class="text-sky-500"><i class="fas fa-link w-4 text-center"></i> زيارة الموقع</a>`;
+            else document.getElementById('store-link').innerHTML = '';
             
             shoppingCart = []; updateCartUI();
             
             const pList = document.getElementById('store-products-list');
             pList.innerHTML = (u.bizProfile.catalog || []).map(p => `
-                <div class="bg-white rounded-xl shadow-sm border p-3 text-right flex flex-col">
-                    <div class="w-full h-20 bg-gray-100 rounded-lg mb-2 flex items-center justify-center text-gray-400"><i class="fas fa-image text-2xl"></i></div>
-                    <h4 class="font-bold text-sm text-slate-800">${p.name}</h4>
-                    <p class="text-[10px] text-gray-500 mb-2 flex-1">${p.desc}</p>
-                    <div class="flex justify-between items-center mt-auto">
-                        <button onclick="addToCart('${p.name}', '${p.price}')" class="bg-sky-50 text-sky-600 px-3 py-1 rounded text-xs font-bold active:scale-95"><i class="fas fa-cart-plus"></i></button>
-                        <p class="font-black text-kimo-main text-xs">${p.price}</p>
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-right flex flex-col">
+                    <div class="w-full h-24 bg-sky-50 rounded-xl mb-3 flex items-center justify-center text-sky-200"><i class="fas fa-box-open text-4xl"></i></div>
+                    <h4 class="font-black text-[15px] text-slate-800">${p.name}</h4>
+                    <p class="text-[10px] text-gray-500 mb-3 flex-1 mt-1 leading-relaxed">${p.desc}</p>
+                    <div class="flex justify-between items-center mt-auto border-t border-gray-100 pt-3">
+                        <button onclick="addToCart('${p.name}', '${p.price}')" class="bg-sky-500 hover:bg-sky-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition shadow-md"><i class="fas fa-cart-plus mr-1"></i> إضافة</button>
+                        <p class="font-black text-slate-800 text-[14px]">${p.price} <span class="text-[9px]">ج.م</span></p>
                     </div>
                 </div>`).join('');
         }
         function closeStoreCatalog() { document.getElementById('catalog-viewer-modal').classList.add('hidden-view'); }
-        
-        function addToCart(name, price) {
-            shoppingCart.push({name, price: parseFloat(price)||0}); updateCartUI(); showToast("تم الإضافة للعربة");
-        }
+        function addToCart(name, price) { shoppingCart.push({name, price: parseFloat(price)||0}); updateCartUI(); showToast("تم الإضافة للعربة 🛒"); }
         function updateCartUI() {
             document.getElementById('cart-count').innerText = shoppingCart.length;
             const total = shoppingCart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('cart-total').innerText = total + " ج";
+            document.getElementById('cart-total').innerText = total + " ج.م";
         }
-        async function sendCartOrder() {
-            if(shoppingCart.length === 0) return showToast("العربة فارغة!");
-            let orderText = "🛒 *طلب جديد من الكتالوج:*\n\n";
-            shoppingCart.forEach((item, i) => orderText += `${i+1}. ${item.name} - ${item.price}ج\n`);
+        function sendCartOrder() {
+            if(shoppingCart.length === 0) return showToast("عربة التسوق فارغة!");
+            let orderText = "🛒 *طلب شراء جديد من الكتالوج:*\n\n";
+            shoppingCart.forEach((item, i) => orderText += `${i+1}. ${item.name} - ${item.price} ج.م\n`);
             const total = shoppingCart.reduce((sum, item) => sum + item.price, 0);
-            orderText += `\n*الإجمالي: ${total} ج.م*`;
-            
-            const cid = [currentUser, activeChatId].sort().join('_');
-            await db.collection('messages').add({ chatId: cid, s: currentUser, txt: orderText, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
-            
-            closeStoreCatalog(); showToast("تم إرسال الطلب للتاجر!");
+            orderText += `\n🧾 *إجمالي الطلب: ${total} ج.م*`;
+            sendText(orderText, true);
+            closeStoreCatalog(); showToast("تم إرسال الطلب للتاجر بنجاح!");
         }
 
-        // --- 6. Admin Panel (Labels, Ban, OTP) ---
+        // --- 6. Groups & Status ---
+        async function createGroup() {
+            let name = prompt("اسم الجروب الرسمي الموثق:"); if(!name) return;
+            await groupsDb.add({ name, admin: currentUser, members: [currentUser], isVerified: true, t: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast("تم إنشاء الجروب الرسمي!");
+        }
+        function loadGroups() {
+            const list = document.getElementById('groups-list'); let html = '';
+            Object.keys(gCache).forEach(id => {
+                const g = gCache[id];
+                html += `
+                    <div onclick="openChat('${id}', 'group')" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center cursor-pointer active:bg-gray-50 transition">
+                        <div class="w-[50px] h-[50px] rounded-full bg-slate-900 text-sky-400 flex items-center justify-center shrink-0 border-2 border-sky-400 shadow-md"><i class="fas fa-users text-2xl"></i></div>
+                        <div class="flex-1 text-right">
+                            <div class="flex items-center justify-end gap-1"><span class="verified-badge"><i class="fas fa-check"></i></span><h4 class="font-bold text-[16px] text-slate-800">${g.name}</h4></div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">${g.members?.length || 0} أعضاء</p>
+                        </div>
+                    </div>`;
+            });
+            list.innerHTML = html || '<p class="text-center text-sm text-gray-400 font-bold mt-10">لا توجد جروبات حالياً.</p>';
+        }
+        async function joinActiveGroup() {
+            if(activeChatType !== 'group' || !activeChatId) return;
+            await groupsDb.doc(activeChatId).update({ members: firebase.firestore.FieldValue.arrayUnion(currentUser) });
+            document.getElementById('join-group-area').classList.add('hidden-view'); document.getElementById('chat-input-area').classList.remove('hidden-view'); showToast("تم الانضمام بنجاح!");
+        }
+
+        async function addStatus() {
+            let txt = prompt("اكتب حالتك:"); if(!txt) return;
+            await statusDb.add({ s: currentUser, txt, t: firebase.firestore.FieldValue.serverTimestamp() }); showToast("تمت إضافة الحالة");
+        }
+        function loadStatuses() {
+            const list = document.getElementById('status-list');
+            statusDb.orderBy('t', 'desc').limit(20).onSnapshot(snap => {
+                list.innerHTML = ''; const meContacts = uCache[currentUser]?.contacts || []; let hasStatus = false;
+                snap.forEach(doc => {
+                    const s = doc.data(); if(currentUser !== ADMIN_PHONE && s.s !== currentUser && !meContacts.includes(s.s)) return;
+                    const u = uCache[s.s]; if(!u) return; hasStatus = true;
+                    list.innerHTML += `
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center">
+                            <div class="w-[50px] h-[50px] rounded-full p-[2px] bg-gradient-to-tr from-sky-400 to-blue-600 shrink-0"><img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full rounded-full border-2 border-white object-cover"></div>
+                            <div class="flex-1 text-right">
+                                <div class="flex items-center justify-end gap-1">${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}<h4 class="font-bold text-[15px] text-slate-800">${u.displayName}</h4></div>
+                                <p class="text-[12px] text-gray-600 mt-1 font-semibold">${s.txt}</p>
+                            </div>
+                        </div>`;
+                });
+                if(!hasStatus) list.innerHTML = '<p class="text-center text-sm text-gray-400 font-bold mt-10">لا توجد حالات حديثة.</p>';
+            });
+        }
+
+        // Voice Recording logic
+        async function startVoice(e) {
+            if(e) e.preventDefault();
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); mediaRec = new MediaRecorder(stream); audioChunks = [];
+                mediaRec.ondataavailable = ev => audioChunks.push(ev.data);
+                mediaRec.onstop = async () => {
+                    if(audioChunks.length === 0) return; const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); const reader = new FileReader();
+                    reader.onloadend = async () => {
+                        const cid = getChatId(); const targetCol = activeChatType === 'group' ? groupsDb.doc(cid).collection('messages') : chatsDb.doc(cid).collection('messages');
+                        await targetCol.add({ s: currentUser, data: reader.result, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp() });
+                    }; reader.readAsDataURL(audioBlob);
+                }; mediaRec.start(); document.getElementById('rec-toast').classList.remove('hidden-view');
+            } catch(err) { showToast("اسمح باستخدام المايكروفون!"); }
+        }
+        function stopVoice(e) { if(e) e.preventDefault(); if(mediaRec && mediaRec.state !== 'inactive') { mediaRec.stop(); document.getElementById('rec-toast').classList.add('hidden-view'); mediaRec.stream.getTracks().forEach(t => t.stop()); } }
+
+        // --- 7. Modals (Settings, Friends) ---
+        function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
+        function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
+        async function confirmAddFriend() {
+            let p = document.getElementById('add-phone-input').value.trim(); if(!p) return; if(p.startsWith('0')) p = p.substring(1); p = "+20"+p;
+            const doc = await usersDb.doc(p).get();
+            if(doc.exists && doc.data().status !== 'banned') {
+                await usersDb.doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) }); closeAddFriendModal(); openChat(p, 'direct');
+            } else showToast("هذا الرقم غير مسجل في التطبيق!");
+        }
+
+        function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
+        function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
+        document.getElementById('set-photo-input').onchange = e => { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=ev=>{ profileBase64=ev.target.result; document.getElementById('set-img-preview').src=profileBase64; }; r.readAsDataURL(f); } };
+        
+        function copyInviteLink() {
+            const link = window.location.href + "?ref=" + currentUser;
+            navigator.clipboard.writeText(link).then(() => showToast("تم نسخ رابط الدعوة، أرسله لأصدقائك!")).catch(() => showToast("لا يمكن نسخ الرابط من هذا المتصفح"));
+        }
+
+        async function saveProfile() {
+            const name = document.getElementById('set-name').value.trim(), bio = document.getElementById('set-bio').value.trim(), pass = document.getElementById('set-pass').value.trim();
+            const isBiz = document.getElementById('set-is-business').checked;
+            if(!name) return showToast('الاسم مطلوب!');
+            let updates = { displayName: name, bio, isBusiness: isBiz, avatar: profileBase64 };
+            if(pass && pass.length >= 4) updates.loginCode = pass;
+            await usersDb.doc(currentUser).update(updates); showToast("تم حفظ التعديلات"); closeSettingsModal();
+        }
+
+        // --- 8. Admin Control Panel (The Core) ---
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden-view');
             const list = document.getElementById('admin-requests');
-            db.collection('users').onSnapshot(snap => {
+            usersDb.onSnapshot(snap => {
                 list.innerHTML = '';
                 snap.forEach(doc => {
-                    const u = doc.data();
-                    if(u.phone === ADMIN_PHONE) return; 
-                    
-                    // تصنيف العميل (Label) للادمن فقط (محاكاة سريعة في اللوحة)
-                    let statusColor = u.status === 'banned' ? 'red' : 'green';
-                    
+                    const u = doc.data(); if(u.phone === ADMIN_PHONE) return; 
                     list.innerHTML += `
-                        <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 mb-2">
-                            <div class="flex justify-between items-center text-right">
+                        <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-md flex flex-col gap-3 mb-4">
+                            <div class="flex justify-between items-center text-right border-b border-gray-100 pb-2">
                                 <div class="flex-1 mr-2">
-                                    <p class="font-bold text-sm">${u.displayName} ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}</p>
-                                    <p class="text-[9px] text-gray-500">${u.phone}</p>
+                                    <p class="font-black text-[16px] text-slate-800">${u.displayName} ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}</p>
+                                    <p class="text-[11px] text-gray-500 font-bold tracking-wider">${u.phone}</p>
+                                    <p class="text-[11px] text-sky-600 font-bold mt-1 border border-sky-100 bg-sky-50 px-2 py-0.5 rounded inline-block">كود الدخول: ${u.loginCode}</p>
                                 </div>
-                                <div class="text-[9px] font-bold px-2 py-1 rounded bg-${statusColor}-100 text-${statusColor}-600">${u.status}</div>
+                                <div class="text-[11px] font-bold px-3 py-1.5 rounded-full ${u.status === 'banned' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} shadow-sm">
+                                    ${u.status === 'banned' ? '<i class="fas fa-ban mr-1"></i> محظور' : '<i class="fas fa-check mr-1"></i> نشط'}
+                                </div>
                             </div>
-                            <div class="flex flex-wrap gap-1 justify-end border-t pt-2">
-                                ${u.isVerified ? `<button onclick="updateUser('${u.phone}', {isVerified: false})" class="bg-gray-100 px-2 py-1 rounded text-[9px] font-bold">إلغاء التوثيق</button>` : `<button onclick="updateUser('${u.phone}', {isVerified: true})" class="bg-sky-500 text-white px-2 py-1 rounded text-[9px] font-bold">توثيق 🔵</button>`}
-                                ${u.status === 'banned' ? `<button onclick="updateUser('${u.phone}', {status: 'approved'})" class="bg-green-100 text-green-700 px-2 py-1 rounded text-[9px] font-bold">فك الحظر</button>` : `<button onclick="updateUser('${u.phone}', {status: 'banned'})" class="bg-red-100 text-red-700 px-2 py-1 rounded text-[9px] font-bold">حظر 🚫</button>`}
-                                <button onclick="generateAdminOTP('${u.phone}')" class="bg-yellow-400 px-2 py-1 rounded text-[9px] font-bold">OTP 🔑</button>
+                            <div class="flex flex-wrap gap-2 justify-end pt-1">
+                                ${u.isVerified ? `<button onclick="updateUser('${u.phone}', {isVerified: false})" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl text-[11px] font-bold shadow-sm border border-gray-200 active:scale-95 transition"><i class="fas fa-times mr-1"></i> إزالة التوثيق</button>` : `<button onclick="updateUser('${u.phone}', {isVerified: true})" class="bg-sky-500 text-white px-4 py-2 rounded-xl text-[11px] font-bold shadow-md active:scale-95 transition"><i class="fas fa-check mr-1"></i> توثيق الحساب</button>`}
+                                ${u.status === 'banned' ? `<button onclick="updateUser('${u.phone}', {status: 'approved'})" class="bg-green-100 text-green-700 px-4 py-2 rounded-xl text-[11px] font-bold shadow-sm border border-green-200 active:scale-95 transition"><i class="fas fa-unlock mr-1"></i> فك الحظر</button>` : `<button onclick="updateUser('${u.phone}', {status: 'banned'})" class="bg-red-100 text-red-700 px-4 py-2 rounded-xl text-[11px] font-bold shadow-sm border border-red-200 active:scale-95 transition"><i class="fas fa-ban mr-1"></i> حظر نهائي</button>`}
+                                <button onclick="generateAdminOTP('${u.phone}')" class="bg-yellow-400 text-slate-900 px-4 py-2 rounded-xl text-[11px] font-black shadow-md border border-yellow-500 active:scale-95 transition"><i class="fas fa-key mr-1"></i> OTP طارئ</button>
+                                <button onclick="openSpyModal('${u.phone}', '${u.displayName}')" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[11px] font-bold shadow-md active:scale-95 transition"><i class="fas fa-eye mr-1"></i> مراقبة</button>
                             </div>
                         </div>`;
                 });
             });
         }
-        async function updateUser(phone, updates) { await db.collection('users').doc(phone).update(updates); }
+        async function updateUser(phone, updates) { await usersDb.doc(phone).update(updates); showToast("تم التحديث"); }
         async function generateAdminOTP(phone) {
             const code = Math.floor(100000 + Math.random() * 900000).toString();
-            await db.collection('users').doc(phone).update({ loginCode: code, forceOtp: true, otpExpiry: Date.now() + 86400000 });
-            alert(`تم تقييد الحساب.\nكود الـ OTP: ${code}\n(صالح لـ 24 ساعة)`);
+            await usersDb.doc(phone).update({ loginCode: code, forceOtp: true, otpExpiry: Date.now() + 86400000 });
+            alert(`تم إغلاق حساب المستخدم.\nالكود الطارئ للعميل هو: ${code}\n(صالح لمدة 24 ساعة فقط)`);
         }
         function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden-view'); }
 
-        // --- General ---
-        function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
-        function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
-        async function confirmAddFriend() {
-            let p = document.getElementById('add-phone-input').value.trim(); if(p.startsWith('0')) p = p.substring(1); p = "+20"+p;
-            await db.collection('users').doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) });
-            closeAddFriendModal(); openChat(p, 'direct');
+        // --- 9. Spy Mode ---
+        function openSpyModal(targetPhone, targetName) {
+            spyTargetId = targetPhone; document.getElementById('spy-modal').classList.remove('hidden-view');
+            document.getElementById('spy-target-name').innerText = "الهدف: " + targetName;
+            document.getElementById('spy-placeholder').classList.remove('hidden-view');
+            const contactsDiv = document.getElementById('spy-contacts'); contactsDiv.innerHTML = '';
+            
+            const u = uCache[targetPhone];
+            if(u && u.contacts && u.contacts.length > 0) {
+                u.contacts.forEach(contactId => {
+                    const cName = uCache[contactId]?.displayName || contactId;
+                    contactsDiv.innerHTML += `<button onclick="loadSpyChat('${contactId}')" class="shrink-0 bg-white px-5 py-2.5 rounded-full text-xs font-bold shadow-sm border border-gray-200 text-slate-700 active:bg-sky-50 transition"><i class="fas fa-user mr-1 text-sky-500"></i> ${cName}</button>`;
+                });
+            } else contactsDiv.innerHTML = '<p class="text-xs text-gray-500 font-bold p-3">الهدف ليس لديه أي محادثات.</p>';
         }
-        function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); }
+
+        let currentSpyListener = null;
+        function loadSpyChat(contactId) {
+            document.getElementById('spy-placeholder').classList.add('hidden-view');
+            if(currentSpyListener) currentSpyListener();
+            const cid = [spyTargetId, contactId].sort().join('_');
+            const cont = document.getElementById('spy-messages-container'), wrap = document.getElementById('spy-msg-wrapper');
+            
+            currentSpyListener = chatsDb.doc(cid).collection('messages').onSnapshot(s => {
+                let msgs = []; s.forEach(d => msgs.push(d.data())); msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
+                wrap.innerHTML = '';
+                msgs.forEach(m => {
+                    const isTarget = m.s === spyTargetId;
+                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
+                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isTarget?'items-end':'items-start'} w-full"><div class="msg-bubble ${isTarget?'bg-green-100 border border-green-200 shadow-sm':'bg-white border border-gray-200 shadow-sm'}">${content}</div></div>`);
+                });
+                cont.scrollTop = cont.scrollHeight;
+            });
+        }
+        function closeSpyModal() { document.getElementById('spy-modal').classList.add('hidden-view'); spyTargetId = null; if(currentSpyListener) currentSpyListener(); }
+
+        function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); isChannelMode = false; activeChatId = null; if(currentChatListener) currentChatListener(); }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
