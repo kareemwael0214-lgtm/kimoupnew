@@ -3,24 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kimoup - VIP Edition</title>
+    <title>Kimoup - Business VIP</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs (النسخة المستقرة والمباشرة) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { kimo: { main: '#0ea5e9', dark: '#0284c7', bg: '#f8fafc', text: '#1e293b' } },
-                    fontFamily: { sans: ['Cairo', 'sans-serif'] }
-                }
-            }
+            theme: { extend: { colors: { kimo: { main: '#0ea5e9', dark: '#0284c7', bg: '#f8fafc', text: '#1e293b' } }, fontFamily: { sans: ['Cairo', 'sans-serif'] } } }
         }
     </script>
 
@@ -31,78 +25,60 @@
         @media (min-width: 768px) { .app-container { width: 420px; height: 850px; border-radius: 2.5rem; border: 8px solid #1e293b; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); } }
 
         #messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 15px; gap: 8px; background-color: #f0f2f5; scroll-behavior: smooth; }
-        .msg-bubble { max-width: 80%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .msg-bubble { max-width: 80%; padding: 8px 12px; font-weight: 600; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); position: relative; }
         .msg-out { background-color: #dcf8c6; border-radius: 12px 12px 0 12px; align-self: flex-end; }
         .msg-in { background-color: #ffffff; border-radius: 12px 12px 12px 0; align-self: flex-start; }
+        
+        /* رسالة النظام (حساب أعمال) */
+        .sys-msg { background-color: #fef08a; color: #854d0e; font-size: 10px; text-align: center; padding: 4px 12px; border-radius: 10px; margin: 10px auto; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
         ::-webkit-scrollbar { width: 0px; }
         .hidden-view { display: none !important; }
-        audio { height: 35px; width: 220px; outline: none; }
         
-        /* علامة التوثيق الرسمية */
-        .verified-badge {
-            background-color: #0ea5e9;
-            color: #ffffff;
-            border-radius: 50%;
-            width: 15px;
-            height: 15px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 9px;
-            margin-right: 4px;
-            box-shadow: 0 0 0 1.5px white;
-        }
+        .verified-badge { background-color: #0ea5e9; color: white; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 8px; margin-right: 4px; box-shadow: 0 0 0 1.5px white; }
+        .label-badge { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
 
-        /* Toast Animation */
         @keyframes slideUp { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         .toast-show { animation: slideUp 0.3s ease-out forwards; }
         
-        .nav-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 10px 0; transition: 0.2s; }
-        .nav-btn.active { color: #0ea5e9; border-top: 2px solid #0ea5e9; background: #f0f9ff; }
-        .nav-btn.inactive { color: #94a3b8; border-top: 2px solid transparent; }
+        /* Quick Reply Popup */
+        #quick-reply-popup { position: absolute; bottom: 70px; left: 10px; right: 10px; background: white; border-radius: 15px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 50; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <!-- 0. Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-24 h-24 bg-slate-900 rounded-full flex items-center justify-center shadow-xl animate-pulse mb-4">
             <i class="fas fa-bolt text-5xl text-sky-400"></i>
         </div>
         <h1 class="text-3xl font-black text-slate-800">Kimoup</h1>
-        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">we here to help you</p>
+        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Business Edition</p>
     </div>
 
-    <!-- Alert Toast -->
     <div id="alert-toast" class="hidden-view fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-full text-sm font-bold shadow-2xl z-[9999] text-center w-5/6"></div>
 
     <div class="app-container">
 
-        <!-- ================= 1. شاشة الدخول ================= -->
+        <!-- ================= 1. الدخول ================= -->
         <div id="auth-view" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-8 hidden-view">
             <div class="w-full max-w-sm text-center">
-                <div class="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <i class="fas fa-bolt text-4xl text-sky-400"></i>
-                </div>
+                <div class="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"><i class="fas fa-bolt text-4xl text-sky-400"></i></div>
                 <h2 class="text-2xl font-black text-slate-800 mb-1">Kimoup</h2>
-                <p class="text-gray-400 text-sm mb-8 font-bold">تسجيل الدخول برقم الهاتف</p>
+                <p class="text-gray-400 text-sm mb-8 font-bold">تسجيل الدخول</p>
 
                 <div id="check-step" class="space-y-4">
                     <div class="bg-gray-50 border-2 border-gray-100 rounded-2xl p-4 flex items-center focus-within:border-sky-500 transition-all">
                         <span class="text-gray-400 font-bold ml-3 border-l pl-3">+20</span>
                         <input type="tel" id="phone-input" placeholder="1112215950" class="w-full bg-transparent outline-none font-bold text-lg dir-ltr text-right">
                     </div>
-                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition flex justify-center items-center gap-2">
-                        <span id="btn-text">متابعة الدخول</span>
-                    </button>
+                    <button onclick="checkNumberReady()" id="btn-check" class="w-full bg-sky-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">متابعة الدخول</button>
                 </div>
 
                 <div id="pin-step" class="hidden-view space-y-4">
                     <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-2xl"></i></div>
                     <h3 class="font-bold text-lg">أدخل كود الدخول</h3>
-                    <p class="text-xs text-gray-500 mb-2 font-bold">الكود الافتراضي: 000000</p>
-                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-2xl tracking-[0.3em] focus:border-green-500 border-2 border-transparent">
+                    <p id="otp-message" class="text-xs text-gray-500 mb-2 font-bold">الكود الافتراضي: 000000</p>
+                    <input type="password" id="pin-input" placeholder="••••••" class="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold text-center text-2xl tracking-[0.3em] border-2 border-transparent">
                     <button onclick="verifyAccess()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition">دخول آمن</button>
                 </div>
             </div>
@@ -110,215 +86,217 @@
 
         <!-- ================= 2. الواجهة الرئيسية ================= -->
         <div id="main-view" class="w-full h-full flex flex-col hidden-view bg-white">
-            
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.05)] z-20">
                 <div class="flex items-center gap-3">
                     <button id="logout-btn" onclick="logout()" class="hidden-view text-red-400 text-xl p-2 active:scale-90"><i class="fas fa-power-off"></i></button>
                     <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden-view text-gray-400 hover:text-slate-800 text-xl p-2 active:scale-90"><i class="fas fa-user-shield"></i></button>
-                    <button onclick="openSettingsModal()" class="text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-id-card"></i></button>
+                    <button onclick="openSettingsModal()" class="text-gray-400 text-xl p-2 active:scale-90"><i class="fas fa-cog"></i></button>
+                    <!-- زر أدوات الأعمال يظهر فقط لو كان حساب بيزنس -->
+                    <button id="biz-tools-btn" onclick="openBizTools()" class="hidden-view text-yellow-500 text-xl p-2 active:scale-90"><i class="fas fa-store"></i></button>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="text-right">
                         <h1 class="font-black text-lg text-slate-800 leading-none">Kimoup</h1>
                         <p class="text-[8px] text-gray-400 font-bold uppercase tracking-widest">we here to help you</p>
                     </div>
-                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md border-2 border-sky-400">
+                    <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-md">
                         <i class="fas fa-bolt text-sky-400 text-xl"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 1: الدردشات -->
-            <div id="tab-chats-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
                 <button onclick="openAddFriendModal()" class="w-full py-3.5 bg-gray-50 border border-gray-200 rounded-2xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-95 transition">
-                    <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة صديق جديد
+                    <i class="fas fa-user-plus text-sky-500 text-lg"></i> إضافة جهة اتصال
                 </button>
                 <div id="contacts-list" class="space-y-1 mt-4"></div>
             </div>
-
-            <!-- TAB 2: الجروبات -->
-            <div id="tab-groups-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50">
-                <button id="btn-create-group" onclick="createGroup()" class="hidden-view w-full py-3.5 bg-white border border-sky-200 rounded-2xl flex justify-center items-center gap-2 text-sky-500 font-bold shadow-sm active:scale-95 transition">
-                    <i class="fas fa-users text-lg"></i> إنشاء جروب رسمي 🔵
-                </button>
-                <h3 class="text-xs font-bold text-gray-400 mt-4 mb-2">الجروبات المتاحة</h3>
-                <div id="groups-list" class="space-y-3"></div>
-            </div>
-
-            <!-- TAB 3: الحالات (الاستيتيو) -->
-            <div id="tab-status-view" class="flex-1 overflow-y-auto px-4 py-4 space-y-4 hidden-view bg-slate-50">
-                <button onclick="addStatus()" class="w-full py-3.5 bg-white border border-sky-200 rounded-2xl flex justify-center items-center gap-2 text-sky-500 font-bold shadow-sm active:scale-95 transition">
-                    <i class="fas fa-camera text-lg"></i> إضافة حالة (Status)
-                </button>
-                <h3 class="text-xs font-bold text-gray-400 mt-4 mb-2">الحالات الحديثة</h3>
-                <div id="status-list" class="space-y-3"></div>
-            </div>
-
-            <!-- شريط التنقل السفلي -->
-            <div class="h-[65px] bg-white border-t border-gray-100 flex items-center shrink-0 z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
-                <button onclick="switchTab('chats')" id="tab-chats" class="nav-btn active">
-                    <i class="fas fa-comment-dots text-xl mb-1"></i><span class="text-[10px] font-bold">الدردشات</span>
-                </button>
-                <button onclick="switchTab('groups')" id="tab-groups" class="nav-btn inactive">
-                    <i class="fas fa-users text-xl mb-1"></i><span class="text-[10px] font-bold">الجروبات</span>
-                </button>
-                <button onclick="switchTab('status')" id="tab-status" class="nav-btn inactive">
-                    <i class="fas fa-circle-notch text-xl mb-1"></i><span class="text-[10px] font-bold">الحالات</span>
-                </button>
-            </div>
         </div>
 
-        <!-- ================= 3. شاشة الشات والجروبات ================= -->
+        <!-- ================= 3. شاشة الشات ================= -->
         <div id="chat-view" class="absolute inset-0 bg-[#f0f2f5] z-[60] flex flex-col hidden-view animate-fade-in">
             <div class="h-[70px] bg-white flex items-center justify-between px-4 shrink-0 shadow-sm z-20">
                 <button onclick="closeChat()" class="p-2 text-gray-500 active:scale-125 transition"><i class="fas fa-arrow-left text-xl"></i></button>
                 
-                <div class="flex-1 flex flex-col items-end justify-center mr-3">
-                    <div class="flex items-center gap-1">
-                        <div id="active-chat-verified" class="hidden-view"><span class="verified-badge"><i class="fas fa-check"></i></span></div>
-                        <h3 id="active-chat-name" class="font-bold text-[15px] text-slate-800 truncate"></h3>
+                <!-- زر عرض كتالوج البيزنس (لو العميل بيكلم بيزنس) -->
+                <button id="shop-btn" onclick="openStoreCatalog()" class="hidden-view mr-auto p-2 text-sky-500 active:scale-110"><i class="fas fa-store text-xl"></i></button>
+
+                <div class="flex-1 flex flex-col items-end justify-center mr-3" onclick="openContactProfile()">
+                    <div class="flex items-center gap-1 cursor-pointer">
+                        <i id="active-chat-verified" class="fas fa-check-circle verified-badge hidden-view"></i>
+                        <h3 id="active-chat-name" class="font-bold text-[15px] text-slate-800"></h3>
                     </div>
-                    <p id="active-chat-status" class="text-[10px] text-sky-500 font-bold mt-0.5 truncate max-w-[200px]"></p>
+                    <p id="active-chat-status" class="text-[10px] text-gray-500 font-bold mt-0.5"></p>
                 </div>
-                <div class="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center shadow-sm relative overflow-hidden shrink-0">
+                <div class="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-200 cursor-pointer" onclick="openContactProfile()">
                     <img id="active-chat-img" src="" class="w-full h-full object-cover bg-white">
                 </div>
-                
-                <!-- زر مغادرة الجروب (يظهر للأعضاء فقط) -->
-                <button id="leave-group-btn" onclick="leaveGroup()" class="hidden-view absolute left-14 top-5 bg-red-50 text-red-500 border border-red-200 px-3 py-1 rounded-full text-[10px] font-bold active:scale-95">مغادرة</button>
             </div>
             
-            <div id="messages-container"><div id="msg-wrapper" class="flex flex-col gap-2"></div></div>
+            <div id="messages-container"><div id="msg-wrapper" class="flex flex-col gap-2 relative"></div></div>
             
-            <!-- منطقة إدخال الرسائل -->
-            <div id="chat-input-area" class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3">
+            <!-- Quick Replies Popup -->
+            <div id="quick-reply-popup" class="hidden-view p-2"></div>
+
+            <div id="chat-input-area" class="p-2 bg-[#f0f2f5] flex gap-2 items-center z-30 mb-2 px-3 relative">
                 <button id="btn-voice" onmousedown="startVoice(event)" onmouseup="stopVoice(event)" ontouchstart="startVoice(event)" ontouchend="stopVoice(event)" class="w-11 h-11 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-md active:scale-90 transition shrink-0">
                     <i class="fas fa-microphone text-lg"></i>
                 </button>
                 <div class="flex-1 bg-white rounded-full px-4 py-2.5 flex items-center shadow-sm">
-                    <input type="text" id="m-input" placeholder="اكتب رسالة..." class="w-full bg-transparent outline-none font-semibold text-sm">
+                    <input type="text" id="m-input" placeholder="اكتب رسالة... (اكتب / للردود السريعة)" class="w-full bg-transparent outline-none font-semibold text-sm" onkeyup="handleTyping(this.value)">
                 </div>
                 <button onclick="sendText()" class="w-11 h-11 text-sky-500 bg-white rounded-full flex items-center justify-center shadow-sm active:scale-90 transition shrink-0">
                     <i class="fas fa-paper-plane text-xl rotate-[225deg]"></i>
                 </button>
             </div>
-            
-            <!-- زر الانضمام للجروب -->
-            <div id="join-group-area" class="hidden-view p-4 bg-white border-t text-center z-30">
-                <button onclick="joinActiveGroup()" class="w-full bg-sky-500 text-white font-bold py-3 rounded-2xl shadow-md active:scale-95 transition">انضمام والتحدث في الجروب</button>
-            </div>
-            <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white px-5 py-2 rounded-full text-xs font-bold shadow-2xl animate-pulse">جاري التسجيل...</div>
+            <div id="rec-toast" class="hidden-view absolute bottom-24 left-1/2 -translate-x-1/2 bg-red-500 text-white px-5 py-2 rounded-full text-xs font-bold shadow-xl animate-pulse">جاري التسجيل...</div>
         </div>
 
-        <!-- ================= Modals ================= -->
+        <!-- ================= Modals و الإعدادات ================= -->
         
-        <!-- إضافة صديق -->
         <div id="add-friend-modal" class="hidden-view fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl relative mt-8 animate-slide-up">
                 <div class="w-16 h-16 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-14 border-[5px] border-white shadow-md text-2xl font-bold"><i class="fas fa-user-plus"></i></div>
-                <h3 class="mt-4 font-bold text-lg">إضافة جهة اتصال</h3>
-                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-4 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-100 dir-ltr">
+                <input type="tel" id="add-phone-input" placeholder="رقم الموبايل..." class="w-full p-4 mt-6 bg-gray-50 rounded-2xl outline-none font-bold text-center border border-gray-100 dir-ltr">
                 <div class="flex gap-3 mt-6">
                     <button onclick="closeAddFriendModal()" class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl active:scale-95">إلغاء</button>
-                    <button onclick="confirmAddFriend()" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl active:scale-95 shadow-md">إضافة وتحدث</button>
+                    <button onclick="confirmAddFriend()" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl active:scale-95 shadow-md">إضافة</button>
                 </div>
             </div>
         </div>
 
-        <!-- إعدادات الحساب والإحالة -->
+        <!-- الإعدادات العامة -->
         <div id="settings-modal" class="hidden-view fixed inset-0 bg-gray-50 z-[100] flex flex-col animate-slide-up">
-            <div class="bg-sky-500 h-[65px] flex items-center justify-between px-4 text-white relative shadow-md shrink-0">
-                <div class="w-8"></div>
-                <h3 class="font-bold text-lg">إعدادات الحساب</h3>
-                <button onclick="closeSettingsModal()" class="p-2 text-white active:scale-90"><i class="fas fa-times text-xl"></i></button>
+            <div class="bg-slate-800 h-[65px] flex items-center justify-between px-4 text-white shrink-0">
+                <div class="w-8"></div><h3 class="font-bold text-lg">الإعدادات</h3><button onclick="closeSettingsModal()" class="p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
-            
             <div class="relative flex justify-center -mt-10 mb-4 shrink-0">
                 <div class="relative w-[85px] h-[85px] bg-slate-900 rounded-full border-[4px] border-white shadow-lg flex items-center justify-center overflow-hidden">
                     <img id="set-img-preview" src="" class="w-full h-full object-cover bg-white">
                     <label class="absolute bottom-0 right-0 bg-sky-500 w-7 h-7 rounded-full flex items-center justify-center border-2 border-white text-white cursor-pointer z-10"><i class="fas fa-camera text-[10px]"></i><input type="file" id="set-photo-input" class="hidden" accept="image/*"></label>
                 </div>
             </div>
-
-            <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-4">
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-                    <p class="text-[10px] text-gray-400 font-bold mb-2 text-right">تغيير الباسورد السري:</p>
-                    <input type="text" id="set-pass" placeholder="أدخل الباسورد الجديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center border border-gray-100 tracking-widest">
+            <div class="flex-1 overflow-y-auto px-5 pb-6 space-y-4 text-right">
+                <div class="bg-white border rounded-2xl p-4 shadow-sm">
+                    <div class="flex justify-between items-center mb-3 border-b pb-2">
+                        <input type="checkbox" id="set-is-business" class="w-4 h-4 accent-sky-500" onchange="toggleBusinessOptions()">
+                        <p class="font-bold text-sm text-sky-600">ترقية لحساب أعمال (Business)</p>
+                    </div>
+                    <input type="text" id="set-name" placeholder="اسمك / اسم النشاط" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100 mb-2">
+                    <input type="text" id="set-bio" placeholder="الحالة (البايو)" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-sm border border-gray-100">
                 </div>
-
-                <div class="bg-white border border-gray-200 rounded-2xl p-4 space-y-3 shadow-sm text-right">
-                    <p class="text-[10px] text-gray-400 font-bold">المعلومات الشخصية:</p>
-                    <input type="text" id="set-name" placeholder="اسمك" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-right text-sm border border-gray-100">
-                    <input type="text" id="set-bio" placeholder="الحالة (البايو)" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-right text-sm border border-gray-100">
+                <div class="bg-white border rounded-2xl p-4 shadow-sm">
+                    <p class="text-[10px] text-gray-400 font-bold mb-2">تغيير الباسورد السري:</p>
+                    <input type="text" id="set-pass" placeholder="أدخل باسورد جديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center tracking-widest border border-gray-100">
                 </div>
-
-                <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 shadow-sm text-right">
-                    <p class="text-[10px] text-yellow-700 font-bold mb-2">رسالة الرد التلقائي:</p>
-                    <textarea id="set-auto-reply" rows="2" placeholder="أنا مشغول حالياً..." class="w-full p-3 bg-white rounded-xl outline-none text-xs font-bold border border-yellow-100"></textarea>
-                </div>
-
-                <!-- زر الإحالة -->
-                <button onclick="copyInviteLink()" class="w-full py-3 bg-green-50 text-green-600 border border-green-200 font-bold rounded-2xl shadow-sm active:scale-95 transition mt-2">
-                    <i class="fas fa-link mr-2"></i> نسخ رابط دعوة الأصدقاء
-                </button>
-
-                <button onclick="saveProfile()" class="w-full py-4 bg-sky-500 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition mt-2">حفظ التعديلات</button>
+                <button onclick="saveProfile()" class="w-full py-4 bg-slate-800 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">حفظ التعديلات</button>
             </div>
         </div>
 
-        <!-- لوحة التحكم للأدمن (مع تعديل البيانات) -->
+        <!-- أدوات الأعمال (الكنز المفقود) -->
+        <div id="biz-tools-modal" class="hidden-view fixed inset-0 bg-gray-50 z-[110] flex flex-col animate-slide-up">
+            <div class="bg-yellow-500 h-[65px] flex items-center justify-between px-4 text-white shrink-0 shadow-md">
+                <div class="w-8"></div><h3 class="font-bold text-lg"><i class="fas fa-store mr-2"></i> أدوات الأعمال</h3><button onclick="closeBizTools()" class="p-2"><i class="fas fa-arrow-left text-xl"></i></button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto px-5 py-6 space-y-4 text-right">
+                
+                <!-- ملف النشاط التجاري (الغلاف) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="h-24 bg-gray-200 relative">
+                        <img id="biz-cover-preview" src="https://via.placeholder.com/400x150?text=Cover+Photo" class="w-full h-full object-cover">
+                        <label class="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-[10px] cursor-pointer"><i class="fas fa-camera"></i> غلاف<input type="file" id="biz-cover-input" class="hidden" accept="image/*"></label>
+                    </div>
+                    <div class="p-4 space-y-3">
+                        <input type="text" id="biz-category" placeholder="الفئة (مثال: ملابس، خدمات برمجية)" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none">
+                        <input type="text" id="biz-address" placeholder="الموقع الجغرافي" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none">
+                        <select id="biz-hours" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none dir-rtl text-right">
+                            <option value="مفتوح دائماً">مفتوح دائماً</option>
+                            <option value="ساعات محددة">ساعات محددة</option>
+                            <option value="بموعد فقط">بموعد فقط</option>
+                        </select>
+                        <input type="url" id="biz-link" placeholder="رابط الويب سايت" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none dir-ltr text-right">
+                    </div>
+                </div>
+
+                <!-- الكتالوج -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <button onclick="addNewProduct()" class="text-sky-500 text-xs font-bold"><i class="fas fa-plus"></i> منتج</button>
+                        <h4 class="font-bold text-sm text-slate-800">الكتالوج والمنتجات</h4>
+                    </div>
+                    <div id="biz-catalog-list" class="space-y-2 max-h-[150px] overflow-y-auto"></div>
+                </div>
+
+                <!-- أدوات المراسلة الآلية -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 space-y-3">
+                    <h4 class="font-bold text-sm text-slate-800 mb-2">أدوات المراسلة</h4>
+                    <div>
+                        <p class="text-[10px] text-gray-500 font-bold">رسالة الترحيب (للعملاء الجدد):</p>
+                        <textarea id="biz-greeting" rows="2" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none"></textarea>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 font-bold">رسالة خارج أوقات العمل:</p>
+                        <textarea id="biz-away" rows="2" class="w-full p-2 bg-gray-50 rounded-lg text-xs font-bold border outline-none"></textarea>
+                    </div>
+                </div>
+
+                <!-- الردود السريعة -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <button onclick="addQuickReply()" class="text-sky-500 text-xs font-bold"><i class="fas fa-plus"></i> إضافة</button>
+                        <h4 class="font-bold text-sm text-slate-800">الردود السريعة (اكتب / للبحث)</h4>
+                    </div>
+                    <div id="biz-replies-list" class="space-y-2 text-xs"></div>
+                </div>
+
+                <button onclick="saveBizProfile()" class="w-full py-4 bg-yellow-500 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition">حفظ أدوات الأعمال</button>
+            </div>
+        </div>
+
+        <!-- مودال الكتالوج للعميل (المتجر والعربة) -->
+        <div id="catalog-viewer-modal" class="hidden-view fixed inset-0 bg-white z-[120] flex flex-col animate-slide-up">
+            <div class="h-[150px] bg-gray-200 relative shrink-0">
+                <img id="store-cover" src="" class="w-full h-full object-cover">
+                <button onclick="closeStoreCatalog()" class="absolute top-4 right-4 bg-black/50 text-white w-8 h-8 rounded-full"><i class="fas fa-times"></i></button>
+                <div class="absolute -bottom-8 right-6 w-20 h-20 bg-white rounded-xl shadow-lg p-1">
+                    <img id="store-logo" src="" class="w-full h-full rounded-lg object-cover">
+                </div>
+            </div>
+            <div class="pt-10 px-6 text-right shrink-0">
+                <h2 id="store-name" class="text-xl font-black text-slate-800"></h2>
+                <p id="store-category" class="text-xs text-gray-500 font-bold"></p>
+                <div class="flex gap-3 justify-end mt-2 text-[10px] text-gray-600 font-bold">
+                    <span id="store-hours"><i class="far fa-clock"></i> </span>
+                    <span id="store-location"><i class="fas fa-map-marker-alt"></i> </span>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 mt-2 bg-gray-50">
+                <h3 class="font-bold text-sm mb-3 text-right">المنتجات والخدمات</h3>
+                <div id="store-products-list" class="grid grid-cols-2 gap-3"></div>
+            </div>
+            <div class="p-4 bg-white border-t shrink-0">
+                <button onclick="sendCartOrder()" class="w-full bg-green-500 text-white py-3 rounded-xl font-bold shadow-md flex justify-between px-6">
+                    <span id="cart-total">0 ج.م</span>
+                    <span><i class="fas fa-shopping-cart"></i> إرسال الطلب (<span id="cart-count">0</span>)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- لوحة الإدارة المتطورة (للأدمن) -->
         <div id="admin-modal" class="hidden-view fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4">
             <div class="bg-slate-900 w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[85vh]">
                 <div class="p-4 text-white flex justify-between items-center border-b border-gray-700 shrink-0">
                     <button onclick="closeAdminModal()"><i class="fas fa-times text-lg"></i></button>
-                    <h3 class="font-bold text-lg text-yellow-400">لوحة الإدارة الشاملة</h3>
+                    <h3 class="font-bold text-lg text-yellow-400">الإدارة العليا</h3>
                 </div>
                 <div class="p-3 bg-gray-100 flex-1 overflow-y-auto space-y-3" id="admin-requests"></div>
-            </div>
-        </div>
-
-        <!-- مودال تعديل بيانات المستخدم للأدمن -->
-        <div id="admin-edit-user-modal" class="hidden-view fixed inset-0 bg-black/60 z-[120] flex items-center justify-center p-4">
-            <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-right shadow-2xl">
-                <h3 class="font-bold text-lg mb-4 text-slate-800">تعديل بيانات المستخدم</h3>
-                <div class="space-y-3 mb-6">
-                    <p id="edit-user-phone" class="text-sm font-bold text-gray-500 dir-ltr text-center bg-gray-100 p-2 rounded-lg"></p>
-                    <div>
-                        <label class="text-[10px] text-gray-400 font-bold">اسم المستخدم</label>
-                        <input type="text" id="edit-user-name" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold border border-gray-200" disabled>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-400 font-bold">تغيير الباسورد للمستخدم</label>
-                        <input type="text" id="edit-user-pin" placeholder="أدخل كود جديد" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-bold text-center tracking-widest border border-sky-300 focus:border-sky-500">
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeAdminEditUser()" class="flex-1 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl active:scale-95">إلغاء</button>
-                    <button onclick="saveAdminUserEdit()" class="flex-1 py-3 bg-sky-500 text-white font-bold rounded-xl active:scale-95 shadow-md">حفظ الكود</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- شاشة المراقبة (التجسس) للأدمن -->
-        <div id="spy-modal" class="hidden-view fixed inset-0 bg-white z-[150] flex flex-col">
-            <div class="h-[70px] bg-slate-900 text-white flex items-center justify-between px-4 shrink-0 shadow-md">
-                <button onclick="closeSpyModal()" class="p-2"><i class="fas fa-times text-xl"></i></button>
-                <div class="text-right">
-                    <h3 class="font-bold text-sm text-yellow-400">مراقبة 👁️</h3>
-                    <p id="spy-target-name" class="text-[10px]"></p>
-                </div>
-            </div>
-            <div id="spy-contacts" class="p-3 bg-gray-50 border-b border-gray-200 shrink-0 overflow-x-auto flex gap-2 hide-scrollbar"></div>
-            <div id="spy-messages-container" class="flex-1 bg-[#f0f2f5] relative overflow-y-auto">
-                <div id="spy-msg-wrapper" class="flex flex-col gap-2 p-4"></div>
-                <div id="spy-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 font-bold text-sm">اختر محادثة للمراقبة</div>
             </div>
         </div>
 
     </div>
 
     <script>
-        // إعدادات فايربيز الصافية لضمان عدم وجود أخطاء اتصال
         const firebaseConfig = {
             apiKey: "AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",
             authDomain: "whatsapp-fcd3c.firebaseapp.com",
@@ -331,86 +309,57 @@
         const db = firebase.firestore();
 
         const ADMIN_PHONE = "+201112215950";
-        let currentUser = localStorage.getItem('kimo_royal_v5'); 
-        let activeChatId = null, activeChatType = 'direct'; 
-        let uCache = {}, gCache = {}, tempPhone = "", profileBase64 = '';
-        let mediaRec, audioChunks = [];
-        let spyTargetId = null;
-        let adminEditingPhone = null;
+        let currentUser = localStorage.getItem('kimo_vip_biz'); 
+        let activeChatId = null, uCache = {}, tempPhone = "";
+        let profileBase64 = '', coverBase64 = '';
+        let myProducts = [], myQuickReplies = [];
+        let shoppingCart = [];
 
         function showToast(msg) {
             const toast = document.getElementById('alert-toast');
-            toast.innerText = msg;
-            toast.classList.remove('hidden-view');
-            toast.classList.add('toast-show');
+            toast.innerText = msg; toast.classList.remove('hidden-view'); toast.classList.add('toast-show');
             setTimeout(() => { toast.classList.add('hidden-view'); toast.classList.remove('toast-show'); }, 3000);
         }
 
-        // إخفاء Splash وبدء التطبيق
         window.addEventListener('load', () => {
             setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.classList.add('hidden-view'), 500);
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash-screen').classList.add('hidden-view'), 500);
                 if(currentUser) initApp(); else document.getElementById('auth-view').classList.remove('hidden-view');
             }, 800);
         });
 
-        // --- 1. Login Logic ---
+        // --- 1. Login ---
         async function checkNumberReady() {
             let p = document.getElementById('phone-input').value.trim();
-            if(!p) return showToast("أدخل رقم الهاتف!");
+            if(!p) return;
             if(p.startsWith('0')) p = p.substring(1);
             tempPhone = "+20" + p;
-
-            const btnText = document.getElementById('btn-text');
-            btnText.innerText = "جاري الفحص...";
-            
+            document.getElementById('btn-text').innerText = "جاري الفحص...";
             try {
                 const docSnap = await db.collection('users').doc(tempPhone).get();
-
                 if(!docSnap.exists) {
                     await db.collection('users').doc(tempPhone).set({
                         phone: tempPhone, displayName: "مستخدم " + tempPhone.slice(-4), bio: 'متاح',
                         status: 'approved', loginCode: '000000', isVerified: tempPhone === ADMIN_PHONE,
-                        contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        isBusiness: false, contacts: [], createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                } else {
-                    if (docSnap.data().status === 'banned') {
-                        showToast("حسابك محظور من قبل الإدارة 🚫");
-                        btnText.innerText = "متابعة الدخول";
-                        return;
-                    }
+                } else if(docSnap.data().status === 'banned') {
+                    showToast("حسابك محظور 🚫"); document.getElementById('btn-text').innerText = "متابعة"; return;
                 }
                 showStep('pin-step');
-            } catch(e) { showToast("تأكد من اتصالك بالإنترنت!"); }
-            btnText.innerText = "متابعة الدخول";
+            } catch(e) { showToast("خطأ بالاتصال"); }
+            document.getElementById('btn-text').innerText = "متابعة";
         }
-
-        function showStep(id) {
-            ['check-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view'));
-            document.getElementById(id).classList.remove('hidden-view');
-        }
-
+        function showStep(id) { ['check-step', 'pin-step'].forEach(i => document.getElementById(i).classList.add('hidden-view')); document.getElementById(id).classList.remove('hidden-view'); }
         async function verifyAccess() {
             const pin = document.getElementById('pin-input').value.trim();
-            if(!pin) return;
-            
-            const btn = document.getElementById('btn-pin');
-            btn.innerText = "جاري الدخول...";
-            
-            try {
-                const snap = await db.collection('users').doc(tempPhone).get();
-                if (snap.data().loginCode === pin) {
-                    currentUser = tempPhone;
-                    localStorage.setItem('kimo_royal_v5', currentUser);
-                    initApp();
-                } else { showToast("الكود غير صحيح!"); }
-            } catch(e) { showToast("حدث خطأ!"); }
-            btn.innerText = "دخول آمن";
+            const snap = await db.collection('users').doc(tempPhone).get();
+            if (snap.data().loginCode === pin) { currentUser = tempPhone; localStorage.setItem('kimo_vip_biz', currentUser); initApp(); } 
+            else showToast("الكود خطأ!");
         }
 
-        // --- 2. Main App Logic ---
+        // --- 2. Main App ---
         function initApp() {
             document.getElementById('auth-view').classList.add('hidden-view');
             document.getElementById('main-view').classList.remove('hidden-view');
@@ -418,343 +367,246 @@
             if (currentUser === ADMIN_PHONE) {
                 document.getElementById('logout-btn').classList.remove('hidden-view');
                 document.getElementById('admin-panel-btn').classList.remove('hidden-view');
-                document.getElementById('btn-create-group').classList.remove('hidden-view');
             }
 
             db.collection('users').doc(currentUser).onSnapshot(s => {
                 if(!s.exists) return logout();
                 const me = s.data();
-                if(me.status === 'banned') {
-                    alert("تم حظر حسابك 🚫");
-                    logout();
-                    return;
-                }
+                if(me.status === 'banned') { alert("حسابك محظور"); logout(); return; }
+                
                 profileBase64 = me.avatar || '';
-                document.getElementById('set-img-preview').src = profileBase64 || `https://ui-avatars.com/api/?name=${me.displayName}&background=0ea5e9&color=fff`;
+                document.getElementById('set-img-preview').src = profileBase64 || `https://ui-avatars.com/api/?name=${me.displayName}`;
                 document.getElementById('set-name').value = me.displayName || '';
                 document.getElementById('set-bio').value = me.bio || '';
-                document.getElementById('set-auto-reply').value = me.autoReply || '';
+                
+                // Business Logic
+                document.getElementById('set-is-business').checked = me.isBusiness || false;
+                if(me.isBusiness) document.getElementById('biz-tools-btn').classList.remove('hidden-view');
+                else document.getElementById('biz-tools-btn').classList.add('hidden-view');
+                
+                if(me.bizProfile) {
+                    coverBase64 = me.bizProfile.cover || '';
+                    document.getElementById('biz-cover-preview').src = coverBase64 || 'https://via.placeholder.com/400x150?text=Cover+Photo';
+                    document.getElementById('biz-category').value = me.bizProfile.category || '';
+                    document.getElementById('biz-address').value = me.bizProfile.address || '';
+                    document.getElementById('biz-hours').value = me.bizProfile.hours || '';
+                    document.getElementById('biz-link').value = me.bizProfile.link || '';
+                    document.getElementById('biz-greeting').value = me.bizProfile.greeting || '';
+                    document.getElementById('biz-away').value = me.bizProfile.away || '';
+                    myProducts = me.bizProfile.catalog || [];
+                    myQuickReplies = me.bizProfile.quickReplies || [];
+                    renderCatalogAdmin();
+                    renderQuickRepliesAdmin();
+                }
             });
 
             db.collection('users').onSnapshot(s => { s.docs.forEach(d => uCache[d.id] = d.data()); renderContacts(); });
-            db.collection('groups').onSnapshot(s => { s.docs.forEach(d => gCache[d.id] = d.data()); loadGroups(); });
-            switchTab('chats');
         }
 
         function renderContacts() {
-            const list = document.getElementById('contacts-list');
+            const list = document.getElementById('contacts-list'); list.innerHTML = '';
             const meData = uCache[currentUser];
-            const myContactsList = meData?.contacts || [];
-            let html = '';
-            let hasVisible = false;
-
             Object.values(uCache).forEach(u => {
                 if(u.phone === currentUser || u.status === 'banned') return;
+                // الخصوصية
+                if(currentUser !== ADMIN_PHONE && !meData?.contacts?.includes(u.phone)) return;
                 
-                // الخصوصية: الأدمن بيشوف الكل، الباقي بيشوف اللي ضافهم بس
-                if(currentUser !== ADMIN_PHONE && !myContactsList.includes(u.phone)) return;
-                
-                hasVisible = true;
                 const verifiedIcon = u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : '';
+                const bizIcon = u.isBusiness ? '<span class="text-[8px] bg-yellow-100 text-yellow-700 px-1 rounded ml-1">أعمال</span>' : '';
                 
-                html += `
-                    <div onclick="openChat('${u.phone}', 'direct')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-xl transition">
-                        <div class="w-[50px] h-[50px] bg-slate-100 rounded-full shrink-0 overflow-hidden shadow-sm border border-gray-200">
+                list.innerHTML += `
+                    <div onclick="openChat('${u.phone}')" class="flex flex-row-reverse items-center gap-3 cursor-pointer p-2 active:bg-gray-50 rounded-xl transition">
+                        <div class="w-[50px] h-[50px] bg-slate-100 rounded-full shrink-0 overflow-hidden border">
                             <img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full object-cover">
                         </div>
-                        <div class="text-right flex-1 overflow-hidden">
+                        <div class="text-right flex-1">
                             <div class="flex items-center justify-end gap-1">
                                 ${verifiedIcon}
-                                <h3 class="font-bold text-[15px] text-slate-800 truncate">${u.displayName}</h3>
+                                <h3 class="font-bold text-[14px] text-slate-800 truncate">${u.displayName}</h3>
                             </div>
-                            <p class="text-[11px] text-gray-400 mt-0.5 truncate">${u.bio || 'متاح'}</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${bizIcon} ${u.bio || 'متاح'}</p>
                         </div>
-                    </div>
-                    <div class="w-[80%] mx-auto border-b border-gray-100 my-1"></div>`;
+                    </div><div class="w-[80%] mx-auto border-b border-gray-50 my-1"></div>`;
             });
-            list.innerHTML = html || `<div class="text-center py-10"><i class="fas fa-user-slash text-4xl text-gray-300 mb-2"></i><p class="text-sm text-gray-500 font-bold">لا يوجد أصدقاء. أضف صديق لتبدأ المحادثة.</p></div>`;
         }
 
-        function switchTab(tab) {
-            ['chats', 'groups', 'status'].forEach(t => {
-                document.getElementById(`tab-${t}-view`).classList.add('hidden-view');
-                const btn = document.getElementById(`tab-${t}`);
-                btn.classList.remove('active');
-                btn.classList.add('inactive');
-            });
-            document.getElementById(`tab-${tab}-view`).classList.remove('hidden-view');
-            const activeBtn = document.getElementById(`tab-${tab}`);
-            activeBtn.classList.remove('inactive');
-            activeBtn.classList.add('active');
-            
-            if(tab === 'groups') loadGroups();
-            if(tab === 'status') loadStatuses();
-        }
-
-        // --- 3. Chat & Groups Logic ---
-        function getChatId() { return activeChatType === 'group' ? activeChatId : [currentUser, activeChatId].sort().join('_'); }
-
-        function openChat(id, type) {
-            activeChatId = id; activeChatType = type;
+        // --- 3. Chat & Business Logic ---
+        function openChat(id) {
+            activeChatId = id; const u = uCache[id];
             document.getElementById('chat-view').classList.remove('hidden-view');
-            const verifiedElem = document.getElementById('active-chat-verified');
-            const leaveBtn = document.getElementById('leave-group-btn');
+            document.getElementById('active-chat-name').innerText = u.displayName;
+            document.getElementById('active-chat-status').innerText = u.isBusiness ? 'حساب أعمال' : (u.bio || 'متاح');
+            document.getElementById('active-chat-verified').classList.toggle('hidden-view', !u.isVerified);
+            document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
             
-            if (type === 'direct') {
-                const u = uCache[id];
-                document.getElementById('active-chat-name').innerText = u.displayName;
-                document.getElementById('active-chat-status').innerText = u.bio || 'متاح';
-                if(u.isVerified) { verifiedElem.classList.remove('hidden-view'); verifiedElem.innerHTML = '<span class="verified-badge"><i class="fas fa-check"></i></span>'; } 
-                else { verifiedElem.classList.add('hidden-view'); }
-                document.getElementById('active-chat-img').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
-                
-                document.getElementById('chat-input-area').classList.remove('hidden-view');
-                document.getElementById('join-group-area').classList.add('hidden-view');
-                leaveBtn.classList.add('hidden-view');
-            } else {
-                const g = gCache[id];
-                document.getElementById('active-chat-name').innerText = g.name;
-                document.getElementById('active-chat-status').innerText = `جروب رسمي • ${g.members?.length || 0} عضو`;
-                verifiedElem.classList.remove('hidden-view');
-                verifiedElem.innerHTML = '<span class="verified-badge"><i class="fas fa-check"></i></span>';
-                document.getElementById('active-chat-img').src = `https://ui-avatars.com/api/?name=${g.name}&background=0ea5e9&color=fff`;
-                
-                const isMember = g.members?.includes(currentUser);
-                const isAdmin = currentUser === ADMIN_PHONE;
-                
-                if(isMember || isAdmin) {
-                    document.getElementById('chat-input-area').classList.remove('hidden-view');
-                    document.getElementById('join-group-area').classList.add('hidden-view');
-                    // إظهار زر المغادرة لو هو عضو بس مش الأدمن المالك
-                    if(isMember && !isAdmin) leaveBtn.classList.remove('hidden-view');
-                    else leaveBtn.classList.add('hidden-view');
-                } else {
-                    document.getElementById('chat-input-area').classList.add('hidden-view');
-                    document.getElementById('join-group-area').classList.remove('hidden-view');
-                    leaveBtn.classList.add('hidden-view');
-                }
-            }
-            loadMsgs();
+            if(u.isBusiness && u.bizProfile?.catalog?.length > 0) document.getElementById('shop-btn').classList.remove('hidden-view');
+            else document.getElementById('shop-btn').classList.add('hidden-view');
+            
+            loadMsgs(u.isBusiness);
         }
 
-        let currentChatListener = null;
-        function loadMsgs() {
-            if(currentChatListener) currentChatListener(); 
-            
-            const cid = getChatId();
-            let query = activeChatType === 'group' ? db.collection('groups').doc(cid).collection('messages') : db.collection('messages').where('chatId', '==', cid);
-            const wrap = document.getElementById('msg-wrapper'), cont = document.getElementById('messages-container');
-            
-            currentChatListener = query.onSnapshot(s => {
+        function loadMsgs(isTargetBusiness) {
+            const cid = [currentUser, activeChatId].sort().join('_');
+            const cont = document.getElementById('messages-container'), wrap = document.getElementById('msg-wrapper');
+            db.collection('messages').where('chatId', '==', cid).onSnapshot(s => {
                 let msgs = []; s.forEach(d => msgs.push(d.data()));
                 msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                wrap.innerHTML = '';
+                
+                let html = '';
+                // رسالة النظام لو بكلم بيزنس لاول مرة
+                if(isTargetBusiness) html += `<div class="sys-msg">أنت تدردش مع حساب أعمال</div>`;
+                
+                // رسالة الترحيب التلقائية لو مفيش رسايل
+                if(msgs.length === 0 && isTargetBusiness) {
+                    const u = uCache[activeChatId];
+                    if(u.bizProfile?.greeting) html += `<div class="flex flex-col items-start w-full"><div class="msg-bubble msg-in"><p class="text-[10px] text-yellow-600 font-bold mb-1">رد تلقائي</p><p>${u.bizProfile.greeting}</p></div></div>`;
+                }
+
                 msgs.forEach(m => {
                     const isMe = m.s === currentUser;
-                    let senderInfo = '';
-                    if (activeChatType === 'group' && !isMe) {
-                        const senderName = uCache[m.s]?.displayName || 'عضو';
-                        senderInfo = `<p class="text-[9px] text-sky-600 font-bold mb-1">${senderName}</p>`;
-                    }
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${senderInfo}${content}</div></div>`);
+                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p style="white-space: pre-wrap;">${m.txt}</p>`;
+                    html += `<div class="flex flex-col ${isMe?'items-end':'items-start'} w-full"><div class="msg-bubble ${isMe?'msg-out':'msg-in'}">${content}</div></div>`;
                 });
+                wrap.innerHTML = html;
                 cont.scrollTop = cont.scrollHeight;
             });
         }
 
         async function sendText() {
             const i = document.getElementById('m-input'), txt = i.value.trim(); if(!txt) return;
-            const cid = getChatId(); i.value = '';
+            const cid = [currentUser, activeChatId].sort().join('_'); i.value = '';
+            document.getElementById('quick-reply-popup').classList.add('hidden-view'); // إخفاء المنيو
+            await db.collection('messages').add({ chatId: cid, s: currentUser, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
             
-            const msgData = { s: currentUser, txt, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() };
-            if(activeChatType === 'direct') msgData.chatId = cid;
-
-            const targetCol = activeChatType === 'group' ? db.collection('groups').doc(cid).collection('messages') : db.collection('messages');
-            await targetCol.add(msgData);
-
-            if (activeChatType === 'direct') {
-                const receiverData = uCache[activeChatId];
-                if (receiverData && receiverData.autoReply) {
-                    setTimeout(async () => {
-                        await db.collection('messages').add({ chatId: cid, s: activeChatId, txt: receiverData.autoReply, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
-                    }, 1000);
-                }
+            // Away message
+            const u = uCache[activeChatId];
+            if(u?.isBusiness && u.bizProfile?.away) {
+                setTimeout(async () => {
+                    await db.collection('messages').add({ chatId: cid, s: activeChatId, txt: "*(رد تلقائي)*\n" + u.bizProfile.away, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+                }, 1000);
             }
         }
 
-        // --- Groups System ---
-        async function createGroup() {
-            let name = prompt("اسم الجروب الرسمي:");
-            if(!name) return;
-            await db.collection('groups').add({ 
-                name, admin: currentUser, members: [currentUser],
-                isVerified: true, t: firebase.firestore.FieldValue.serverTimestamp() 
-            });
-            showToast("تم إنشاء الجروب الرسمي!");
+        // Quick Reply Detection
+        function handleTyping(val) {
+            const popup = document.getElementById('quick-reply-popup');
+            if(val.startsWith('/') && uCache[currentUser]?.isBusiness) {
+                const search = val.substring(1).toLowerCase();
+                const filtered = myQuickReplies.filter(r => r.shortcut.toLowerCase().includes(search));
+                if(filtered.length > 0) {
+                    popup.innerHTML = filtered.map(r => `<div onclick="selectQuickReply('${r.text}')" class="p-2 border-b border-gray-100 cursor-pointer active:bg-gray-50"><p class="font-bold text-sky-500 text-xs">/${r.shortcut}</p><p class="text-[10px] text-gray-500 truncate">${r.text}</p></div>`).join('');
+                    popup.classList.remove('hidden-view');
+                } else popup.classList.add('hidden-view');
+            } else { popup.classList.add('hidden-view'); }
         }
+        function selectQuickReply(txt) { document.getElementById('m-input').value = txt; document.getElementById('quick-reply-popup').classList.add('hidden-view'); }
 
-        function loadGroups() {
-            const list = document.getElementById('groups-list');
-            let html = '';
-            Object.keys(gCache).forEach(id => {
-                const g = gCache[id];
-                html += `
-                    <div onclick="openChat('${id}', 'group')" class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center cursor-pointer active:bg-gray-50 transition">
-                        <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-500 flex items-center justify-center shrink-0 border border-sky-200">
-                            <i class="fas fa-users text-xl"></i>
-                        </div>
-                        <div class="flex-1 text-right">
-                            <div class="flex items-center justify-end gap-1">
-                                <span class="verified-badge"><i class="fas fa-check"></i></span>
-                                <h4 class="font-bold text-[15px] text-slate-800">${g.name}</h4>
-                            </div>
-                            <p class="text-[10px] text-gray-500 mt-0.5">${g.members?.length || 0} أعضاء</p>
-                        </div>
-                    </div>`;
-            });
-            list.innerHTML = html || '<p class="text-center text-xs text-gray-400 font-bold">لا توجد جروبات حالياً.</p>';
-        }
-
-        async function joinActiveGroup() {
-            if(activeChatType !== 'group' || !activeChatId) return;
-            await db.collection('groups').doc(activeChatId).update({ members: firebase.firestore.FieldValue.arrayUnion(currentUser) });
-            document.getElementById('join-group-area').classList.add('hidden-view');
-            document.getElementById('chat-input-area').classList.remove('hidden-view');
-            document.getElementById('leave-group-btn').classList.remove('hidden-view');
-            showToast("تم الانضمام بنجاح!");
-        }
-
-        async function leaveGroup() {
-            if(activeChatType !== 'group' || !activeChatId) return;
-            if(confirm("هل أنت متأكد من مغادرة الجروب؟")) {
-                await db.collection('groups').doc(activeChatId).update({ members: firebase.firestore.FieldValue.arrayRemove(currentUser) });
-                closeChat();
-                showToast("تمت المغادرة.");
-            }
-        }
-
-        // --- Status (الحالات) ---
-        async function addStatus() {
-            let txt = prompt("اكتب حالتك (ستظهر لأصدقائك):");
-            if(!txt) return;
-            await db.collection('statuses').add({ s: currentUser, txt, t: firebase.firestore.FieldValue.serverTimestamp() });
-        }
-
-        function loadStatuses() {
-            const list = document.getElementById('status-list');
-            db.collection('statuses').orderBy('t', 'desc').limit(20).onSnapshot(snap => {
-                list.innerHTML = '';
-                const meContacts = uCache[currentUser]?.contacts || [];
-                let hasStatus = false;
-                snap.forEach(doc => {
-                    const s = doc.data();
-                    if(currentUser !== ADMIN_PHONE && s.s !== currentUser && !meContacts.includes(s.s)) return;
-                    const u = uCache[s.s]; if(!u) return;
-                    hasStatus = true;
-                    list.innerHTML += `
-                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex gap-3 items-center">
-                            <div class="w-12 h-12 rounded-full p-[2px] bg-sky-400 shrink-0 border border-gray-200">
-                                <img src="${u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`}" class="w-full h-full rounded-full border-2 border-white object-cover bg-white">
-                            </div>
-                            <div class="flex-1 text-right">
-                                <div class="flex items-center justify-end gap-1">
-                                    ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}
-                                    <h4 class="font-bold text-sm text-slate-800">${u.displayName}</h4>
-                                </div>
-                                <p class="text-xs text-gray-600 mt-1">${s.txt}</p>
-                            </div>
-                        </div>`;
-                });
-                if(!hasStatus) list.innerHTML = '<p class="text-center text-gray-400 text-xs font-bold mt-4">لا توجد حالات.</p>';
-            });
-        }
-
-        // Voice
-        async function startVoice(e) {
-            if(e) e.preventDefault();
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRec = new MediaRecorder(stream); audioChunks = [];
-                mediaRec.ondataavailable = ev => audioChunks.push(ev.data);
-                mediaRec.onstop = async () => {
-                    if(audioChunks.length === 0) return;
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const reader = new FileReader();
-                    reader.onloadend = async () => {
-                        const cid = getChatId();
-                        const targetCol = activeChatType === 'group' ? db.collection('groups').doc(cid).collection('messages') : db.collection('messages');
-                        const msgData = { s: currentUser, data: reader.result, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp() };
-                        if(activeChatType === 'direct') msgData.chatId = cid;
-                        await targetCol.add(msgData);
-                    };
-                    reader.readAsDataURL(audioBlob);
-                };
-                mediaRec.start();
-                document.getElementById('rec-toast').classList.remove('hidden-view');
-            } catch(err) { showToast("اسمح بالمايك!"); }
-        }
-        function stopVoice(e) {
-            if(e) e.preventDefault();
-            if(mediaRec && mediaRec.state !== 'inactive') {
-                mediaRec.stop();
-                document.getElementById('rec-toast').classList.add('hidden-view');
-                mediaRec.stream.getTracks().forEach(t => t.stop());
-            }
-        }
-
-        // --- 4. Modals ---
-        function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
-        function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
-        async function confirmAddFriend() {
-            let p = document.getElementById('add-phone-input').value.trim();
-            if(!p) return;
-            if(p.startsWith('0')) p = p.substring(1); p = "+20"+p;
-            
-            const doc = await db.collection('users').doc(p).get();
-            if(doc.exists && doc.data().status !== 'banned') {
-                await db.collection('users').doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) });
-                closeAddFriendModal();
-                openChat(p, 'direct');
-            } else showToast("هذا الرقم غير مسجل أو محظور!");
-        }
-
+        // --- 4. Business Tools (الإعدادات) ---
         function openSettingsModal() { document.getElementById('settings-modal').classList.remove('hidden-view'); }
         function closeSettingsModal() { document.getElementById('settings-modal').classList.add('hidden-view'); }
+        function toggleBusinessOptions() { const isBiz = document.getElementById('set-is-business').checked; if(isBiz) showToast("أنت الآن حساب أعمال! افتح 'أدوات الأعمال' من القائمة."); }
         
-        document.getElementById('set-photo-input').onchange = e => {
-            const f = e.target.files[0]; if(f) { const r = new FileReader(); r.onload = ev => { profileBase64 = ev.target.result; document.getElementById('set-img-preview').src = profileBase64; }; r.readAsDataURL(f); }
-        };
-
         async function saveProfile() {
-            const name = document.getElementById('set-name').value.trim();
-            const bio = document.getElementById('set-bio').value.trim();
-            const autoReply = document.getElementById('set-auto-reply').value.trim();
-            const pass = document.getElementById('set-pass').value.trim();
-            
-            if(!name) return showToast('الاسم مطلوب!');
-            
-            let updates = { displayName: name, bio, autoReply, avatar: profileBase64 };
+            const name = document.getElementById('set-name').value.trim(), bio = document.getElementById('set-bio').value.trim(), pass = document.getElementById('set-pass').value.trim();
+            const isBiz = document.getElementById('set-is-business').checked;
+            if(!name) return;
+            let updates = { displayName: name, bio, isBusiness: isBiz, avatar: profileBase64 };
             if(pass && pass.length >= 4) updates.loginCode = pass;
-            
             await db.collection('users').doc(currentUser).update(updates);
-            showToast("تم الحفظ بنجاح");
-            closeSettingsModal();
+            closeSettingsModal(); showToast("تم الحفظ");
         }
 
-        // نظام رابط الإحالة
-        function copyInviteLink() {
-            const link = window.location.href;
-            navigator.clipboard.writeText(link).then(() => {
-                showToast("تم نسخ رابط التطبيق، أرسله لأصدقائك!");
-            }).catch(() => {
-                const el = document.createElement('textarea');
-                el.value = link; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-                showToast("تم نسخ الرابط بنجاح.");
-            });
+        function openBizTools() { document.getElementById('biz-tools-modal').classList.remove('hidden-view'); }
+        function closeBizTools() { document.getElementById('biz-tools-modal').classList.add('hidden-view'); }
+        
+        document.getElementById('biz-cover-input').onchange = e => { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=ev=>{ coverBase64=ev.target.result; document.getElementById('biz-cover-preview').src=coverBase64; }; r.readAsDataURL(f); } };
+
+        function addNewProduct() {
+            const name = prompt("اسم المنتج:"); if(!name) return;
+            const price = prompt("السعر:"); const desc = prompt("وصف صغير:");
+            myProducts.push({ id: Date.now().toString(), name, price, desc, active: true });
+            renderCatalogAdmin();
+        }
+        function renderCatalogAdmin() {
+            document.getElementById('biz-catalog-list').innerHTML = myProducts.map((p, i) => `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border text-xs">
+                    <button onclick="myProducts.splice(${i},1); renderCatalogAdmin();" class="text-red-500"><i class="fas fa-trash"></i></button>
+                    <div class="text-right flex-1 mr-2"><p class="font-bold">${p.name}</p><p class="text-[9px] text-gray-500">${p.price} ج.م</p></div>
+                </div>`).join('');
+        }
+        function addQuickReply() {
+            const shortcut = prompt("الاختصار (بدون /):", "شكر"); if(!shortcut) return;
+            const text = prompt("الرسالة الكاملة:"); if(!text) return;
+            myQuickReplies.push({ shortcut, text }); renderQuickRepliesAdmin();
+        }
+        function renderQuickRepliesAdmin() {
+            document.getElementById('biz-replies-list').innerHTML = myQuickReplies.map((r, i) => `
+                <div class="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                    <button onclick="myQuickReplies.splice(${i},1); renderQuickRepliesAdmin();" class="text-red-500"><i class="fas fa-trash"></i></button>
+                    <div class="text-right"><p class="font-bold text-sky-500">/${r.shortcut}</p><p class="text-[9px] truncate w-32">${r.text}</p></div>
+                </div>`).join('');
         }
 
-        // --- 5. Admin Panel ---
+        async function saveBizProfile() {
+            const bizProfile = {
+                cover: coverBase64, category: document.getElementById('biz-category').value,
+                address: document.getElementById('biz-address').value, hours: document.getElementById('biz-hours').value,
+                link: document.getElementById('biz-link').value, greeting: document.getElementById('biz-greeting').value,
+                away: document.getElementById('biz-away').value, catalog: myProducts, quickReplies: myQuickReplies
+            };
+            await db.collection('users').doc(currentUser).update({ bizProfile });
+            showToast("تم تحديث ملف الأعمال بنجاح"); closeBizTools();
+        }
+
+        // --- 5. Shopping Catalog (للعميل) ---
+        function openStoreCatalog() {
+            const u = uCache[activeChatId]; if(!u || !u.bizProfile) return;
+            document.getElementById('catalog-viewer-modal').classList.remove('hidden-view');
+            document.getElementById('store-cover').src = u.bizProfile.cover || 'https://via.placeholder.com/400x150?text=Cover';
+            document.getElementById('store-logo').src = u.avatar || `https://ui-avatars.com/api/?name=${u.displayName}`;
+            document.getElementById('store-name').innerText = u.displayName;
+            document.getElementById('store-category').innerText = u.bizProfile.category || 'نشاط تجاري';
+            document.getElementById('store-hours').innerHTML = `<i class="far fa-clock"></i> ${u.bizProfile.hours||''}`;
+            document.getElementById('store-location').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${u.bizProfile.address||''}`;
+            
+            shoppingCart = []; updateCartUI();
+            
+            const pList = document.getElementById('store-products-list');
+            pList.innerHTML = (u.bizProfile.catalog || []).map(p => `
+                <div class="bg-white rounded-xl shadow-sm border p-3 text-right flex flex-col">
+                    <div class="w-full h-20 bg-gray-100 rounded-lg mb-2 flex items-center justify-center text-gray-400"><i class="fas fa-image text-2xl"></i></div>
+                    <h4 class="font-bold text-sm text-slate-800">${p.name}</h4>
+                    <p class="text-[10px] text-gray-500 mb-2 flex-1">${p.desc}</p>
+                    <div class="flex justify-between items-center mt-auto">
+                        <button onclick="addToCart('${p.name}', '${p.price}')" class="bg-sky-50 text-sky-600 px-3 py-1 rounded text-xs font-bold active:scale-95"><i class="fas fa-cart-plus"></i></button>
+                        <p class="font-black text-kimo-main text-xs">${p.price}</p>
+                    </div>
+                </div>`).join('');
+        }
+        function closeStoreCatalog() { document.getElementById('catalog-viewer-modal').classList.add('hidden-view'); }
+        
+        function addToCart(name, price) {
+            shoppingCart.push({name, price: parseFloat(price)||0}); updateCartUI(); showToast("تم الإضافة للعربة");
+        }
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = shoppingCart.length;
+            const total = shoppingCart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total').innerText = total + " ج";
+        }
+        async function sendCartOrder() {
+            if(shoppingCart.length === 0) return showToast("العربة فارغة!");
+            let orderText = "🛒 *طلب جديد من الكتالوج:*\n\n";
+            shoppingCart.forEach((item, i) => orderText += `${i+1}. ${item.name} - ${item.price}ج\n`);
+            const total = shoppingCart.reduce((sum, item) => sum + item.price, 0);
+            orderText += `\n*الإجمالي: ${total} ج.م*`;
+            
+            const cid = [currentUser, activeChatId].sort().join('_');
+            await db.collection('messages').add({ chatId: cid, s: currentUser, txt: orderText, type: 'text', t: firebase.firestore.FieldValue.serverTimestamp() });
+            
+            closeStoreCatalog(); showToast("تم إرسال الطلب للتاجر!");
+        }
+
+        // --- 6. Admin Panel (Labels, Ban, OTP) ---
         function openAdminModal() {
             document.getElementById('admin-modal').classList.remove('hidden-view');
             const list = document.getElementById('admin-requests');
@@ -764,103 +616,44 @@
                     const u = doc.data();
                     if(u.phone === ADMIN_PHONE) return; 
                     
+                    // تصنيف العميل (Label) للادمن فقط (محاكاة سريعة في اللوحة)
+                    let statusColor = u.status === 'banned' ? 'red' : 'green';
+                    
                     list.innerHTML += `
-                        <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-2 mb-3">
+                        <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 mb-2">
                             <div class="flex justify-between items-center text-right">
                                 <div class="flex-1 mr-2">
-                                    <p class="font-bold text-[15px] text-slate-800">${u.displayName} ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}</p>
-                                    <p class="text-[11px] text-gray-500 font-bold">${u.phone}</p>
+                                    <p class="font-bold text-sm">${u.displayName} ${u.isVerified ? '<span class="verified-badge"><i class="fas fa-check"></i></span>' : ''}</p>
+                                    <p class="text-[9px] text-gray-500">${u.phone}</p>
                                 </div>
-                                <div class="text-[10px] font-bold px-2 py-1 rounded ${u.status === 'banned' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}">
-                                    ${u.status === 'banned' ? 'محظور 🚫' : 'نشط'}
-                                </div>
+                                <div class="text-[9px] font-bold px-2 py-1 rounded bg-${statusColor}-100 text-${statusColor}-600">${u.status}</div>
                             </div>
-                            <div class="flex flex-wrap gap-2 justify-end mt-1 border-t border-gray-100 pt-2">
-                                ${u.isVerified 
-                                    ? `<button onclick="updateUser('${u.phone}', {isVerified: false})" class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm border">إلغاء التوثيق</button>`
-                                    : `<button onclick="updateUser('${u.phone}', {isVerified: true})" class="bg-sky-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">توثيق 🔵</button>`}
-                                
-                                ${u.status === 'banned'
-                                    ? `<button onclick="updateUser('${u.phone}', {status: 'approved'})" class="bg-green-100 text-green-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">فك الحظر</button>`
-                                    : `<button onclick="updateUser('${u.phone}', {status: 'banned'})" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">حظر 🚫</button>`}
-                                
-                                <button onclick="openAdminEditUser('${u.phone}')" class="bg-yellow-400 text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">بيانات ⚙️</button>
-                                <button onclick="openSpyModal('${u.phone}', '${u.displayName}')" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">👁️ مراقبة</button>
+                            <div class="flex flex-wrap gap-1 justify-end border-t pt-2">
+                                ${u.isVerified ? `<button onclick="updateUser('${u.phone}', {isVerified: false})" class="bg-gray-100 px-2 py-1 rounded text-[9px] font-bold">إلغاء التوثيق</button>` : `<button onclick="updateUser('${u.phone}', {isVerified: true})" class="bg-sky-500 text-white px-2 py-1 rounded text-[9px] font-bold">توثيق 🔵</button>`}
+                                ${u.status === 'banned' ? `<button onclick="updateUser('${u.phone}', {status: 'approved'})" class="bg-green-100 text-green-700 px-2 py-1 rounded text-[9px] font-bold">فك الحظر</button>` : `<button onclick="updateUser('${u.phone}', {status: 'banned'})" class="bg-red-100 text-red-700 px-2 py-1 rounded text-[9px] font-bold">حظر 🚫</button>`}
+                                <button onclick="generateAdminOTP('${u.phone}')" class="bg-yellow-400 px-2 py-1 rounded text-[9px] font-bold">OTP 🔑</button>
                             </div>
                         </div>`;
                 });
             });
         }
-        
         async function updateUser(phone, updates) { await db.collection('users').doc(phone).update(updates); }
+        async function generateAdminOTP(phone) {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            await db.collection('users').doc(phone).update({ loginCode: code, forceOtp: true, otpExpiry: Date.now() + 86400000 });
+            alert(`تم تقييد الحساب.\nكود الـ OTP: ${code}\n(صالح لـ 24 ساعة)`);
+        }
         function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden-view'); }
 
-        // تعديل بيانات المستخدم للأدمن
-        function openAdminEditUser(phone) {
-            adminEditingPhone = phone;
-            const u = uCache[phone];
-            document.getElementById('edit-user-phone').innerText = phone;
-            document.getElementById('edit-user-name').value = u.displayName;
-            document.getElementById('edit-user-pin').value = u.loginCode || '';
-            document.getElementById('admin-edit-user-modal').classList.remove('hidden-view');
+        // --- General ---
+        function openAddFriendModal() { document.getElementById('add-friend-modal').classList.remove('hidden-view'); }
+        function closeAddFriendModal() { document.getElementById('add-friend-modal').classList.add('hidden-view'); }
+        async function confirmAddFriend() {
+            let p = document.getElementById('add-phone-input').value.trim(); if(p.startsWith('0')) p = p.substring(1); p = "+20"+p;
+            await db.collection('users').doc(currentUser).update({ contacts: firebase.firestore.FieldValue.arrayUnion(p) });
+            closeAddFriendModal(); openChat(p, 'direct');
         }
-
-        async function saveAdminUserEdit() {
-            const newPin = document.getElementById('edit-user-pin').value.trim();
-            if(newPin) {
-                await db.collection('users').doc(adminEditingPhone).update({ loginCode: newPin });
-                showToast("تم تغيير الكود بنجاح!");
-                closeAdminEditUser();
-            } else showToast("أدخل كود صالح");
-        }
-        function closeAdminEditUser() { document.getElementById('admin-edit-user-modal').classList.add('hidden-view'); }
-
-        // --- 6. Spy Mode ---
-        function openSpyModal(targetPhone, targetName) {
-            spyTargetId = targetPhone;
-            document.getElementById('spy-modal').classList.remove('hidden-view');
-            document.getElementById('spy-target-name').innerText = "الهدف: " + targetName;
-            document.getElementById('spy-placeholder').classList.remove('hidden-view');
-            
-            const contactsDiv = document.getElementById('spy-contacts');
-            contactsDiv.innerHTML = '';
-            
-            const u = uCache[targetPhone];
-            if(u && u.contacts && u.contacts.length > 0) {
-                u.contacts.forEach(contactId => {
-                    const cName = uCache[contactId]?.displayName || contactId;
-                    contactsDiv.innerHTML += `<button onclick="loadSpyChat('${contactId}')" class="shrink-0 bg-white px-4 py-2 rounded-full text-xs font-bold shadow-sm border text-slate-700 active:bg-sky-50 transition">${cName}</button>`;
-                });
-            } else { contactsDiv.innerHTML = '<p class="text-xs text-gray-500 font-bold p-2">لا يوجد أصدقاء له.</p>'; }
-        }
-
-        let currentSpyListener = null;
-        function loadSpyChat(contactId) {
-            document.getElementById('spy-placeholder').classList.add('hidden-view');
-            if(currentSpyListener) currentSpyListener();
-            
-            const cid = [spyTargetId, contactId].sort().join('_');
-            const cont = document.getElementById('spy-messages-container'), wrap = document.getElementById('spy-msg-wrapper');
-            
-            currentSpyListener = db.collection('messages').where('chatId', '==', cid).onSnapshot(s => {
-                let msgs = []; s.forEach(d => msgs.push(d.data()));
-                msgs.sort((a,b) => (a.t?.toMillis() || 0) - (b.t?.toMillis() || 0));
-                wrap.innerHTML = '';
-                msgs.forEach(m => {
-                    const isTarget = m.s === spyTargetId;
-                    let content = m.type === 'voice' ? `<audio controls src="${m.data}"></audio>` : `<p>${m.txt}</p>`;
-                    wrap.insertAdjacentHTML('beforeend', `<div class="flex flex-col ${isTarget?'items-end':'items-start'} w-full"><div class="msg-bubble ${isTarget?'bg-green-100':'bg-white'}">${content}</div></div>`);
-                });
-                cont.scrollTop = cont.scrollHeight;
-            });
-        }
-        function closeSpyModal() { document.getElementById('spy-modal').classList.add('hidden-view'); spyTargetId = null; if(currentSpyListener) currentSpyListener(); }
-
-        function closeChat() { 
-            document.getElementById('chat-view').classList.add('hidden-view'); 
-            isChannelMode = false; activeChatId = null; 
-            if(currentChatListener) currentChatListener();
-        }
+        function closeChat() { document.getElementById('chat-view').classList.add('hidden-view'); }
         function logout() { localStorage.clear(); location.reload(); }
     </script>
 </body>
