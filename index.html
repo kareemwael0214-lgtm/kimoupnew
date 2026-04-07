@@ -13,11 +13,12 @@
 <style>
 *{-webkit-tap-highlight-color:transparent;outline:none;scrollbar-width:none}
 body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:center;justify-content:center;margin:0}
-.app{width:100%;height:100%;background:#fff;position:relative;display:flex;flex-direction:column;overflow:hidden}
+.app{width:100%;height:100%;background:#fff;position:relative;display:flex;flex-direction:column;overflow:hidden;transition:background .3s,color .3s}
 @media(min-width:768px){.app{width:400px;height:840px;border-radius:2rem;border:8px solid #1e293b;box-shadow:0 40px 80px rgba(0,0,0,.5)}}
 .cbg{background-color:#efeae2;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8bfb4' fill-opacity='.12'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
 #mc{flex:1;overflow-y:auto;display:flex;flex-direction:column;padding:10px;gap:3px;scroll-behavior:smooth}
-.mb{max-width:82%;padding:6px 10px 3px;font-weight:700;font-size:13px;box-shadow:0 1px 1px rgba(0,0,0,.06);border-radius:10px;position:relative;word-break:break-word}
+.mb{max-width:82%;padding:6px 10px 3px;font-weight:700;font-size:13px;box-shadow:0 1px 1px rgba(0,0,0,.06);border-radius:10px;position:relative;word-break:break-word;transition:background .1s}
+.mb:active{filter:brightness(.95)}
 .mo{background:#dcf8c6;border-top-right-radius:2px;align-self:flex-end}
 .mi{background:#fff;border-top-left-radius:2px;align-self:flex-start}
 .mt{font-size:9px;color:#8a9a9b;display:block;text-align:left;margin-top:1px;direction:ltr}.mo .mt{text-align:right}
@@ -42,6 +43,76 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 .phone-err{border-color:#ef4444!important;background-color:#fef2f2!important}
 .wa-btn{background:#25d366;color:#fff;border:none;padding:10px 16px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;transition:.2s}
 .wa-btn:active{transform:scale(.97)}
+
+/* الوضع الداكن */
+.dark .app{background:#0f172a;color:#e2e8f0}
+.dark .cbg{background-color:#0b1120;background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%231e293b' fill-opacity='.3'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")}
+.dark .mo{background:#065f46}
+.dark .mi{background:#1e293b}
+.dark .mb .mt{color:#64748b}
+.dark .sy{background:#422006;color:#fbbf24;border-color:#854d0e}
+.dark .cb{background:#0c4a6e;border-color:#0ea5e9;color:#bae6fd}
+.dark #v-main{background:#0f172a}
+.dark #t-chats,.dark #t-groups,.dark #t-status{background:#0f172a}
+.dark #t-chats>button,.dark #t-groups>button,.dark #t-status>button{background:#1e293b;border-color:#334155;color:#e2e8f0}
+.dark .nb.a{background:linear-gradient(to bottom,#0c4a6e,#0f172a)}
+.dark .nb.i{color:#64748b}
+
+/* إيموجي */
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:200px;overflow-y:auto}
+.emoji-grid button{font-size:20px;padding:4px;border:none;background:none;cursor:pointer;border-radius:6px;transition:.15s}
+.emoji-grid button:hover,.emoji-grid button:active{background:rgba(14,165,233,.15);transform:scale(1.2)}
+
+/* رد */
+.reply-bar{background:#f0f9ff;border-right:3px solid #0ea5e9;padding:6px 10px;border-radius:8px;margin:0 2px;display:flex;align-items:center;gap:6px}
+.dark .reply-bar{background:#0c4a6e;border-right-color:#38bdf8}
+
+/* كونتكست */
+.ctx-menu{position:fixed;background:#fff;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:4px;z-index:9999;min-width:160px;overflow:hidden}
+.dark .ctx-menu{background:#1e293b;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ctx-menu button{display:flex;align-items:center;gap:8px;width:100%;padding:10px 14px;border:none;background:none;font-size:12px;font-weight:700;cursor:pointer;transition:.15s;color:#334155}
+.dark .ctx-menu button{color:#e2e8f0}
+.ctx-menu button:active{background:#f1f5f9}
+.dark .ctx-menu button:active{background:#334155}
+.ctx-menu button.danger{color:#ef4444}
+
+/* ريكشن */
+.react-bar{display:flex;gap:2px;background:#fff;border-radius:20px;padding:4px 8px;box-shadow:0 4px 20px rgba(0,0,0,.15);position:fixed;z-index:9999}
+.dark .react-bar{background:#1e293b;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.react-bar button{font-size:18px;padding:2px 3px;border:none;background:none;cursor:pointer;border-radius:50%;transition:.15s}
+.react-bar button:hover{transform:scale(1.3);background:rgba(14,165,233,.1)}
+
+/* ريكشن على الرسالة */
+.msg-reacts{display:flex;gap:1px;margin-top:2px;flex-wrap:wrap}
+.msg-reacts span{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:1px 5px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:2px}
+.dark .msg-reacts span{background:#1e293b;border-color:#334155}
+.msg-reacts span.my-r{border-color:#0ea5e9;background:#f0f9ff}
+.dark .msg-reacts span.my-r{background:#0c4a6e;border-color:#0ea5e9}
+
+/*unread badge */
+.unread-badge{background:#ef4444;color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;padding:0 4px;flex-shrink:0}
+
+/* مثبت */
+.pin-bar{background:#fffbeb;border-bottom:1px solid #fde68a;padding:6px 12px;display:flex;align-items:center;gap:8px;font-size:11px}
+.dark .pin-bar{background:#422006;border-color:#854d0e;color:#fbbf24}
+
+/* عارض صور */
+.img-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.img-viewer img{max-width:95%;max-height:90%;object-fit:contain;border-radius:8px}
+
+/* أونلاين */
+.online-dot{width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid #fff;position:absolute;bottom:0;left:0}
+
+/* تعديل */
+.edit-indicator{font-size:8px;color:#8a9a9b;font-style:italic;margin-right:4px}
+
+/* deleted */
+.msg-deleted{font-style:italic;color:#8a9a9b;font-size:12px}
+
+/* search */
+.search-box{background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:8px 12px;display:flex;align-items:center;gap:8px;margin:0 0 8px 0}
+.dark .search-box{background:#1e293b;border-color:#334155}
+.search-box input{flex:1;background:none;border:none;outline:none;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
@@ -53,9 +124,9 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <div class="mt-6 flex gap-1"><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:0s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.15s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.3s"></div></div>
 </div>
 
-<div id="toast" class="hv fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-[9999] text-center w-4/5 border border-slate-700"></div>
+<div id="toast" class="hv fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-[99999] text-center w-4/5 border border-slate-700"></div>
 
-<div class="app">
+<div class="app" id="app">
 
 <!-- تسجيل الدخول -->
 <div id="v-auth" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-5 hv">
@@ -91,6 +162,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 </div>
 <div class="flex-1 overflow-hidden relative">
 <div id="t-chats" class="absolute inset-0 overflow-y-auto px-3 py-3 bg-slate-50/50">
+<div class="search-box"><i class="fas fa-search text-gray-400 text-xs"></i><input type="text" id="search-in" placeholder="بحث في المحادثات..." oninput="filterChats(this.value)"></div>
 <button onclick="openAddFr()" class="w-full py-3 bg-white border border-gray-200 rounded-xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-[.97] transition mb-3 text-xs"><i class="fas fa-user-plus text-sky-500"></i>إضافة جهة اتصال</button>
 <div id="cl" class="space-y-0.5"></div>
 </div>
@@ -104,13 +176,14 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 </div>
 </div>
 <div class="h-[56px] bg-white border-t border-gray-100 flex items-center shrink-0 z-20">
-<button onclick="swTab('chats')" id="nb-chats" class="nb a"><i class="fas fa-comment-dots text-lg mb-0.5"></i><span class="text-[9px] font-bold">الدردشات</span></button>
+<button onclick="swTab('chats')" id="nb-chats" class="nb a" style="position:relative"><i class="fas fa-comment-dots text-lg mb-0.5"></i><span class="text-[9px] font-bold">الدردشات</span><span id="total-unread" class="hv unread-badge" style="position:absolute;top:2px;left:25%">0</span></button>
 <button onclick="swTab('groups')" id="nb-groups" class="nb i"><i class="fas fa-shield-halved text-lg mb-0.5"></i><span class="text-[9px] font-bold">المجتمعات</span></button>
 <button onclick="swTab('status')" id="nb-status" class="nb i"><i class="fas fa-circle-notch text-lg mb-0.5"></i><span class="text-[9px] font-bold">الحالات</span></button>
 </div></div>
 
 <!-- الدردشة -->
 <div id="v-chat" class="absolute inset-0 bg-[#efeae2] z-[60] flex flex-col hv afi">
+<div id="pin-bar" class="hv pin-bar shrink-0"><i class="fas fa-thumbtack text-yellow-600"></i><div class="flex-1 overflow-hidden"><p id="pin-txt" class="font-bold truncate"></p></div><button onclick="scrollToPin()" class="text-sky-500 text-[10px] font-bold">انتقال</button></div>
 <div class="h-[56px] bg-white flex items-center justify-between px-3 shrink-0 shadow-md z-20">
 <button onclick="closeChat()" class="p-2 text-gray-500 active:scale-110 transition"><i class="fas fa-arrow-left"></i></button>
 <div class="flex gap-1 mr-auto">
@@ -122,19 +195,45 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <div class="flex items-center gap-1"><span id="cv" class="hv"><span class="vb"><i class="fas fa-check"></i></span></span><h3 id="cn" class="font-black text-[14px] text-slate-800 truncate"></h3></div>
 <div class="flex items-center gap-1 justify-end"><span id="clbl" class="hv"></span><p id="cst" class="text-[9px] text-sky-600 font-bold truncate max-w-[120px]"></p></div>
 </div>
-<div class="w-10 h-10 bg-gray-100 rounded-full overflow-hidden shrink-0 border-2 border-white shadow"><img id="ci" src="" class="w-full h-full object-cover"></div>
+<div class="w-10 h-10 bg-gray-100 rounded-full overflow-hidden shrink-0 border-2 border-white shadow relative"><img id="ci" src="" class="w-full h-full object-cover"><div id="online-dot" class="hv online-dot"></div></div>
 </div>
 <div id="mc" class="cbg"><div id="mw" class="flex flex-col gap-1 p-2 pb-6"></div></div>
 <div id="qr-p" class="hv absolute bottom-[64px] left-2 right-2 z-30 max-h-[160px] overflow-y-auto bg-white/95 backdrop-blur rounded-xl shadow-xl border border-gray-100 p-1.5"></div>
+<div id="reply-bar" class="hv reply-bar shrink-0 z-30"><i class="fas fa-reply text-sky-500"></i><div class="flex-1 overflow-hidden"><p id="reply-name" class="text-[10px] text-sky-600 font-black"></p><p id="reply-txt" class="text-[10px] text-gray-600 truncate"></p></div><button onclick="cancelReply()" class="text-gray-400 p-1"><i class="fas fa-times text-xs"></i></button></div>
+<div id="edit-bar" class="hv reply-bar shrink-0 z-30" style="border-right-color:#f59e0b"><i class="fas fa-pen text-yellow-500"></i><div class="flex-1 overflow-hidden"><p class="text-[10px] text-yellow-600 font-black">تعديل الرسالة</p><p id="edit-txt" class="text-[10px] text-gray-600 truncate"></p></div><button onclick="cancelEdit()" class="text-gray-400 p-1"><i class="fas fa-times text-xs"></i></button></div>
 <div id="c-ia" class="p-2 bg-[#f0f2f5] flex gap-1.5 items-center z-30 border-t">
 <button id="btn-vc" onmousedown="startV(event)" ontouchstart="startV(event)" onmouseup="stopV(event)" ontouchend="stopV(event)" class="w-10 h-10 bg-sky-500 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0"><i class="fas fa-microphone"></i></button>
-<div class="flex-1 bg-white rounded-full px-3 py-2.5 flex items-center shadow-sm border border-gray-200"><input type="text" id="mi" placeholder="رسالة..." class="w-full bg-transparent outline-none font-bold text-xs text-slate-700" onkeyup="handleQr(this.value)" onfocus="handleQr(this.value)" onblur="setTimeout(function(){document.getElementById('qr-p').classList.add('hv')},200)"></div>
+<div class="flex-1 bg-white rounded-full px-3 py-2.5 flex items-center shadow-sm border border-gray-200"><input type="text" id="mi" placeholder="رسالة..." class="w-full bg-transparent outline-none font-bold text-xs text-slate-700" onkeyup="handleQr(this.value);if(event.key==='Enter')sendTxt()" onfocus="handleQr(this.value)" onblur="setTimeout(function(){document.getElementById('qr-p').classList.add('hv')},200)"></div>
+<button onclick="toggleEmoji()" class="w-10 h-10 text-yellow-500 bg-white rounded-full flex items-center justify-center shadow border border-gray-100 cursor-pointer shrink-0 active:scale-90 transition"><i class="fas fa-face-smile text-lg"></i></button>
 <label class="w-10 h-10 text-gray-400 bg-white rounded-full flex items-center justify-center shadow border border-gray-100 cursor-pointer shrink-0 active:scale-90 transition"><i class="fas fa-camera"></i><input type="file" id="ci-in" class="hidden" accept="image/*"></label>
 <button onclick="sendTxt()" class="w-10 h-10 text-sky-500 bg-white rounded-full flex items-center justify-center shadow border border-gray-100 active:scale-90 transition shrink-0"><i class="fas fa-paper-plane text-lg rotate-[225deg]"></i></button>
 </div>
 <div id="j-grp" class="hv p-3 bg-white border-t text-center z-30 shadow-lg"><button onclick="joinGrp()" class="w-full bg-sky-500 text-white font-black py-3 rounded-xl shadow-xl active:scale-95 transition text-sm">انضمام للمجتمع الآن</button></div>
 <div id="rec-t" class="hv absolute bottom-16 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-2xl animate-pulse flex items-center gap-1"><i class="fas fa-circle text-[6px] animate-ping"></i>تسجيل...</div>
 </div>
+
+<!-- إيموجي -->
+<div id="v-emoji" class="hv absolute bottom-[64px] left-2 right-2 z-[40] bg-white rounded-xl shadow-2xl border border-gray-100 p-2 max-h-[260px] overflow-hidden" style="animation:po .15s ease-out">
+<div class="flex gap-1 mb-1 overflow-x-auto text-[10px] font-bold"><button onclick="showEmojiCat('smileys')" class="emoji-cat bg-sky-50 text-sky-600 px-2 py-1 rounded-lg whitespace-nowrap">😀</button><button onclick="showEmojiCat('gestures')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">👋</button><button onclick="showEmojiCat('hearts')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">❤️</button><button onclick="showEmojiCat('objects')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">🎉</button><button onclick="showEmojiCat('nature')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">🌸</button><button onclick="showEmojiCat('food')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">🍕</button><button onclick="showEmojiCat('flags')" class="emoji-cat px-2 py-1 rounded-lg whitespace-nowrap">🇪🇬</button></div>
+<div id="emoji-list" class="emoji-grid"></div>
+</div>
+
+<!-- كونتكست مينيو -->
+<div id="v-ctx" class="hv ctx-menu" style="animation:po .15s ease-out"></div>
+
+<!-- ريكشن بار -->
+<div id="v-react" class="hv react-bar" style="animation:po .1s ease-out"></div>
+
+<!-- تحويل رسالة -->
+<div id="v-fwd" class="hv fixed inset-0 bg-black/60 z-[140] flex items-center justify-center p-3 backdrop-blur-sm">
+<div class="bg-white w-full max-w-xs rounded-xl p-4 shadow-2xl apo max-h-[60vh] flex flex-col">
+<h3 class="font-black text-sm mb-3 text-slate-800 text-center"><i class="fas fa-share text-sky-500 ml-1"></i>تحويل الرسالة</h3>
+<div id="fwd-list" class="flex-1 overflow-y-auto space-y-1"></div>
+<button onclick="closeFwd()" class="w-full py-2 mt-3 bg-gray-100 text-gray-500 font-bold rounded-lg text-xs">إلغاء</button>
+</div></div>
+
+<!-- عارض صور -->
+<div id="v-imgv" class="hv img-viewer" onclick="this.classList.add('hv')"><img id="imgv-src" src=""></div>
 
 <!-- أدوات الأعمال -->
 <div id="v-biz" class="hv fixed inset-0 bg-slate-50 z-[110] flex flex-col asu">
@@ -186,7 +285,10 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <div><label class="text-[10px] text-gray-500 font-bold">الاسم</label><input type="text" id="s-nm" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-xs"></div>
 <div><label class="text-[10px] text-gray-500 font-bold">النبذة</label><input type="text" id="s-bi" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-xs"></div>
 <div><label class="text-[10px] text-gray-500 font-bold">كود جديد (4+ أرقام)</label><input type="text" id="s-pw" placeholder="اتركه فارغ" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-center tracking-widest" dir="ltr"></div>
-<div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="s-biz" class="sr-only peer"><div class="w-9 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-sky-500"></div></label><span class="font-bold text-xs">حساب أعمال <i class="fas fa-store text-yellow-500 mr-1"></i></span></div></div>
+<div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="s-biz" class="sr-only peer"><div class="w-9 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-sky-500"></div></label><span class="font-bold text-xs">حساب أعمال <i class="fas fa-store text-yellow-500 mr-1"></i></span></div>
+<div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="s-dark" class="sr-only peer" onchange="toggleDark()"><div class="w-9 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-slate-700"></div></label><span class="font-bold text-xs">الوضع الداكن <i class="fas fa-moon text-indigo-500 mr-1"></i></span></div>
+<div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="s-sound" class="sr-only peer" onchange="toggleSound()"><div class="w-9 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-sky-500"></div></label><span class="font-bold text-xs">صوت الإشعارات <i class="fas fa-bell text-sky-500 mr-1"></i></span></div>
+</div>
 <div class="p-3 border-t flex gap-2 bg-slate-50"><button onclick="closeSettings()" class="flex-1 py-2.5 bg-gray-200 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="saveProf()" class="flex-1 py-2.5 bg-sky-500 text-white font-black rounded-lg shadow-lg text-sm">حفظ</button></div></div></div>
 
 <!-- إضافة صديق -->
@@ -210,7 +312,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <!-- بروفايل جهة -->
 <div id="v-cpf" class="hv fixed inset-0 bg-white z-[120] flex flex-col asu">
 <div class="h-[150px] bg-gradient-to-b from-sky-500 to-sky-600 relative shrink-0"><button onclick="closeCProf()" class="absolute top-3 right-3 bg-black/20 text-white w-8 h-8 rounded-full flex items-center justify-center active:scale-90 z-10 text-sm"><i class="fas fa-arrow-left"></i></button><div class="absolute -bottom-8 right-4 w-16 h-16 bg-white rounded-full p-0.5 shadow-xl border-3 border-white"><img id="cp-i" src="" class="w-full h-full rounded-full object-cover"></div></div>
-<div class="pt-10 px-4 text-right"><div class="flex items-center gap-1.5 justify-end"><span id="cp-v" class="hv"><span class="vb"><i class="fas fa-check"></i></span></span><h2 id="cp-n" class="text-lg font-black text-slate-800"></h2></div><p id="cp-b" class="text-xs text-gray-500 mt-0.5"></p><p id="cp-p" class="text-xs text-sky-600 font-bold mt-0.5" dir="ltr"></p><span id="cp-bz" class="hv mt-1.5 inline-block"><span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fas fa-store ml-1"></i>أعمال</span></span></div>
+<div class="pt-10 px-4 text-right"><div class="flex items-center gap-1.5 justify-end"><span id="cp-v" class="hv"><span class="vb"><i class="fas fa-check"></i></span></span><h2 id="cp-n" class="text-lg font-black text-slate-800"></h2></div><p id="cp-b" class="text-xs text-gray-500 mt-0.5"></p><p id="cp-p" class="text-xs text-sky-600 font-bold mt-0.5" dir="ltr"></p><p id="cp-ls" class="text-[10px] text-gray-400 mt-0.5"></p><span id="cp-bz" class="hv mt-1.5 inline-block"><span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fas fa-store ml-1"></i>أعمال</span></span></div>
 <div class="flex-1 p-4 space-y-2 mt-3"><button onclick="closeCProf()" class="w-full py-3 bg-sky-500 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 text-xs"><i class="fas fa-comment"></i>رسالة</button><button id="cp-sh" onclick="closeCProf();setTimeout(openCat,300)" class="hv w-full py-3 bg-green-500 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 text-xs"><i class="fas fa-shopping-bag"></i>المتجر</button></div></div>
 
 <!-- معلومات المجتمع -->
@@ -231,172 +333,197 @@ var ADM="+201112215950",A='kimo-master-vip-v10',uD=null,cD=null,gD=null,sD=null;
 if(db){uD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('users');cD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('chats');gD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('groups');sD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('status')}
 
 var me=localStorage.getItem('kimo_master_vip_v10'),aId=null,aTyp='direct',uC={},gC={},tmpPh='',tmpCode='',pBase='',cBase='',mRec=null,aCh=[],spyId=null,epPh=null,mProds=[],mQrs=[],cart=[],msgUn=null,spyUn=null,stTmr=null,stData=[],stIdx=0,stCache={},labels={};
+var replyTo=null,editMsgId=null,fwdTxt='',ctxMsg=null,pinnedMsg=null,lastMsgs={},darkMode=false,soundOn=true;
 try{labels=JSON.parse(localStorage.getItem('kimo_lb')||'{}')}catch(e){labels={}}
+try{darkMode=localStorage.getItem('kimo_dark')==='true'}catch(e){}
+try{soundOn=localStorage.getItem('kimo_sound')!=='false'}catch(e){}
 var LB=[{n:'عميل جديد',c:'bg-blue-100 text-blue-700'},{n:'مهتم',c:'bg-yellow-100 text-yellow-700'},{n:'بانتظار الدفع',c:'bg-orange-100 text-orange-700'},{n:'مكتمل',c:'bg-green-100 text-green-700'},{n:'ملغي',c:'bg-red-100 text-red-700'},{n:'VIP',c:'bg-purple-100 text-purple-700'}];
 var tmpProdImg='';
+
+var EMOJIS={smileys:['😀','😃','😄','😁','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','😮‍💨','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖'],
+gestures:['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🫰','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','🫵','👍','👎','✊','👊','🤛','🤜','👏','🙌','🫶','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄'],
+hearts:['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❤️‍🔥','❤️‍🩹','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','🫶','🫵','😍','🥰','😘','💑','💏','👩‍❤️‍👨','👩‍❤️‍👩','👨‍❤️‍👨'],
+objects:['🎉','🎊','🎈','🎁','🏆','🥇','🥈','🥉','⚽','🏀','🏐','🏈','⚾','🎾','🏓','🎯','🎮','🕹️','🎲','♠️','♥️','♦️','♣️','🃏','🀄','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🎸','🎻','🎲','🧩','🎪','💎','💰','💳','💸','💵','💴','💶','💷'],
+nature:['🌸','💐','🌹','🌺','🌻','🌼','🌷','🌱','🌲','🌳','🌴','🌵','🌾','🌿','☘️','🍀','🍁','🍂','🍃','🍄','🌊','💦','☔','🌈','⭐','🌟','✨','💫','🔥','💥','☀️','🌤️','⛅','🌥️','☁️','🌧️','⛈️','🌩️','❄️','☃️','⛄','🌬️','💨','🌀','🌪️','🌫️'],
+food:['🍕','🍔','🍟','🌭','🍿','🧂','🥓','🥚','🍳','🧇','🥞','🧈','🍞','🥐','🥨','🥯','🥖','🫓','🧀','🥗','🥙','🫔','🌮','🌯','🥪','🍔','🍟','🍕','🌭','🥓','🥚'],
+flags:['🇪🇬','🇸🇦','🇦🇪','🇰🇼','🇶🇦','🇧🇭','🇴🇲','🇯🇴','🇱🇧','🇸🇾','🇮🇶','🇵🇸','🇾🇪','🇩🇿','🇲🇦','🇹🇳','🇱🇾','🇸🇩','🇺🇸','🇬🇧','🇫🇷','🇩🇪','🇹🇷','🇮🇹','🇪🇸','🇧🇷','🇯🇵','🇰🇷','🇨🇳','🇷🇺','🇮🇳','🇲🇽']};
+
+var REACTIONS=['❤️','😂','👍','👎','🔥','😮','😢','🙏'];
+
 function el(id){return document.getElementById(id)}
 function toast(m){var t=el('toast');t.innerText=m;t.classList.remove('hv');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.add('hv')},3000)}
 function fts(ts){if(!ts)return'';try{var d=ts.toMillis?ts.toDate():new Date(ts),n=Date.now()-d;if(n<6e4)return'الآن';if(n<36e5)return Math.floor(n/6e4)+' د';return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}catch(e){return''}}
+function ftLastSeen(ts){if(!ts)return'';try{var d=ts.toMillis?ts.toDate():new Date(ts),n=Date.now()-d;if(n<3e4)return'متصل الآن';if(n<36e5)return'آخر ظهور منذ '+Math.floor(n/6e4)+' دقيقة';if(n<864e5)return'آخر ظهور منذ '+Math.floor(n/36e5)+' ساعة';return'آخر ظهور '+d.toLocaleDateString('ar-EG')}catch(e){return''}}
 function cid(a,b){return[a,b].sort().join('_')}
 function copyCode(){try{navigator.clipboard.writeText(tmpCode);toast("تم نسخ الكود ✅")}catch(e){toast("الكود: "+tmpCode)}}
 function av(n){return'https://ui-avatars.com/api/?name='+encodeURIComponent(n||'U')}
 
-// === فحص رقم مصري ===
-function checkPhFormat(){var v=el('in-ph').value.replace(/\D/g,''),w=el('ph-wrap'),er=el('ph-err'),btn=el('btn-chk');
-w.classList.remove('phone-ok','phone-err');er.classList.add('hv');btn.disabled=false;
-if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add('phone-err');er.innerText='⚠️ يجب أن يبدأ بـ 010/011/012/015 (11 رقم)';er.classList.remove('hv');btn.disabled=true}
-else{w.classList.add('phone-ok');er.innerText='✓ رقم مصري صالح';er.classList.remove('hv');er.style.color='#16a34a'}}
+// صوت الإشعار
+function playNotif(){if(!soundOn)return;try{var ctx=new(window.AudioContext||window.webkitAudioContext)();var o=ctx.createOscillator();var g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.setValueAtTime(880,ctx.currentTime);o.frequency.setValueAtTime(1100,ctx.currentTime+0.08);g.gain.setValueAtTime(0.15,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.25);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.25)}catch(e){}}
 
-// === السبلش ===
-function bootApp(){var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
+// وضع داكن
+function toggleDark(){darkMode=!darkMode;localStorage.setItem('kimo_dark',darkMode);document.body.classList.toggle('dark',darkMode)}
+function loadDark(){document.body.classList.toggle('dark',darkMode);el('s-dark').checked=darkMode}
+function toggleSound(){soundOn=!soundOn;localStorage.setItem('kimo_sound',soundOn);toast(soundOn?'تم تفعيل الصوت 🔔':'تم إيقاف الصوت 🔇')}
+
+// إيموجي
+function toggleEmoji(){el('v-emoji').classList.toggle('hv');if(!el('v-emoji').classList.contains('hv'))showEmojiCat('smileys');el('qr-p').classList.add('hv')}
+function showEmojiCat(cat){var list=EMOJIS[cat]||[];el('emoji-list').innerHTML=list.map(function(e){return'<button onclick="insertEmoji(\''+e+'\')">'+e+'</button>'}).join('');document.querySelectorAll('.emoji-cat').forEach(function(b){b.className='emoji-cat px-2 py-1 rounded-lg whitespace-nowrap'})}
+function insertEmoji(e){var inp=el('mi');inp.value+=e;inp.focus()}
+
+// كونتكست مينيو
+function showCtx(e,msg,id){e.preventDefault();e.stopPropagation();hideCtx();hideReact();ctxMsg=msg;ctxMsg._id=id;
+var isMe=msg.s===me;var canEdit=isMe&&msg.type==='text'&&!msg.deleted&&!msg.isCart;
+var h='<button onclick="doReply()"><i class="fas fa-reply text-sky-500"></i>رد</button>';
+h+='<button onclick="doCopy()"><i class="fas fa-copy text-gray-500"></i>نسخ</button>';
+if(canEdit)h+='<button onclick="doEdit()"><i class="fas fa-pen text-yellow-500"></i>تعديل</button>';
+if(isMe&&!msg.deleted)h+='<button onclick="doDelete()"><i class="fas fa-trash text-red-500"></i>حذف</button>';
+h+='<button onclick="doPin()"><i class="fas fa-thumbtack text-purple-500"></i>'+(pinnedMsg&&pinnedMsg._id===id?'إلغاء التثبيت':'تثبيت')+'</button>';
+h+='<button onclick="doForward()"><i class="fas fa-share text-green-500"></i>تحويل</button>';
+h+='<button onclick="showReactPicker(event)"><i class="fas fa-face-smile text-yellow-500"></i>تفاعل</button>';
+if(!isMe)h+='<button class="danger" onclick="doReport()"><i class="fas fa-flag"></i>إبلاغ</button>';
+var menu=el('v-ctx');menu.innerHTML=h;menu.classList.remove('hv');
+var x=e.touches?e.touches[0].clientX:e.clientX;var y=e.touches?e.touches[0].clientY:e.clientY;
+var mw=170,mh=menu.offsetHeight||200;if(x+mw>window.innerWidth)x=window.innerWidth-mw-10;if(y+mh>window.innerHeight)y=window.innerHeight-mh-10;
+menu.style.left=x+'px';menu.style.top=y+'px'}
+function hideCtx(){el('v-ctx').classList.add('hv');ctxMsg=null}
+function doReply(){if(!ctxMsg)return;replyTo={txt:ctxMsg.txt||'📷',sName:ctxMsg.s===me?(uC[me]?.displayName||'أنا'):(uC[ctxMsg.s]?.displayName||'مجهول'),s:ctxMsg.s};el('reply-name').innerText=replyTo.sName;el('reply-txt').innerText=replyTo.txt.substring(0,60);el('reply-bar').classList.remove('hv');hideCtx();el('mi').focus()}
+function cancelReply(){replyTo=null;el('reply-bar').classList.add('hv')}
+function doCopy(){if(!ctxMsg)return;try{navigator.clipboard.writeText(ctxMsg.txt||'');toast("تم النسخ ✅")}catch(e){toast("فشل النسخ")}hideCtx()}
+function doEdit(){if(!ctxMsg)return;editMsgId=ctxMsg._id;el('edit-txt').innerText=ctxMsg.txt;el('edit-bar').classList.remove('hv');el('mi').value=ctxMsg.txt;hideCtx();el('mi').focus()}
+function cancelEdit(){editMsgId=null;el('edit-bar').classList.add('hv');el('mi').value=''}
+function doDelete(){if(!ctxMsg)return;if(!confirm("حذف الرسالة؟"))return;hideCtx();var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.doc(ctxMsg._id).update({deleted:true,txt:'',type:'text',data:'',reactions:{},replyTo:null}).then(function(){toast("تم الحذف")})}
+function doPin(){if(!ctxMsg)return;hideCtx();if(pinnedMsg&&pinnedMsg._id===ctxMsg._id){pinnedMsg=null;el('pin-bar').classList.add('hv');toast("تم إلغاء التثبيت")}else{pinnedMsg={_id:ctxMsg._id,txt:ctxMsg.txt};el('pin-txt').innerText=(ctxMsg.s===me?'أنت':(uC[ctxMsg.s]?.displayName||'مجهول'))+': '+(ctxMsg.txt||'').substring(0,60);el('pin-bar').classList.remove('hv');toast("تم التثبيت 📌")}}
+function scrollToPin(){el('mc').scrollTop=el('mc').scrollHeight}
+function doForward(){if(!ctxMsg)return;fwdTxt=ctxMsg.txt||'📷';hideCtx();var list=el('fwd-list');list.innerHTML='';try{var mc2=uC[me]?.contacts||[]}catch(e){var mc2=[]}for(var k in uC){var u=uC[k];if(u.phone!==me&&u.status!=='banned'&&mc2.indexOf(u.phone)!==-1){list.innerHTML+='<button onclick="confirmFwd(\''+u.phone+'\')" class="w-full p-2 rounded-lg flex items-center gap-2 active:bg-gray-100 text-right"><div class="w-8 h-8 rounded-full overflow-hidden shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><span class="text-xs font-bold">'+u.displayName+'</span></button>'}}if(!list.innerHTML)list.innerHTML='<p class="text-center text-gray-400 text-xs py-4">لا توجد محادثات</p>';el('v-fwd').classList.remove('hv')}
+function confirmFwd(phone){var c=cid(me,phone),col=cD.doc(c).collection('messages');col.add({s:me,txt:'↗️ تحويل:\n'+fwdTxt,type:'text',t:firebase.firestore.FieldValue.serverTimestamp(),fwdFrom:aId&&aTyp==='direct'?(uC[aId]?.displayName||''):''});closeFwd();toast("تم التحويل ✅")}
+function closeFwd(){el('v-fwd').classList.add('hv');fwdTxt=''}
+function doReport(){hideCtx();toast("تم الإبلاغ ⚠️")}
+
+// ريكشن
+function showReactPicker(e){e.preventDefault();e.stopPropagation();if(!ctxMsg)return;hideCtx();var bar=el('v-react');bar.innerHTML=REACTIONS.map(function(r){return'<button onclick="addReaction(\''+r+'\')">'+r+'</button>'}).join('');bar.classList.remove('hv');var x=e.touches?e.touches[0].clientX:e.clientX;var y=e.touches?e.touches[0].clientY:e.clientY;bar.style.left=Math.max(10,Math.min(x-120,window.innerWidth-200))+'px';bar.style.top=(y-50)+'px'}
+function hideReact(){el('v-react').classList.add('hv')}
+function addReaction(emoji){if(!ctxMsg)return;hideReact();var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');var path='reactions.'+emoji;col.doc(ctxMsg._id).update({[path]:firebase.firestore.FieldValue.arrayUnion(me)}).catch(function(){})}
+
+// عرض صورة
+function viewImg(src){el('imgv-src').src=src;el('v-imgv').classList.remove('hv')}
+
+// بحث
+function filterChats(q){q=q.trim().toLowerCase();var items=el('cl').children;for(var i=0;i<items.length;i++){var name=items[i].getAttribute('data-name')||'';items[i].style.display=name.indexOf(q)!==-1?'':'none'}}
+
+// فحص رقم مصري
+function checkPhFormat(){var v=el('in-ph').value.replace(/\D/g,''),w=el('ph-wrap'),er=el('ph-err'),btn=el('btn-chk');w.classList.remove('phone-ok','phone-err');er.classList.add('hv');btn.disabled=false;if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add('phone-err');er.innerText='⚠️ يجب أن يبدأ بـ 010/011/012/015 (11 رقم)';er.classList.remove('hv');btn.disabled=true}else{w.classList.add('phone-ok');er.innerText='✓ رقم مصري صالح';er.classList.remove('hv');er.style.color='#16a34a'}}
+
+// السبلش
+function bootApp(){var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');loadDark();if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
 window.addEventListener('load',function(){if(firebase.auth)firebase.auth().signInAnonymously().catch(function(){});setTimeout(bootApp,1000)});
+window.addEventListener('beforeunload',function(){if(me&&uD)uD.doc(me).update({online:false,lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});
+document.addEventListener('click',function(){hideCtx();hideReact();if(!el('v-emoji').classList.contains('hv')){var e=window.event;if(!e.target.closest('#v-emoji')&&!e.target.closest('[onclick*="toggleEmoji"]'))el('v-emoji').classList.add('hv')}});
 
-// === إرسال كود عبر واتساب (مجاني 100%) ===
-function sendViaWA(){if(!tmpCode)return;var num=tmpPh.replace('+','');var msg=encodeURIComponent('كود Kimoup: '+tmpCode+'\nلا تشاركه مع أحد');
-window.open('https://wa.me/'+num+'?text='+msg,'_blank');toast('تم فتح واتساب - أرسل الكود لنفسك')}
-
-// === إرسال SMS عبر TextBelt ===
+function sendViaWA(){if(!tmpCode)return;var num=tmpPh.replace('+','');window.open('https://wa.me/'+num+'?text='+encodeURIComponent('كود Kimoup: '+tmpCode+'\nلا تشاركه مع أحد'),'_blank');toast('تم فتح واتساب')}
 function sendSMS(phone,code){return fetch('https://textbelt.com/text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone,message:'كود Kimoup: '+code+'\nلا تشاركه مع أحد',key:'textbelt'})}).then(function(r){return r.json()}).then(function(d){return d.success===true}).catch(function(){return false})}
 
-// === تسجيل الدخول ===
-function chkPhone(){if(!uD){toast("خطأ!");return}var raw=el('in-ph').value.replace(/\D/g,'');if(!raw||!/^(10|11|12|15)\d{8}$/.test(raw))return toast("رقم غير صالح!");
-if(raw.startsWith('0'))raw=raw.substring(1);tmpPh="+20"+raw;var btn=el('btn-chk');btn.innerText="جاري...";btn.disabled=true;
-var code=Math.floor(1e5+Math.random()*9e5).toString();tmpCode=code;
-uD.doc(tmpPh).get().then(function(doc){
-if(!doc.exists)return uD.doc(tmpPh).set({phone:tmpPh,displayName:"مستخدم جديد",bio:'متاح',status:'approved',loginCode:code,isVerified:tmpPh===ADM,isBusiness:false,contacts:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-else if(doc.data().status==='banned'){toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null}
-else return uD.doc(tmpPh).update({loginCode:code});
-}).then(function(){return sendSMS(tmpPh,code)}).then(function(ok){
-el('s-chk').classList.add('hv');el('s-pin').classList.remove('hv');el('wa-btn').classList.remove('hv');
-var mg=el('otp-msg');
-if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1"></i>تم إرسال الكود عبر SMS';else mg.innerHTML='<i class="fab fa-whatsapp ml-1 text-green-600"></i>لم يتم إرسال SMS - استخدم واتساب أو الكود بالأسفل';
-el('otp-code').innerText=code;el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false;
-}).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})}
+// تسجيل الدخول
+function chkPhone(){if(!uD){toast("خطأ!");return}var raw=el('in-ph').value.replace(/\D/g,'');if(!raw||!/^(10|11|12|15)\d{8}$/.test(raw))return toast("رقم غير صالح!");if(raw.startsWith('0'))raw=raw.substring(1);tmpPh="+20"+raw;var btn=el('btn-chk');btn.innerText="جاري...";btn.disabled=true;var code=Math.floor(1e5+Math.random()*9e5).toString();tmpCode=code;uD.doc(tmpPh).get().then(function(doc){if(!doc.exists)return uD.doc(tmpPh).set({phone:tmpPh,displayName:"مستخدم جديد",bio:'متاح',status:'approved',loginCode:code,isVerified:tmpPh===ADM,isBusiness:false,contacts:[],createdAt:firebase.firestore.FieldValue.serverTimestamp(),online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()});else if(doc.data().status==='banned'){toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null}else return uD.doc(tmpPh).update({loginCode:code,online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()})}).then(function(){return sendSMS(tmpPh,code)}).then(function(ok){el('s-chk').classList.add('hv');el('s-pin').classList.remove('hv');el('wa-btn').classList.remove('hv');var mg=el('otp-msg');if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1"></i>تم إرسال الكود عبر SMS';else mg.innerHTML='<i class="fab fa-whatsapp ml-1 text-green-600"></i>لم يتم إرسال SMS - استخدم واتساب';el('otp-code').innerText=code;el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false}).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})}
 
-function verifyPin(){if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;
-uD.doc(tmpPh).get().then(function(s){if(s.data().loginCode===pin){me=tmpPh;localStorage.setItem('kimo_master_vip_v10',me);initApp()}else toast("كود خاطئ!")}).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})}
+function verifyPin(){if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;uD.doc(tmpPh).get().then(function(s){if(s.data().loginCode===pin){me=tmpPh;localStorage.setItem('kimo_master_vip_v10',me);initApp()}else toast("كود خاطئ!")}).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})}
 
-// === التطبيق الرئيسي - الإصلاح الأساسي ===
+// التطبيق الرئيسي
 function initApp(){
-el('v-auth').classList.add('hv');el('v-main').classList.remove('hv');
+el('v-auth').classList.add('hv');el('v-main').classList.remove('hv');loadDark();
 if(me===ADM){el('btn-lo').classList.remove('hv');el('btn-ad').classList.remove('hv');el('btn-crg').classList.remove('hv')}
+// تحديث حالة الأونلاين
+uD.doc(me).update({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+setInterval(function(){if(me&&uD)uD.doc(me).update({online:true,lastSeen:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})},30000);
 
-// 1. استماع لبياناتي
-uD.doc(me).onSnapshot(function(s){
-if(!s.exists)return logout();var d=s.data();if(d.status==='banned'){alert("محظور");logout();return}
-pBase=d.avatar||'';cBase=d.bizProfile?.cover||'';
-el('s-biz').checked=!!d.isBusiness;el('btn-biz').classList.toggle('hv',!d.isBusiness);
-el('s-nm').value=d.displayName||'';el('s-bi').value=d.bio||'';
-el('s-ip').src=pBase||av(d.displayName);
-if(d.isBusiness&&d.bizProfile){mProds=d.bizProfile.catalog||[];mQrs=d.bizProfile.quickReplies||[];
-el('b-grt').value=d.bizProfile.greeting||'';el('b-awy').value=d.bizProfile.away||'';
-el('b-cat').value=d.bizProfile.category||'';el('b-add').value=d.bizProfile.address||'';
-if(d.bizProfile.cover)el('bcp').src=d.bizProfile.cover;rPL();rQL()}
-});
+// استماع لبياناتي
+uD.doc(me).onSnapshot(function(s){if(!s.exists)return logout();var d=s.data();if(d.status==='banned'){alert("محظور");logout();return}pBase=d.avatar||'';cBase=d.bizProfile?.cover||'';el('s-biz').checked=!!d.isBusiness;el('btn-biz').classList.toggle('hv',!d.isBusiness);el('s-nm').value=d.displayName||'';el('s-bi').value=d.bio||'';el('s-ip').src=pBase||av(d.displayName);if(d.isBusiness&&d.bizProfile){mProds=d.bizProfile.catalog||[];mQrs=d.bizProfile.quickReplies||[];el('b-grt').value=d.bizProfile.greeting||'';el('b-awy').value=d.bizProfile.away||'';el('b-cat').value=d.bizProfile.category||'';el('b-add').value=d.bizProfile.address||'';if(d.bizProfile.cover)el('bcp').src=d.bizProfile.cover;rPL();rQL()}});
 
-// 2. استماع لكل المستخدمين - forEach بدل docChanges (الإصلاح!)
-//    forEach بيمر على كل المستندات في كل snapshot
-//    فأي تغيير في أي مستخدم هيظهر فوراً هنا
-uD.onSnapshot(function(s){
-    // تحديث الكاش لكل المستخدمين
-    s.forEach(function(doc){
-        var phone = doc.id;
-        var data = doc.data();
-        uC[phone] = data;
-        
-        // الإصلاح: لو الدردشة مفتوحة مع هذا المستخدم → حدث الهيدر فوراً
-        if(phone === aId && aTyp === 'direct'){
-            var chatEl = el('v-chat');
-            // تأكد إن الدردشة مفتوحة بالفعل
-            if(chatEl && !chatEl.classList.contains('hv')){
-                el('cn').innerText = data.displayName || '';
-                el('ci').src = data.avatar || av(data.displayName);
-                el('cv').classList.toggle('hv', !data.isVerified);
-                el('cst').innerText = data.isBusiness ? 'حساب أعمال' : 'متاح';
-                el('btn-shop').classList.toggle('hv', !data.isBusiness);
-            }
-        }
-    });
-    rCL();
-});
+// استماع لكل المستخدمين
+uD.onSnapshot(function(s){s.forEach(function(doc){var phone=doc.id,data=doc.data();uC[phone]=data;if(phone===aId&&aTyp==='direct'){var chatEl=el('v-chat');if(chatEl&&!chatEl.classList.contains('hv')){el('cn').innerText=data.displayName||'';el('ci').src=data.avatar||av(data.displayName);el('cv').classList.toggle('hv',!data.isVerified);el('cst').innerText=data.online?'متصل الآن':(data.isBusiness?'حساب أعمال':'متاح');el('btn-shop').classList.toggle('hv',!data.isBusiness);el('online-dot').classList.toggle('hv',!data.online)}}});rCL()});
 
-// 3. استماع للمجتمعات مع حفظ الـ id دائماً
-gD.onSnapshot(function(s){
-    s.docChanges().forEach(function(change){
-        var gid = change.doc.id;
-        if(change.type === 'removed'){delete gC[gid]}
-        else{gC[gid] = Object.assign({id:gid}, change.doc.data())}
-    });
-    lGL();
-});
-swTab('chats')}
+// استماع للمجتمعات
+gD.onSnapshot(function(s){s.docChanges().forEach(function(change){var gid=change.doc.id;if(change.type==='removed')delete gC[gid];else gC[gid]=Object.assign({id:gid},change.doc.data())});lGL()});swTab('chats')}
 
-function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.phone!==me&&u.status!=='banned')cs.push(u)}
-if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.phone)!==-1});
-if(!cs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-comments text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد محادثات</p></div>';return}
-cs.forEach(function(u){var v=u.isVerified?'<span class="vb"><i class="fas fa-check"></i></span>':'';var b=u.isBusiness?'<span class="text-[7px] bg-yellow-100 text-yellow-700 px-1 rounded font-black">أعمال</span>':'';
-var lb=labels[u.phone]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.phone]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.phone]+'</span>':'';
-l.innerHTML+='<div onclick="openChat(\''+u.phone+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(u.bio||'متاح')+'</p></div></div>'})}
+function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.phone!==me&&u.status!=='banned')cs.push(u)}if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.phone)!==-1});if(!cs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-comments text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد محادثات</p></div>';return}cs.forEach(function(u){var v=u.isVerified?'<span class="vb"><i class="fas fa-check"></i></span>':'';var b=u.isBusiness?'<span class="text-[7px] bg-yellow-100 text-yellow-700 px-1 rounded font-black">أعمال</span>':'';var lb=labels[u.phone]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.phone]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.phone]+'</span>':'';var on=u.online?'<span class="w-2.5 h-2.5 bg-green-500 rounded-full inline-block border border-white"></span>':'';var cId=cid(me,u.phone);var unr=lastMsgs[cId]?.unread||0;var badge=unr>0?'<span class="unread-badge">'+unr+'</span>':'';var lastMsg=lastMsgs[cId]?.txt||'';var lastTime=lastMsgs[cId]?.time||'';l.innerHTML+='<div data-name="'+(u.displayName||'').toLowerCase()+'" onclick="openChat(\''+u.phone+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 relative"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover">'+on+'</div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(lastMsg||u.bio||'متاح')+'</p></div><div class="flex flex-col items-end gap-1 shrink-0">'+(lastTime?'<span class="text-[9px] text-gray-400">'+lastTime+'</span>':'')+badge+'</div></div>'});updateTotalUnread()}
+function updateTotalUnread(){var total=0;for(var k in lastMsgs){total+=lastMsgs[k].unread||0}var b=el('total-unread');if(total>0){b.innerText=total>99?'99+':total;b.classList.remove('hv')}else b.classList.add('hv')}
 
 function swTab(t){['chats','groups','status'].forEach(function(x){el('t-'+x).classList.add('hv');el('nb-'+x).className='nb i'});el('t-'+t).classList.remove('hv');el('nb-'+t).className='nb a';if(t==='status')lSL()}
 
-// === الدردشة ===
-function openChat(id,typ){aId=id;aTyp=typ;el('v-chat').classList.remove('hv');el('qr-p').classList.add('hv');
-el('btn-grp-info').classList.add('hv');el('btn-shop').classList.add('hv');el('clbl').classList.add('hv');
-if(typ==='direct'){var u=uC[id];if(!u)return;
-el('cn').innerText=u.displayName;el('cst').innerText=u.isBusiness?'حساب أعمال':'متاح';
-el('cv').classList.toggle('hv',!u.isVerified);el('ci').src=u.avatar||av(u.displayName);
-el('btn-shop').classList.toggle('hv',!u.isBusiness);el('c-ia').classList.remove('hv');el('j-grp').classList.add('hv');
-var lb=el('clbl');if(labels[id]){var l=LB.find(function(x){return x.n===labels[id]});lb.innerHTML='<span class="lt '+(l?.c||'')+'">'+labels[id]+'</span>';lb.classList.remove('hv')}else lb.classList.add('hv');
-lMsg(u.isBusiness)}else{var g=gC[id];if(!g){toast("المجتمع غير موجود!");el('v-chat').classList.add('hv');aId=null;return}
-el('cn').innerText=g.name;el('cst').innerText=(g.members?g.members.length:0)+' عضو';el('cv').classList.remove('hv');
-el('ci').src=av(g.name)+'&background=0ea5e9&color=fff&bold=true';el('btn-grp-info').classList.remove('hv');
-var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;
-el('j-grp').classList.toggle('hv',isM);el('c-ia').classList.toggle('hv',!isM);lMsg(false)}}
+// الدردشة
+function openChat(id,typ){aId=id;aTyp=typ;el('v-chat').classList.remove('hv');el('qr-p').classList.add('hv');el('v-emoji').classList.add('hv');el('btn-grp-info').classList.add('hv');el('btn-shop').classList.add('hv');el('clbl').classList.add('hv');el('pin-bar').classList.add('hv');pinnedMsg=null;cancelReply();cancelEdit();
+if(typ==='direct'){var u=uC[id];if(!u)return;el('cn').innerText=u.displayName;el('cst').innerText=u.online?'متصل الآن':(u.isBusiness?'حساب أعمال':'متاح');el('cv').classList.toggle('hv',!u.isVerified);el('ci').src=u.avatar||av(u.displayName);el('btn-shop').classList.toggle('hv',!u.isBusiness);el('online-dot').classList.toggle('hv',!u.online);el('c-ia').classList.remove('hv');el('j-grp').classList.add('hv');var lb=el('clbl');if(labels[id]){var l=LB.find(function(x){return x.n===labels[id]});lb.innerHTML='<span class="lt '+(l?.c||'')+'">'+labels[id]+'</span>';lb.classList.remove('hv')}else lb.classList.add('hv');lMsg(u.isBusiness)}else{var g=gC[id];if(!g){toast("المجتمع غير موجود!");el('v-chat').classList.add('hv');aId=null;return}el('cn').innerText=g.name;el('cst').innerText=(g.members?g.members.length:0)+' عضو';el('cv').classList.remove('hv');el('ci').src=av(g.name)+'&background=0ea5e9&color=fff&bold=true';el('btn-grp-info').classList.remove('hv');el('online-dot').classList.add('hv');var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;el('j-grp').classList.toggle('hv',isM);el('c-ia').classList.toggle('hv',!isM);lMsg(false)}}
 
-function lMsg(isB){if(msgUn){msgUn();msgUn=null}
+function lMsg(isB){if(msgUn){msgUn();msgUn=null}var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
+// تحديث lastSeen للدردشة
+if(aTyp==='direct'){uD.doc(me).update({lastOpened:firebase.firestore.FieldValue.arrayUnion(c)}).catch(function(){})}
+msgUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(Object.assign({_id:d.id},d.data()))});var h='';if(isB)h+='<div class="sy"><i class="fas fa-store ml-1"></i>حساب أعمال</div>';var ld='',lastTxt='',lastTime='';ms.forEach(function(m){var ds='';try{ds=m.t?(m.t.toMillis?m.t.toDate():new Date(m.t)).toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}):''}catch(e){}if(ds&&ds!==ld){h+='<div class="sy">'+ds+'</div>';ld=ds}
+var me2=m.s===me,ct='';if(m.deleted){ct='<p class="msg-deleted"><i class="fas fa-ban ml-1"></i>هذه الرسالة تم حذفها</p>'}else if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-w-full max-h-[180px] mb-0.5 cursor-pointer" onclick="viewImg(this.src)">';else if(m.isCart)ct='<div class="cb mb-0.5">'+m.txt+'</div>';else ct='<p class="whitespace-pre-wrap">'+escHtml(m.txt)+'</p>';
+var editInd=m.edited?'<span class="edit-indicator">(معدلة)</span>':'';
+// رد
+var replyH='';if(m.replyTo)replyH='<div onclick="event.stopPropagation()" class="bg-black/5 border-r-2 border-sky-400 rounded-lg px-2 py-1 mb-1 text-[10px]"><p class="text-sky-600 font-black">'+escHtml(m.replyTo.sName||'')+'</p><p class="text-gray-500 truncate">'+escHtml((m.replyTo.txt||'').substring(0,50))+'</p></div>';
+// ريكشن
+var reactH='';if(m.reactions&&Object.keys(m.reactions).length){reactH='<div class="msg-reacts">';for(var ek in m.reactions){var rArr=m.reactions[ek]||[];if(rArr.length)reactH+='<span class="'+(rArr.indexOf(me)!==-1?'my-r':'')+'" onclick="addReactionOnMsg(\''+m._id+'\',\''+ek+'\')">'+ek+(rArr.length>1?' '+rArr.length:'')+'</span>'}reactH+='</div>'}
+// توجيه
+var fwdH=m.fwdFrom?'<p class="text-[9px] text-gray-400 mb-0.5"><i class="fas fa-share ml-1"></i>تم التحويل من '+escHtml(m.fwdFrom)+'</p>':'';
+h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+' w-full" oncontextmenu="showCtx(event,'+JSON.stringify(m).replace(/"/g,'&quot;')+','+'\''+m._id+'\''+')" onclick="showCtx(event,'+JSON.stringify(m).replace(/"/g,'&quot;')+','+'\''+m._id+'\''+')"><div class="mb '+(me2?'mo':'mi')+'">'+fwdH+replyH+ct+editInd+'<span class="mt">'+fts(m.t)+'</span></div>'+reactH+'</div>';
+lastTxt=m.deleted?'':(m.type==='image'?'📷':(m.txt||'').substring(0,40));lastTime=fts(m.t)});
+el('mw').innerHTML=h;el('mc').scrollTop=el('mc').scrollHeight;
+// تحديث آخر رسالة و unread للشات ليست
+if(aTyp==='direct'){var cId=cid(me,aId);var prevUnread=lastMsgs[cId]?.unread||0;lastMsgs[cId]={txt:lastTxt,time:lastTime,unread:0};rCL()}})}
+
+function addReactionOnMsg(msgId,emoji){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');var path='reactions.'+emoji;col.doc(msgId).update({[path]:firebase.firestore.FieldValue.arrayUnion(me)}).catch(function(){})}
+
+function escHtml(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function sendTxt(ct,ic){var inp=el('mi'),txt=ct||inp.value.trim();if(!txt)return;
+// تعديل رسالة
+if(editMsgId&&!ct){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.doc(editMsgId).update({txt:txt,edited:true}).then(function(){toast("تم التعديل ✅")});cancelEdit();return}
+if(!ct)inp.value='';el('qr-p').classList.add('hv');el('v-emoji').classList.add('hv');
 var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
-msgUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';
-if(isB)h+='<div class="sy"><i class="fas fa-store ml-1"></i>حساب أعمال</div>';var ld='';ms.forEach(function(m){
-var ds='';try{ds=m.t?(m.t.toMillis?m.t.toDate():new Date(m.t)).toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}):''}catch(e){}if(ds&&ds!==ld){h+='<div class="sy">'+ds+'</div>';ld=ds}
-var me2=m.s===me,ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';
-else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-w-full max-h-[180px] mb-0.5 cursor-pointer" onclick="window.open(this.src)">';
-else if(m.isCart)ct='<div class="cb mb-0.5">'+m.txt+'</div>';else ct='<p class="whitespace-pre-wrap">'+m.txt+'</p>';
-h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+' w-full"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});
-el('mw').innerHTML=h;el('mc').scrollTop=el('mc').scrollHeight})}
+var msg={s:me,txt:txt,isCart:!!ic,type:'text',t:firebase.firestore.FieldValue.serverTimestamp(),deleted:false,edited:false,reactions:{},replyTo:null};
+if(replyTo){msg.replyTo=replyTo;cancelReply()}
+col.add(msg);
+if(aTyp==='direct'&&!ic){try{var tg=uC[aId];if(tg&&tg.isBusiness&&tg.bizProfile&&tg.bizProfile.greeting){cD.doc(c).get().then(function(cd){if(!cd.data()||!cd.data().gs){setTimeout(function(){col.add({s:aId,txt:tg.bizProfile.greeting,type:'text',t:firebase.firestore.FieldValue.serverTimestamp(),deleted:false,edited:false,reactions:{},replyTo:null});cD.doc(c).set({gs:true},{merge:true})},800)}})}}catch(e){}}}
 
-function sendTxt(ct,ic){var inp=el('mi'),txt=ct||inp.value.trim();if(!txt)return;if(!ct)inp.value='';el('qr-p').classList.add('hv');
-var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
-col.add({s:me,txt:txt,isCart:!!ic,type:'text',t:firebase.firestore.FieldValue.serverTimestamp()});
-if(aTyp==='direct'&&!ic){try{var tg=uC[aId];if(tg&&tg.isBusiness&&tg.bizProfile&&tg.bizProfile.greeting){cD.doc(c).get().then(function(cd){if(!cd.data()||!cd.data().gs){setTimeout(function(){col.add({s:aId,txt:tg.bizProfile.greeting,type:'text',t:firebase.firestore.FieldValue.serverTimestamp()});cD.doc(c).set({gs:true},{merge:true})},800)}})}}catch(e){}}}
+// الاستماع للرسائل الجديدة لتحديث unread
+function watchUnread(){if(!me||!cD)return;cD.onSnapshot(function(s){s.docChanges().forEach(function(change){if(change.type==='added'){var d=change.doc.data();if(!d.s||d.s===me)return;var cId=change.doc.ref.parent.parent.id;if(cId===cid(me,aId))return; // يعني الدردشة مفتوحة
+var prev=lastMsgs[cId]||{};lastMsgs[cId]={txt:d.deleted?'':(d.type==='image'?'📷':(d.txt||'').substring(0,40)),time:fts(d.t),unread:(prev.unread||0)+1};playNotif();rCL()}})})}
+setTimeout(watchUnread,2000);
 
-el('ci-in').onchange=function(e){var f=e.target.files[0];if(!f)return;if(f.size>5e5){toast("حجم كبير!");e.target.value='';return}var r=new FileReader();r.onload=function(ev){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.add({s:me,txt:'📷',data:ev.target.result,type:'image',t:firebase.firestore.FieldValue.serverTimestamp()})};r.readAsDataURL(f);e.target.value=''};
+el('ci-in').onchange=function(e){var f=e.target.files[0];if(!f)return;if(f.size>5e5){toast("حجم كبير!");e.target.value='';return}var r=new FileReader();r.onload=function(ev){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.add({s:me,txt:'📷',data:ev.target.result,type:'image',t:firebase.firestore.FieldValue.serverTimestamp(),deleted:false,edited:false,reactions:{},replyTo:null})};r.readAsDataURL(f);e.target.value=''};
 
-function startV(e){e.preventDefault();navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){mRec=new MediaRecorder(s);aCh=[];mRec.ondataavailable=function(ev){aCh.push(ev.data)};mRec.onstop=function(){var b=new Blob(aCh,{type:'audio/webm'}),r=new FileReader();r.onload=function(ev){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.add({s:me,txt:'',data:ev.target.result,type:'voice',t:firebase.firestore.FieldValue.serverTimestamp()})};r.readAsDataURL(b);s.getTracks().forEach(function(t){t.stop()})};mRec.start();el('rec-t').classList.remove('hv');el('btn-vc').classList.replace('bg-sky-500','bg-red-500')}).catch(function(){toast("لا يمكن الوصول للميكروفون")})}
+function startV(e){e.preventDefault();navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){mRec=new MediaRecorder(s);aCh=[];mRec.ondataavailable=function(ev){aCh.push(ev.data)};mRec.onstop=function(){var b=new Blob(aCh,{type:'audio/webm'}),r=new FileReader();r.onload=function(ev){var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');col.add({s:me,txt:'',data:ev.target.result,type:'voice',t:firebase.firestore.FieldValue.serverTimestamp(),deleted:false,edited:false,reactions:{},replyTo:null})};r.readAsDataURL(b);s.getTracks().forEach(function(t){t.stop()})};mRec.start();el('rec-t').classList.remove('hv');el('btn-vc').classList.replace('bg-sky-500','bg-red-500')}).catch(function(){toast("لا يمكن الوصول للميكروفون")})}
 function stopV(e){e.preventDefault();if(mRec&&mRec.state==='recording'){mRec.stop();el('rec-t').classList.add('hv');el('btn-vc').classList.replace('bg-red-500','bg-sky-500')}}
 function handleQr(v){var p=el('qr-p');if(v.startsWith('/')&&mQrs.length){var f=mQrs.filter(function(r){return r.keyword.toLowerCase().indexOf(v.substring(1).toLowerCase())!==-1});if(f.length){p.classList.remove('hv');p.innerHTML=f.map(function(r,i){return '<div onclick="useQr('+i+')" class="p-2 rounded-lg cursor-pointer active:bg-gray-100 mb-0.5"><span class="text-sky-600 font-black text-[10px] bg-sky-50 px-1.5 py-0.5 rounded">/'+r.keyword+'</span><p class="text-[10px] text-gray-600 mt-0.5 mr-1">'+r.message.substring(0,50)+'</p></div>'}).join('')}else p.classList.add('hv')}else p.classList.add('hv')}
 function useQr(i){el('mi').value=mQrs[i].message;el('qr-p').classList.add('hv');el('mi').focus()}
-function closeChat(){if(msgUn){msgUn();msgUn=null}el('v-chat').classList.add('hv');aId=null}
+function closeChat(){if(msgUn){msgUn();msgUn=null}el('v-chat').classList.add('hv');el('v-emoji').classList.add('hv');aId=null;pinnedMsg=null;cancelReply();cancelEdit()}
 
-// === الإعدادات ===
+// الإعدادات - الإصلاح الأساسي: الحفظ في الداتا بيز + تحديث الكاش
 function openSettings(){el('v-set').classList.remove('hv')}function closeSettings(){el('v-set').classList.add('hv')}
 el('s-pi').onchange=function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){pBase=ev.target.result;el('s-ip').src=pBase};r.readAsDataURL(f)}};
-function saveProf(){var n=el('s-nm').value.trim(),bio=el('s-bi').value.trim(),pw=el('s-pw').value.trim(),isB=el('s-biz').checked;if(!n)return toast("أدخل اسمك!");var up={displayName:n,bio:bio,isBusiness:isB,avatar:pBase};if(pw&&pw.length>=4)up.loginCode=pw;
-uD.doc(me).update(up).then(function(){uC[me]=Object.assign({},uC[me]||{},up);rCL();toast("تم الحفظ ✅");closeSettings()}).catch(function(){toast("خطأ!")})}
+function saveProf(){var n=el('s-nm').value.trim(),bio=el('s-bi').value.trim(),pw=el('s-pw').value.trim(),isB=el('s-biz').checked;if(!n)return toast("أدخل اسمك!");
+var up={displayName:n,bio:bio,isBusiness:isB};if(pBase)up.avatar=pBase;if(pw&&pw.length>=4)up.loginCode=pw;
+// الحفظ في الداتا بيز أولاً
+uD.doc(me).update(up).then(function(){
+    // تحديث الكاش المحلي فوراً
+    if(!uC[me])uC[me]={};
+    for(var k in up)uC[me][k]=up[k];
+    rCL();
+    toast("تم الحفظ في الداتا بيز ✅");
+    closeSettings()
+}).catch(function(err){console.error(err);toast("خطأ في الحفظ بالداتا بيز!")})}
+
 function logout(){localStorage.clear();if(msgUn)msgUn=null;location.reload()}
 
-// === إضافة صديق ===
+// إضافة صديق
 function openAddFr(){el('v-afr').classList.remove('hv');el('af-ph').value=''}function closeAddFr(){el('v-afr').classList.add('hv')}
-function confirmAddFr(){var p=el('af-ph').value.trim();if(!p)return toast("أدخل رقم!");if(p.startsWith('0'))p=p.substring(1);p="+20"+p;if(p===me)return toast("لا يمكنك إضافة نفسك!");
-uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل بعد!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
+function confirmAddFr(){var p=el('af-ph').value.trim();if(!p)return toast("أدخل رقم!");if(p.startsWith('0'))p=p.substring(1);p="+20"+p;if(p===me)return toast("لا يمكنك إضافة نفسك!");uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل بعد!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
 
-// === المجتمعات ===
+// المجتمعات
 function openCrGrp(){el('v-crg').classList.remove('hv');el('cg-nm').value='';el('cg-ds').value=''}function closeCrGrp(){el('v-crg').classList.add('hv')}
-function confirmCrGrp(){var n=el('cg-nm').value.trim();if(!n)return toast("أدخل الاسم!");var ds=el('cg-ds').value.trim();var gid='grp_'+Date.now();
-gD.doc(gid).set({name:n,description:ds,createdBy:me,members:[me],createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){gC[gid]={id:gid,name:n,description:ds,createdBy:me,members:[me]};lGL();closeCrGrp();setTimeout(function(){openChat(gid,'group')},300);toast("تم ✅")})}
-function lGL(){var l=el('gl');l.innerHTML='';var gs=[];for(var k in gC)gs.push(gC[k]);if(!gs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-shield-halved text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد مجتمعات</p></div>';return}
-gs.forEach(function(g){if(!g.id)return;var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;var cn=g.members?g.members.length:0;
-l.innerHTML+='<div onclick="'+(isM?"openChat('"+g.id+"','group')":"")+'" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white shadow-md shrink-0"><i class="fas fa-users text-sm"></i></div><div class="flex-1 text-right overflow-hidden"><div class="flex items-center gap-1 justify-end"><span class="vb"><i class="fas fa-check"></i></span><h3 class="font-black text-slate-800 text-[13px] truncate">'+g.name+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(g.description||'مجتمع')+' · '+cn+' عضو</p></div>'+(!isM?'<button onclick="event.stopPropagation();jGrp(\''+g.id+'\')" class="bg-sky-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-sm shrink-0">انضمام</button>':'')+'</div>'})}
+function confirmCrGrp(){var n=el('cg-nm').value.trim();if(!n)return toast("أدخل الاسم!");var ds=el('cg-ds').value.trim();var gid='grp_'+Date.now();gD.doc(gid).set({name:n,description:ds,createdBy:me,members:[me],createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){gC[gid]={id:gid,name:n,description:ds,createdBy:me,members:[me]};lGL();closeCrGrp();setTimeout(function(){openChat(gid,'group')},300);toast("تم ✅")})}
+function lGL(){var l=el('gl');l.innerHTML='';var gs=[];for(var k in gC)gs.push(gC[k]);if(!gs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-shield-halved text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد مجتمعات</p></div>';return}gs.forEach(function(g){if(!g.id)return;var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;var cn=g.members?g.members.length:0;l.innerHTML+='<div onclick="'+(isM?"openChat('"+g.id+"','group')":"")+'" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white shadow-md shrink-0"><i class="fas fa-users text-sm"></i></div><div class="flex-1 text-right overflow-hidden"><div class="flex items-center gap-1 justify-end"><span class="vb"><i class="fas fa-check"></i></span><h3 class="font-black text-slate-800 text-[13px] truncate">'+g.name+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(g.description||'مجتمع')+' · '+cn+' عضو</p></div>'+(!isM?'<button onclick="event.stopPropagation();jGrp(\''+g.id+'\')" class="bg-sky-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-sm shrink-0">انضمام</button>':'')+'</div>'})}
 
 function jGrp(gid){gD.doc(gid).update({members:firebase.firestore.FieldValue.arrayUnion(me)}).then(function(){if(gC[gid]&&gC[gid].members)gC[gid].members.push(me);lGL();toast("تم الانضمام ✅")})}
 function joinGrp(){if(!aId)return;jGrp(aId);el('j-grp').classList.add('hv');el('c-ia').classList.remove('hv');el('btn-grp-info').classList.remove('hv')}
@@ -407,60 +534,30 @@ function editGrpName(){if(!aId)return;var nn=prompt("الاسم الجديد:",g
 function leaveGrp(){if(!aId)return;if(!confirm("مغادرة؟"))return;gD.doc(aId).update({members:firebase.firestore.FieldValue.arrayRemove(me)}).then(function(){if(gC[aId]&&gC[aId].members){var i=gC[aId].members.indexOf(me);if(i!==-1)gC[aId].members.splice(i,1)}closeGrpInfo();closeChat();lGL();toast("تمت المغادرة")})}
 function delGrp(){if(!aId)return;if(!confirm("حذف نهائياً؟"))return;gD.doc(aId).collection('messages').get().then(function(s){var batch=db.batch();s.docs.forEach(function(d){batch.delete(d.ref)});return batch.commit()}).then(function(){return gD.doc(aId).delete()}).then(function(){delete gC[aId];closeGrpInfo();closeChat();lGL();toast("تم الحذف")})}
 
-// === الحالات ===
+// الحالات
 function openCrSt(){el('v-cst').classList.remove('hv');el('cs-tx').value=''}function closeCrSt(){el('v-cst').classList.add('hv')}
 function confirmCrSt(){var t=el('cs-tx').value.trim();if(!t)return toast("اكتب شيئا!");sD.add({userId:me,text:t,lt:Date.now(),createdAt:firebase.firestore.FieldValue.serverTimestamp(),seenBy:[]}).then(function(){closeCrSt();toast("تم النشر ✅")})}
-function lSL(){sD.orderBy('lt','desc').onSnapshot(function(s){stCache={};s.forEach(function(d){var x=d.data();if(!stCache[x.userId])stCache[x.userId]=[];stCache[x.userId].push(Object.assign({},x,{_id:d.id}))});
-var l=el('sl');l.innerHTML='';var ks=Object.keys(stCache);if(!ks.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-circle-notch text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد حالات</p></div>';return}
-ks.forEach(function(uid){var u=uC[uid];if(!u)return;var ss=stCache[uid],allS=ss.every(function(x){return x.seenBy&&x.seenBy.indexOf(me)!==-1});
-l.innerHTML+='<div onclick="vSt(\''+uid+'\')" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="'+(allS?'srs':'sr')+' shrink-0"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div></div><div class="text-right"><h3 class="font-black text-slate-800 text-[13px]">'+u.displayName+'</h3><p class="text-[10px] text-gray-500">'+fts(ss[0].createdAt)+' · '+ss.length+'</p></div></div>'})})}
+function lSL(){sD.orderBy('lt','desc').onSnapshot(function(s){stCache={};s.forEach(function(d){var x=d.data();if(!stCache[x.userId])stCache[x.userId]=[];stCache[x.userId].push(Object.assign({},x,{_id:d.id}))});var l=el('sl');l.innerHTML='';var ks=Object.keys(stCache);if(!ks.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-circle-notch text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد حالات</p></div>';return}ks.forEach(function(uid){var u=uC[uid];if(!u)return;var ss=stCache[uid],allS=ss.every(function(x){return x.seenBy&&x.seenBy.indexOf(me)!==-1});l.innerHTML+='<div onclick="vSt(\''+uid+'\')" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="'+(allS?'srs':'sr')+' shrink-0"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div></div><div class="text-right"><h3 class="font-black text-slate-800 text-[13px]">'+u.displayName+'</h3><p class="text-[10px] text-gray-500">'+fts(ss[0].createdAt)+' · '+ss.length+'</p></div></div>'})})}
 function vSt(uid){stData=stCache[uid]||[];if(!stData.length){toast("لا توجد حالات");return}stIdx=0;showSt();el('v-svw').classList.remove('hv')}
-function showSt(){if(stIdx>=stData.length){closeSV();return}var st=stData[stIdx],u=uC[st.userId];el('sv-tx').innerText=st.text;el('sv-us').innerText=u?u.displayName:'';el('sv-av').src=u?u.avatar||'':'';el('sv-pr').style.width=((stIdx+1)/stData.length*100)+'%';if(!st.seenBy||st.seenBy.indexOf(me)===-1)sD.doc(st._id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(me)}).catch(function(){});clearTimeout(stTmr);stTmr=setTimeout(function(){stIdx++;showSt()},5000)}
+function showSt(){if(stIdx>=stData.length){closeSV();return}var st=stData[stIdx],u=uC[st.userId];el('sv-tx').innerText=st.text;el('sv-us').innerText=u?u.displayName:'';el('sv-av').src=u?u.avatar||av(u.displayName):'';el('sv-pr').style.width=((stIdx+1)/stData.length*100)+'%';if(!st.seenBy||st.seenBy.indexOf(me)===-1)sD.doc(st._id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(me)}).catch(function(){});clearTimeout(stTmr);stTmr=setTimeout(function(){stIdx++;showSt()},5000)}
 function nextSt(){clearTimeout(stTmr);stIdx++;if(stIdx>=stData.length)closeSV();else showSt()}
 function prevSt(){clearTimeout(stTmr);stIdx=Math.max(0,stIdx-1);showSt()}
 function closeSV(){clearTimeout(stTmr);el('v-svw').classList.add('hv')}
 
-// === بروفايل ===
-function openCProf(){if(!aId||aTyp!=='direct')return;var u=uC[aId];if(!u)return;el('cp-i').src=u.avatar||av(u.displayName);el('cp-n').innerText=u.displayName;el('cp-b').innerText=u.bio||'متاح';el('cp-p').innerText=u.phone;el('cp-v').classList.toggle('hv',!u.isVerified);el('cp-bz').classList.toggle('hv',!u.isBusiness);el('cp-sh').classList.toggle('hv',!u.isBusiness);el('v-cpf').classList.remove('hv')}
+// بروفايل
+function openCProf(){if(!aId||aTyp!=='direct')return;var u=uC[aId];if(!u)return;el('cp-i').src=u.avatar||av(u.displayName);el('cp-n').innerText=u.displayName;el('cp-b').innerText=u.bio||'متاح';el('cp-p').innerText=u.phone;el('cp-v').classList.toggle('hv',!u.isVerified);el('cp-bz').classList.toggle('hv',!u.isBusiness);el('cp-sh').classList.toggle('hv',!u.isBusiness);el('cp-ls').innerText=ftLastSeen(u.lastSeen);el('v-cpf').classList.remove('hv')}
 function closeCProf(){el('v-cpf').classList.add('hv')}
 
-// === التسميات ===
+// التسميات
 function openLabel(){if(!aId||aTyp!=='direct')return;el('v-lbl').classList.remove('hv');var cur=labels[aId]||'';var html='';LB.forEach(function(l){html+='<button onclick="asLbl(\''+l.n+'\')" class="w-full p-2 rounded-lg text-xs font-bold text-right '+(cur===l.n?'bg-sky-500 text-white shadow-md':'bg-gray-50 text-gray-700')+' active:scale-[.97] transition flex items-center justify-between">'+l.n+(cur===l.n?'<i class="fas fa-check"></i>':'')+'</button>'});html+='<button onclick="asLbl(\'\')" class="w-full p-2 rounded-lg text-xs font-bold text-right bg-red-50 text-red-500 active:scale-[.97] transition">إزالة</button>';el('lb-ops').innerHTML=html}
 function asLbl(lb){if(lb)labels[aId]=lb;else delete labels[aId];localStorage.setItem('kimo_lb',JSON.stringify(labels));closeLbl();var e=el('clbl');if(lb){var l=LB.find(function(x){return x.n===lb});e.innerHTML='<span class="lt '+(l?.c||'')+'">'+lb+'</span>';e.classList.remove('hv')}else e.classList.add('hv');rCL();toast(lb?'تم: '+lb:'تمت الإزالة')}
 function closeLbl(){el('v-lbl').classList.add('hv')}
 
-// === أدوات الأعمال ===
+// أدوات الأعمال
 function openBiz(){el('v-biz').classList.remove('hv')}function closeBiz(){el('v-biz').classList.add('hv')}
 el('bci').onchange=function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){cBase=ev.target.result;el('bcp').src=cBase};r.readAsDataURL(f)}};
 function openProdModal(){tmpProdImg='';el('prod-img-prev').src='';el('prod-img-ph').classList.remove('hv');el('prod-img-url').value='';el('prod-name').value='';el('prod-price').value='';el('v-prod').classList.remove('hv')}
 function closeProdModal(){el('v-prod').classList.add('hv')}
 el('prod-img-in').onchange=function(e){var f=e.target.files[0];if(!f)return;if(f.size>3e5){toast("حجم كبير (300KB)!");e.target.value='';return}var r=new FileReader();r.onload=function(ev){tmpProdImg=ev.target.result;el('prod-img-prev').src=tmpProdImg;el('prod-img-ph').classList.add('hv')};r.readAsDataURL(f);e.target.value=''};
 function confirmProd(){var n=el('prod-name').value.trim();if(!n)return toast("أدخل اسم!");var p=el('prod-price').value.trim();if(!p)return toast("أدخل السعر!");var img=el('prod-img-url').value.trim()||tmpProdImg||'https://picsum.photos/seed/'+encodeURIComponent(n)+Date.now()+'/400/300.jpg';mProds.push({name:n,price:p,image:img});rPL();closeProdModal();toast("تم ✅")}
-function rPL(){var e=el('b-pl');if(!mProds.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا منتجات</p>';return}e.innerHTML=mProds.map(function(p,i){return '<div class="flex items-center bg-gray-50 p-2 rounded-lg text-[10px] gap-2"><div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 border"><img src="'+p.image+'" class="w-full h-full object-cover"></div><div class="flex-1 min-w-0"><b class="text-slate-700 block truncate">'+p.name+'</b><span class="text-sky-600 font-black">'+p.price+' ج.م</span></div><button onclick="mProds.splice('+i+',1);rPL()" class="text-red-400 p-1 shrink-0"><i class="fas fa-trash"></i></button></div>'}).join('')}
-
-function addQr(){var k=prompt("كلمة مفتاحية (بدون /):");if(!k)return;var m=prompt("نص الرد:");if(!m)return;mQrs.push({keyword:k,message:m});rQL()}
-function rQL(){var e=el('b-ql');if(!mQrs.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا ردود</p>';return}e.innerHTML=mQrs.map(function(r,i){return '<div class="flex justify-between items-center bg-gray-50 p-1.5 rounded-lg text-[10px]"><button onclick="mQrs.splice('+i+',1);rQL()" class="text-red-400 p-0.5"><i class="fas fa-trash"></i></button><span class="text-gray-600 truncate max-w-[120px]">'+r.message+'</span><span class="bg-sky-100 text-sky-600 px-1.5 py-0.5 rounded font-black shrink-0">/'+r.keyword+'</span></div>'}).join('')}
-function saveBiz(){var biz={cover:cBase,category:el('b-cat').value,address:el('b-add').value,hours:el('b-hrs').value,greeting:el('b-grt').value,away:el('b-awy').value,catalog:mProds,quickReplies:mQrs};uD.doc(me).update({bizProfile:biz}).then(function(){toast("تم ✅");closeBiz()})}
-
-// === الكتالوج ===
-function openCat(){if(!aId)return;var u=uC[aId];if(!u||!u.bizProfile)return;var bp=u.bizProfile;el('s-cv').src=bp.cover||'https://picsum.photos/seed/store/800/300.jpg';el('s-lg').src=u.avatar||'';el('s-nm').innerText=u.displayName;el('s-ct').innerText=bp.category||'';el('s-hr').innerHTML='<i class="far fa-clock text-sky-500 ml-1"></i>'+(bp.hours||'مفتوح دائماً');el('s-lo').innerHTML='<i class="fas fa-map-marker-alt text-sky-500 ml-1"></i>'+(bp.address||'');cart=[];updCart();var prods=bp.catalog||[];var pl=el('s-pl');if(!prods.length)pl.innerHTML='<p class="col-span-2 text-center text-gray-400 text-xs py-8">لا توجد منتجات</p>';else pl.innerHTML=prods.map(function(p,i){return '<div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"><div class="h-24 bg-gray-100"><img src="'+p.image+'" class="w-full h-full object-cover"></div><div class="p-2"><p class="font-black text-xs text-slate-800 truncate">'+p.name+'</p><div class="flex justify-between items-center mt-1"><span class="text-sky-600 font-black text-[10px]">'+p.price+' ج.م</span><button onclick="addCart('+i+')" class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs active:scale-90 shadow"><i class="fas fa-plus"></i></button></div></div></div>'}).join('');el('v-cat').classList.remove('hv')}
-function closeCat(){el('v-cat').classList.add('hv')}
-function addCart(i){var u=uC[aId];var prods=u&&u.bizProfile?u.bizProfile.catalog||[]:[];var p=prods[i];if(!p)return;var ex=cart.find(function(x){return x.name===p.name});if(ex)ex.qty++;else cart.push(Object.assign({},p,{qty:1}));updCart();toast("تمت الإضافة")}
-function updCart(){var tot=cart.reduce(function(s,x){return s+parseFloat(x.price||0)*x.qty},0);el('c-tot').innerText=tot+' ج.م';el('c-cnt').innerText=cart.reduce(function(s,x){return s+x.qty},0)}
-function sendOrder(){if(!cart.length)return toast("السلة فارغة!");var txt=cart.map(function(x){return '• '+x.name+' ×'+x.qty+' = '+(parseFloat(x.price)*x.qty)+' ج.م'}).join('\n')+'\n\nالمجموع: '+cart.reduce(function(s,x){return s+parseFloat(x.price)*x.qty},0)+' ج.م';sendTxt(txt,true);closeCat();cart=[];toast("تم إرسال الطلب ✅")}
-
-// === الإدارة ===
-function openAdmin(){el('v-adm').classList.remove('hv');loadAdminList()}function closeAdmin(){el('v-adm').classList.add('hv')}
-function loadAdminList(){uD.get().then(function(s){var l=el('al');l.innerHTML='';s.docs.forEach(function(doc){var u=doc.data();if(u.phone===ADM)return;l.innerHTML+='<div class="bg-white p-3 rounded-xl flex flex-col gap-2 shadow-sm"><div class="flex justify-between items-center text-right"><div><p class="font-black text-sm">'+u.displayName+(u.isVerified?' <span class="vb"><i class="fas fa-check"></i></span>':'')+'</p><p class="text-[10px] text-gray-400">'+u.phone+'</p><p class="text-[10px] text-sky-600 font-bold">كود: '+u.loginCode+'</p></div><span class="px-2 py-0.5 rounded-full text-white text-[9px] '+(u.status==='banned'?'bg-red-500':'bg-green-500')+' shadow">'+u.status+'</span></div><div class="flex flex-wrap gap-1 justify-end border-t pt-1.5"><button onclick="uUpd(\''+u.phone+'\',{isVerified:'+!u.isVerified+'})" class="text-[9px] bg-sky-500 text-white px-2 py-1 rounded-lg">توثيق</button><button onclick="openEPin(\''+u.phone+'\')" class="text-[9px] bg-yellow-400 px-2 py-1 rounded-lg">كود</button><button onclick="uUpd(\''+u.phone+'\',{status:\'banned\'})" class="text-[9px] bg-red-600 text-white px-2 py-1 rounded-lg">حظر</button><button onclick="uUpd(\''+u.phone+'\',{status:\'approved\'})" class="text-[9px] bg-green-500 text-white px-2 py-1 rounded-lg">فك</button><button onclick="openSpy(\''+u.phone+'\',\''+u.displayName+'\')" class="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-lg"><i class="fas fa-eye"></i> مراقبة</button></div></div>'})})}
-function uUpd(p,up){uD.doc(p).update(up).then(function(){setTimeout(loadAdminList,500);toast("تم ✅")})}
-function openEPin(p){epPh=p;el('ep-ph').innerText=p;el('ep-pin').value=uC[p]?uC[p].loginCode||'':'';el('v-epin').classList.remove('hv')}
-function saveEPin(){var pin=el('ep-pin').value.trim();if(pin){uD.doc(epPh).update({loginCode:pin}).then(function(){closeEPin();setTimeout(loadAdminList,500);toast("تم ✅")})}}
-function closeEPin(){el('v-epin').classList.add('hv')}
-
-// === التجسس ===
-function openSpy(uid,nm){spyId=uid;el('sp-nm').innerText=nm;el('v-spy').classList.remove('hv');var mc2=[];try{mc2=uC[uid]?uC[uid].contacts||[]:[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.phone!==uid&&u.status!=='banned')cs.push(u)}if(uid!==ADM)cs=cs.filter(function(u){return mc2.indexOf(u.phone)!==-1});el('sp-cts').innerHTML=cs.map(function(u){return '<button onclick="spyChat(\''+u.phone+'\')" class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow shrink-0 active:scale-90 transition"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></button>'}).join('');el('sp-ph').classList.remove('hv');el('smw').innerHTML='';if(spyUn){spyUn();spyUn=null}}
-function spyChat(tid){if(spyUn){spyUn();spyUn=null}el('sp-ph').classList.add('hv');var c=cid(spyId,tid),col=cD.doc(c).collection('messages');spyUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';ms.forEach(function(m){var me2=m.s===spyId;var ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-h-[120px] mb-0.5">';else ct='<p class="whitespace-pre-wrap text-xs">'+m.txt+'</p>';h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+'"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});el('smw').innerHTML=h;el('smc').scrollTop=el('smc').scrollHeight})}
-function closeSpy(){if(spyUn){spyUn();spyUn=null}el('v-spy').classList.add('hv')}
-</script>
-</body>
-</html>
+function rPL(){var e=el('b-pl');if(!mProds.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا منتجات</p>';return}e.innerHTML=mProds.map(function(p,i){return '<div class="flex items-center bg-gray-50 p-2 rounded-lg text-[10px] gap-2"><div class="
