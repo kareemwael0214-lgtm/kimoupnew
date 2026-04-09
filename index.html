@@ -245,7 +245,7 @@ function escH(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/
 function viewImg(src){el("imgv-src").src=src;el("v-imgv").classList.remove("hv")}
 function filterChats(q){q=q.trim().toLowerCase();var items=el("cl").children;for(var i=0;i<items.length;i++){var name=items[i].getAttribute("data-name")||"";items[i].style.display=name.indexOf(q)!==-1?"":"none"}}
 function checkPhFormat(){var v=el("in-ph").value.replace(/\D/g,""),w=el("ph-wrap"),er=el("ph-err"),btn=el("btn-chk");w.classList.remove("phone-ok","phone-err");er.classList.add("hv");btn.disabled=false;if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add("phone-err");er.innerText="يجب أن يبدأ بـ 010/011/012/015";er.classList.remove("hv");btn.disabled=true}else{w.classList.add("phone-ok");er.innerText="✓ رقم صالح";er.classList.remove("hv");er.style.color="#16a34a"}}
-var isBooted = false;
+var isBooted=false;
 function bootApp(){if(isBooted)return;isBooted=true;try{if(firebase&&firebase.auth)firebase.auth().signInAnonymously().catch(function(){})}catch(e){}var sp=el("sp");if(sp){sp.style.opacity="0";setTimeout(function(){sp.classList.add("hv");document.body.classList.toggle("dark",darkMode);if(me&&uD)initApp();else if(!me)el("v-auth").classList.remove("hv");else toast("خطأ في الاتصال")},600)}}
 document.addEventListener("DOMContentLoaded",function(){setTimeout(bootApp,800)});
 setTimeout(bootApp,3000);
