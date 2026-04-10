@@ -104,7 +104,6 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <div id="s-pin" class="hv space-y-3">
 <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-xl"></i></div>
 <p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl"></p>
-<div class="code-box hv"><p class="text-[10px] text-gray-400 mb-2">كود التحقق الخاص بك</p><p id="otp-code" class="code-num"></p></div>
 <input type="password" id="in-pin" placeholder="أدخل الكود" maxlength="6" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-black text-center text-3xl tracking-[.3em] border-2 border-transparent focus:border-green-500 transition" dir="ltr">
 <button onclick="verifyPin()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">دخول</button>
 </div></div></div>
@@ -248,7 +247,6 @@ try{firebase.initializeApp({apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",aut
 var ADM="+201112215950",A="kimo-master-vip-v10",uD=null,cD=null,gD=null,sD=null;
 if(db){uD=db.collection("artifacts").doc(A).collection("public").doc("data").collection("users");cD=db.collection("artifacts").doc(A).collection("public").doc("data").collection("chats");gD=db.collection("artifacts").doc(A).collection("public").doc("data").collection("groups");sD=db.collection("artifacts").doc(A).collection("public").doc("data").collection("status")}
 var me=localStorage.getItem("kimo_master_vip_v10"),aId=null,aTyp="direct",uC={},gC={},tmpPh="",tmpCode="",pBase="",cBase="",mRec=null,aCh=[],spyId=null,epPh=null,mProds=[],mQrs=[],cart=[],msgUn=null,spyUn=null,stTmr=null,stData=[],stIdx=0,stCache={},labels={},replyTo=null,editMsgId=null,fwdTxt="",ctxMsg=null,pinnedMsg=null,lastMsgs={},darkMode=false,msgCache={};
-try{labels=JSON.parse(localStorage.getItem("kimo_lb")||"{}")}catch(e){labels={}}
 try{darkMode=localStorage.getItem("kimo_dark")==="true"}catch(e){}
 var LB=[{n:"عميل جديد",c:"bg-blue-100 text-blue-700"},{n:"مهتم",c:"bg-yellow-100 text-yellow-700"},{n:"بانتظار الدفع",c:"bg-orange-100 text-orange-700"},{n:"مكتمل",c:"bg-green-100 text-green-700"},{n:"ملغي",c:"bg-red-100 text-red-700"},{n:"VIP",c:"bg-purple-100 text-purple-700"}];
 var tmpProdImg="";
@@ -259,7 +257,6 @@ function toast(m){var t=el("toast");t.innerText=m;t.classList.remove("hv");clear
 function fts(ts){if(!ts)return"";try{var d=ts.toMillis?ts.toDate():new Date(ts),n=Date.now()-d;if(n<6e4)return"الآن";if(n<36e5)return Math.floor(n/6e4)+" د";return d.getHours().toString().padStart(2,"0")+":"+d.getMinutes().toString().padStart(2,"0")}catch(e){return""}}
 function ftLS(ts){if(!ts)return"";try{var d=ts.toMillis?ts.toDate():new Date(ts),n=Date.now()-d;if(n<3e4)return"متصل الآن";if(n<36e5)return"آخر ظهور منذ "+Math.floor(n/6e4)+" دقيقة";if(n<864e5)return"آخر ظهور منذ "+Math.floor(n/36e5)+" ساعة";return"آخر ظهور "+d.toLocaleDateString("ar-EG")}catch(e){return""}}
 function cid(a,b){return[a,b].sort().join("_")}
-function copyCode(){try{navigator.clipboard.writeText(tmpCode);toast("تم نسخ الكود ✅")}catch(e){toast("الكود: "+tmpCode)}}
 function av(n){return"https://ui-avatars.com/api/?name="+encodeURIComponent(n||"U")}
 function toggleDark(){darkMode=!darkMode;localStorage.setItem("kimo_dark",darkMode);document.body.classList.toggle("dark",darkMode)}
 function toggleEmoji(){el("v-emoji").classList.toggle("hv");if(!el("v-emoji").classList.contains("hv"))showEC("smileys");el("qr-p").classList.add("hv")}
@@ -268,27 +265,34 @@ function escH(s){if(!s)return"";return String(s).replace(/&/g,"&amp;").replace(/
 function viewImg(src){el("imgv-src").src=src;el("v-imgv").classList.remove("hv")}
 function filterChats(q){q=q.trim().toLowerCase();var items=el("cl").children;for(var i=0;i<items.length;i++){var name=items[i].getAttribute("data-name")||"";items[i].style.display=name.indexOf(q)!==-1?"":"none"}}
 function checkPhFormat(){var v=el("in-ph").value.replace(/\D/g,""),w=el("ph-wrap"),er=el("ph-err"),btn=el("btn-chk");w.classList.remove("phone-ok","phone-err");er.classList.add("hv");btn.disabled=false;if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add("phone-err");er.innerText="يجب أن يبدأ بـ 010/011/012/015";er.classList.remove("hv");btn.disabled=true}else{w.classList.add("phone-ok");er.innerText="✓ رقم صالح";er.classList.remove("hv");er.style.color="#16a34a"}}
+
 function bootApp(){var sp=el("sp");if(sp){sp.style.opacity="0";setTimeout(function(){sp.classList.add("hv");document.body.classList.toggle("dark",darkMode);if(me&&uD)initApp();else if(!me)el("v-auth").classList.remove("hv");else toast("خطأ في الاتصال")},600)}}
 
-window.addEventListener("load",function(){
-    if(firebase.auth){
+window.addEventListener("load", function() {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
         try {
-            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-        } catch(e) { console.log(e); }
+            window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 
+                'size': 'invisible' 
+            });
+        } catch(e) { 
+            console.log("خطأ في الكابتشا:", e); 
+        }
+    } else {
+        toast("تحذير: لم يتم الاتصال بفايربيز");
     }
-    setTimeout(bootApp,1000);
+    setTimeout(bootApp, 1000);
 });
 
 document.addEventListener("click",function(e){el("v-ctx").classList.add("hv");el("v-react").classList.add("hv");if(!e.target.closest("#v-emoji")&&!e.target.closest("[onclick*='toggleEmoji']"))el("v-emoji").classList.add("hv")});
 
-function sendViaWA(){if(!tmpCode)return;window.open("https://wa.me/"+tmpPh.replace("+","")+"?text="+encodeURIComponent("كود Kimoup: "+tmpCode),"_blank");toast("تم فتح واتساب")}
-
 function chkPhone() {
-    if (!uD) { toast("خطأ في الاتصال!"); return; }
+    if (!uD) { toast("خطأ في الاتصال بقاعدة البيانات!"); return; }
     var raw = el("in-ph").value.replace(/\D/g, "");
     if (!raw || !/^(10|11|12|15)\d{8}$/.test(raw)) return toast("رقم غير صالح!");
+    
     if (raw.startsWith("0")) raw = raw.substring(1);
     tmpPh = "+20" + raw;
+    
     var btn = el("btn-chk");
     btn.innerText = "جاري إرسال الـ SMS...";
     btn.disabled = true;
@@ -304,7 +308,7 @@ function chkPhone() {
             btn.innerText = "إرسال كود التحقق";
             btn.disabled = false;
         }).catch(function(error) {
-            toast("خطأ: " + error.message);
+            toast("خطأ في إرسال الرسالة، تأكد من إضافة رابط موقعك في فايربيز!");
             btn.innerText = "إرسال كود التحقق";
             btn.disabled = false;
             if(window.recaptchaVerifier) {
@@ -318,6 +322,7 @@ function chkPhone() {
 function verifyPin() {
     var pin = el("in-pin").value.trim();
     if (!pin || pin.length < 6) return toast("الكود مكون من 6 أرقام!");
+    
     var btn = el("btn-pin");
     btn.innerText = "جاري التحقق...";
     btn.disabled = true;
@@ -345,8 +350,8 @@ function verifyPin() {
             localStorage.setItem("kimo_master_vip_v10", me);
             initApp();
         }).catch(function(e) {
-            if (e.message === "banned") toast("محظور!");
-            else toast("خطأ!");
+            if (e.message === "banned") toast("هذا الحساب محظور!");
+            else toast("حدث خطأ في قاعدة البيانات!");
             btn.innerText = "دخول";
             btn.disabled = false;
         });
@@ -414,8 +419,6 @@ function asLbl(lb) {
     } else {
         delete labels[aId];
     }
-    
-    // الحفظ في قاعدة البيانات بدلاً من الـ LocalStorage
     uD.doc(me).set({ savedLabels: labels }, { merge: true }).then(function() {
         el("v-lbl").classList.add("hv");
         var e = el("clbl");
@@ -428,7 +431,7 @@ function asLbl(lb) {
             e.classList.add("hv");
             toast("تمت الإزالة");
         }
-        rCL(); // تحديث القائمة
+        rCL(); 
     }).catch(function() {
         toast("خطأ في حفظ التسمية!");
     });
