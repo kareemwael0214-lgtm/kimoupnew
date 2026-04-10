@@ -93,42 +93,8 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <p id="sp-txt" class="text-[10px] text-sky-300 font-bold mt-2 tracking-widest">0%</p>
 </div>
 
-<script>
-(function() {
-    var prog = 0;
-    var bar = document.getElementById('sp-bar');
-    var txt = document.getElementById('sp-txt');
-    var sp = document.getElementById('sp');
-    
-    var timer = setInterval(function() {
-        prog += Math.floor(Math.random() * 20) + 10;
-        if(prog >= 100) prog = 100;
-        if(bar) bar.style.width = prog + '%';
-        if(txt) txt.innerText = prog + '%';
-        
-        if(prog === 100) {
-            clearInterval(timer);
-            setTimeout(function() {
-                if(sp) {
-                    sp.style.opacity = '0';
-                    setTimeout(function(){ sp.style.display = 'none'; }, 500);
-                }
-                if(typeof startKimoApp === 'function') startKimoApp();
-            }, 300);
-        }
-    }, 150);
-
-    // أمان إضافي قوي: إخفاء الشاشة بعد 3 ثواني غصب عن أي حاجة
-    setTimeout(function() {
-        if(sp && sp.style.display !== 'none') {
-            sp.style.display = 'none';
-            if(typeof startKimoApp === 'function') startKimoApp();
-        }
-    }, 3000);
-})();
-</script>
-
 <div id="toast" class="hv fixed bottom-20 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-2xl text-xs font-bold shadow-2xl z-[99999] text-center w-4/5 border border-slate-700"></div>
+
 <div class="app" id="app">
 <div id="v-auth" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-5 hv">
 <div class="w-full max-w-sm text-center">
@@ -148,6 +114,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <input type="password" id="in-pin" placeholder="أدخل الكود" maxlength="6" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-black text-center text-3xl tracking-[.3em] border-2 border-transparent focus:border-green-500 transition" dir="ltr">
 <button onclick="verifyPin()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">دخول</button>
 </div></div></div>
+
 <div id="v-main" class="w-full h-full flex flex-col hv bg-white">
 <div class="h-[60px] bg-white flex items-center justify-between px-3 shrink-0 shadow-sm z-20">
 <div class="flex items-center gap-1">
@@ -284,7 +251,6 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 </div>
 
 <script>
-// إعداد قاعدة البيانات بطريقة محمية
 var db = null;
 try {
     firebase.initializeApp({
@@ -306,7 +272,6 @@ if(db) {
     sD = db.collection("artifacts").doc(A).collection("public").doc("data").collection("status");
 }
 
-// قراءة البيانات من المتصفح بطريقة آمنة جداً (لتجنب حظر متصفحات السوشيال ميديا)
 var me = null, labels = {}, darkMode = false;
 try { me = localStorage.getItem("kimo_master_vip_v10"); } catch(e) {}
 try { labels = JSON.parse(localStorage.getItem("kimo_lb") || "{}"); } catch(e) {}
@@ -334,16 +299,51 @@ function viewImg(src){el("imgv-src").src=src;el("v-imgv").classList.remove("hv")
 function filterChats(q){q=q.trim().toLowerCase();var items=el("cl").children;for(var i=0;i<items.length;i++){var name=items[i].getAttribute("data-name")||"";items[i].style.display=name.indexOf(q)!==-1?"":"none"}}
 function checkPhFormat(){var v=el("in-ph").value.replace(/\D/g,""),w=el("ph-wrap"),er=el("ph-err"),btn=el("btn-chk");w.classList.remove("phone-ok","phone-err");er.classList.add("hv");btn.disabled=false;if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add("phone-err");er.innerText="يجب أن يبدأ بـ 010/011/012/015";er.classList.remove("hv");btn.disabled=true}else{w.classList.add("phone-ok");er.innerText="✓ رقم صالح";er.classList.remove("hv");er.style.color="#16a34a"}}
 
-// الدالة الأساسية لتشغيل التطبيق بعد شاشة التحميل
 function startKimoApp() {
     document.body.classList.toggle("dark", darkMode);
+    var sp = el("sp");
+    if(sp) {
+        sp.style.opacity = "0";
+        setTimeout(function(){ sp.classList.add("hv"); }, 500);
+    }
+    
     if(me && uD) {
         initApp();
     } else {
         el("v-auth").classList.remove("hv");
-        if(me && !uD) toast("تحذير: لا يوجد اتصال بقاعدة البيانات");
+        if(me && !uD) {
+            toast("السيرفر محظور! يرجى الفتح في متصفح كروم الأساسي");
+            var btn = el("btn-chk");
+            if(btn) {
+                btn.innerText = "خطأ في الاتصال بالانترنت أو السيرفر";
+                btn.disabled = true;
+                btn.style.background = "#ef4444";
+            }
+            if(el("in-ph")) el("in-ph").disabled = true;
+        }
     }
 }
+
+// شريط التحميل الاحترافي
+(function(){
+    var prog = 0, bar = document.getElementById('sp-bar'), txt = document.getElementById('sp-txt');
+    var timer = setInterval(function(){
+        prog += Math.floor(Math.random() * 20) + 10;
+        if(prog >= 100) {
+            prog = 100;
+            clearInterval(timer);
+            setTimeout(startKimoApp, 300);
+        }
+        if(bar) bar.style.width = prog + '%';
+        if(txt) txt.innerText = prog + '%';
+    }, 150);
+    
+    setTimeout(function(){
+        if(el("sp") && !el("sp").classList.contains("hv")) {
+            startKimoApp();
+        }
+    }, 3000);
+})();
 
 document.addEventListener("click",function(e){el("v-ctx").classList.add("hv");el("v-react").classList.add("hv");if(!e.target.closest("#v-emoji")&&!e.target.closest("[onclick*='toggleEmoji']"))el("v-emoji").classList.add("hv")});
 function sendViaWA(){if(!tmpCode)return;window.open("https://wa.me/"+tmpPh.replace("+","")+"?text="+encodeURIComponent("كود Kimoup: "+tmpCode),"_blank");toast("تم فتح واتساب")}
