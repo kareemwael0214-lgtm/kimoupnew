@@ -2,13 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kimoup VIP</title>
+<title>Kimoup VIP - Email Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- مكتبة Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<!-- مكتبة EmailJS لإرسال الإيميلات -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Cairo','sans-serif']}}}}</script>
 <style>
@@ -25,9 +27,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 .vb{background:#0ea5e9;color:#fff;border-radius:50%;width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center;font-size:7px;margin-right:2px;box-shadow:0 0 0 1.5px #fff;flex-shrink:0}
 .sy{background:#fff3cd;color:#856404;font-size:10px;text-align:center;padding:4px 12px;border-radius:8px;margin:6px auto;font-weight:700;width:fit-content;border:1px solid #ffeaa7}
 .cb{background:#f0f9ff;border:1.5px solid #0ea5e9;border-radius:10px;padding:8px;width:100%;color:#0c4a6e;font-size:11px;white-space:pre-line}
-.hv{display:none!important}::-webkit-scrollbar{display:none}
-/* تحسين شكل مشغل الصوت ليكون صغيراً ويعمل */
-audio{height:30px;width:180px;max-width:100%}
+.hv{display:none!important}::-webkit-scrollbar{display:none}audio{height:30px;width:180px}
 .nb{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;transition:.2s;padding:6px 0;cursor:pointer;border:none;background:none}
 .nb.a{color:#0ea5e9;border-top:3px solid #0ea5e9;background:linear-gradient(to bottom,#f0f9ff,#fff)}
 .nb.i{color:#94a3b8;border-top:3px solid transparent}
@@ -45,20 +45,12 @@ audio{height:30px;width:180px;max-width:100%}
 .email-err{border-color:#ef4444!important;background-color:#fef2f2!important}
 .btn-main{background:#0ea5e9;color:#fff;border:none;padding:10px 16px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;transition:.2s}
 .btn-main:active{transform:scale(.97)}
-/* أزرار الحذف والتعديل داخل الفقاعة */
-.msg-opts{position:absolute;top:-5px;background:rgba(255,255,255,0.9);border-radius:12px;padding:2px;display:flex;gap:4px;box-shadow:0 2px 5px rgba(0,0,0,0.15);z-index:20}
-.mo .msg-opts{left:-5px}
-.mi .msg-opts{right:-5px}
-.opt-btn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#555;font-size:10px;transition:0.2s}
-.opt-btn:hover{transform:scale(1.1);background:#eee}
-.opt-btn.del{color:#ef4444}
-.opt-btn.edit{color:#0ea5e9}
 </style>
 </head>
 <body>
 
 <div id="sp" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 z-[999] flex flex-col items-center justify-center transition-opacity duration-700">
-<div class="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-2xl mb-5 border border-white/20"><i class="fas fa-bolt text-5xl text-sky-400"></i></div>
+<div class="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-2xl mb-5 border border-white/20"><i class="fas fa-envelope text-5xl text-sky-400"></i></div>
 <h1 class="text-3xl font-black text-white">Kimoup</h1>
 <p class="text-[10px] text-sky-300 font-bold uppercase tracking-[.3em] mt-1">Business VIP</p>
 <div class="mt-6 flex gap-1"><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:0s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.15s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.3s"></div></div>
@@ -68,25 +60,29 @@ audio{height:30px;width:180px;max-width:100%}
 
 <div class="app">
 
-<!-- تسجيل الدخول -->
+<!-- تسجيل الدخول (بالإيميل) -->
 <div id="v-auth" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-5 hv">
 <div class="w-full max-w-sm text-center">
 <div class="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-xl"><i class="fas fa-envelope text-3xl text-sky-400"></i></div>
 <h2 class="text-2xl font-black text-slate-800 mb-1">تسجيل الدخول</h2>
 <p class="text-gray-400 text-xs mb-6">أدخل بريدك الإلكتروني للمتابعة</p>
 <div id="s-chk" class="space-y-3">
+<!-- حقل الاسم -->
 <div class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all">
     <input type="text" id="in-name" placeholder="الاسم (للتحديث أو التسجيل)" class="w-full bg-transparent outline-none font-bold text-lg text-right">
 </div>
-<div id="em-wrap" class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all"><span class="text-gray-400 font-bold ml-2 border-l pl-2">@</span><input type="email" id="in-em" placeholder="example@email.com" class="w-full bg-transparent outline-none font-bold text-lg text-right" dir="ltr" oninput="checkEmailFormat()"></div>
+<!-- حقل الإيميل -->
+<div id="em-wrap" class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all">
+    <input type="email" id="in-em" placeholder="example@email.com" class="w-full bg-transparent outline-none font-bold text-lg text-right" dir="ltr" oninput="checkEmailFormat()">
+</div>
 <p id="em-err" class="text-[10px] text-red-500 font-bold hv"></p>
 <button onclick="chkEmail()" id="btn-chk" class="w-full bg-sky-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">إرسال كود التحقق</button>
 </div>
 <div id="s-pin" class="hv space-y-3">
 <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-xl"></i></div>
-<p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl"></p>
-<!-- الكود مخفي -->
-<div class="code-box hv"><p class="text-[10px] text-gray-400 mb-2">كود التحقق</p><p id="otp-code" class="code-num"></p><button onclick="copyCode()" class="mt-2 bg-sky-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition"><i class="fas fa-copy ml-1"></i>نسخ</button></div>
+<p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl text-right"></p>
+<!-- الكود مخفي الآن بواسطة class="hv" -->
+<div class="code-box hv"><p class="text-[10px] text-gray-400 mb-2">كود التحقق الخاص بك</p><p id="otp-code" class="code-num"></p><button onclick="copyCode()" class="mt-2 bg-sky-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition"><i class="fas fa-copy ml-1"></i>نسخ الكود</button></div>
 <input type="password" id="in-pin" placeholder="أدخل الكود" maxlength="6" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-black text-center text-3xl tracking-[.3em] border-2 border-transparent focus:border-green-500 transition" dir="ltr">
 <button onclick="verifyPin()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">دخول</button>
 </div>
@@ -105,7 +101,7 @@ audio{height:30px;width:180px;max-width:100%}
 </div>
 <div class="flex-1 overflow-hidden relative">
 <div id="t-chats" class="absolute inset-0 overflow-y-auto px-3 py-3 bg-slate-50/50">
-<button onclick="openAddFr()" class="w-full py-3 bg-white border border-gray-200 rounded-xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-[.97] transition mb-3 text-xs"><i class="fas fa-user-plus text-sky-500"></i>إضافة جهة اتصال (الإيميل)</button>
+<button onclick="openAddFr()" class="w-full py-3 bg-white border border-gray-200 rounded-xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-[.97] transition mb-3 text-xs"><i class="fas fa-user-plus text-sky-500"></i>إضافة جهة اتصال (بالإيميل)</button>
 <div id="cl" class="space-y-0.5"></div>
 </div>
 <div id="t-groups" class="absolute inset-0 overflow-y-auto px-3 py-3 hv bg-slate-50/50">
@@ -245,13 +241,17 @@ audio{height:30px;width:180px;max-width:100%}
 </div>
 
 <script>
-// بيانات EmailJS
+// ==========================================
+// إعدادات EmailJS (مطلوبة لإرسال الإيميلات)
+// ==========================================
 var EMAIL_JS_PUBLIC_KEY = "-guVxoy-X4LDx8h7Z"; 
 var EMAIL_JS_SERVICE_ID = "service_xp8qi9j";
 var EMAIL_JS_TEMPLATE_ID = "template_yfi1psd";
+// ==========================================
 
 var db=null;try{firebase.initializeApp({apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",authDomain:"whatsapp-fcd3c.firebaseapp.com",projectId:"whatsapp-fcd3c",storageBucket:"whatsapp-fcd3c.firebasestorage.app",messagingSenderId:"369090984748",appId:"1:369090984748:web:cba013025b108578cd0a89"});db=firebase.firestore()}catch(e){}
 
+// تغيير الأدمن للإيميل المطلوب
 var ADM="kareemwael0213@gmail.com",A='kimo-master-vip-v10',uD=null,cD=null,gD=null,sD=null;
 if(db){uD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('users');cD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('chats');gD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('groups');sD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('status')}
 
@@ -266,114 +266,170 @@ function cid(a,b){return[a,b].sort().join('_')}
 function copyCode(){try{navigator.clipboard.writeText(tmpCode);toast("تم نسخ الكود ✅")}catch(e){toast("الكود: "+tmpCode)}}
 function av(n){return'https://ui-avatars.com/api/?name='+encodeURIComponent(n||'U')}
 
-// === فحص الإيميل ===
+// === فحص صيغة الإيميل ===
 function checkEmailFormat(){
     var v=el('in-em').value.trim(),w=el('em-wrap'),er=el('em-err'),btn=el('btn-chk');
     w.classList.remove('email-ok','email-err');er.classList.add('hv');btn.disabled=false;
     if(!v)return;
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){w.classList.add('email-err');er.innerText='⚠️ صيغة خاطئة';er.classList.remove('hv');btn.disabled=true;}
-    else {w.classList.add('email-ok');er.innerText='✓ صالح';er.classList.remove('hv');er.style.color='#16a34a';}
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+        w.classList.add('email-err');er.innerText='⚠️ صيغة البريد الإلكتروني غير صحيحة';er.classList.remove('hv');btn.disabled=true;
+    } else {
+        w.classList.add('email-ok');er.innerText='✓ بريد إلكتروني صالح';er.classList.remove('hv');er.style.color='#16a34a';
+    }
 }
 
+// === السبلش ===
 function bootApp(){
-    try{emailjs.init(EMAIL_JS_PUBLIC_KEY);}catch(e){}
-    var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ");},600)}}
+    try{
+        emailjs.init(EMAIL_JS_PUBLIC_KEY);
+    } catch(e){ console.log("EmailJS init error"); }
+
+    var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
 window.addEventListener('load',function(){if(firebase.auth)firebase.auth().signInAnonymously().catch(function(){});setTimeout(bootApp,1000)});
 
+// === إرسال OTP عبر الإيميل ===
 function sendEmailOTP(email, code, name){
-    return emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, {to_email:email,to_name:name||"User",code:code}).then(function(){return true;}).catch(function(){return false;});
+    var templateParams = {
+        to_email: email,
+        to_name: name || "مستخدم",
+        code: code
+    };
+    return emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, templateParams)
+        .then(function() { return true; })
+        .catch(function(e) { console.error(e); return false; });
 }
+
+// === تسجيل الدخول (بالإيميل) ===
 function chkEmail(){
     if(!uD){toast("خطأ!");return}
     var nameInput = el('in-name').value.trim();
     var raw=el('in-em').value.trim().toLowerCase();
-    if(!raw||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw))return toast("بريد خاطئ!");
+    if(!raw||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw))return toast("بريد إلكتروني غير صحيح!");
     tmpEmail=raw;var btn=el('btn-chk');btn.innerText="جاري...";btn.disabled=true;
     var code=Math.floor(1e5+Math.random()*9e5).toString();tmpCode=code;
+
     uD.doc(tmpEmail).get().then(function(doc){
         var updateData = { loginCode: code };
         if(nameInput) updateData.displayName = nameInput;
-        if(!doc.exists){return uD.doc(tmpEmail).set({email:tmpEmail,displayName: nameInput || "User", bio:'متاح',status:'approved',loginCode:code,isVerified:tmpEmail===ADM,isBusiness:false,contacts:[],createdAt:firebase.firestore.FieldValue.serverTimestamp()});} 
-        else if(doc.data().status==='banned'){toast("محظور!");btn.innerText="إرسال";btn.disabled=false;return null;}
-        else {return uD.doc(tmpEmail).update(updateData);}
-    }).then(function(){return sendEmailOTP(tmpEmail, code, el('in-name').value.trim());}).then(function(ok){
+
+        if(!doc.exists){
+            return uD.doc(tmpEmail).set({
+                email:tmpEmail,
+                displayName: nameInput || "مستخدم جديد", 
+                bio:'متاح',
+                status:'approved',
+                loginCode:code,
+                isVerified:tmpEmail===ADM,
+                isBusiness:false,
+                contacts:[],
+                createdAt:firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else if(doc.data().status==='banned'){
+            toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null;
+        } else {
+            return uD.doc(tmpEmail).update(updateData);
+        }
+    }).then(function(){
+        return sendEmailOTP(tmpEmail, code, el('in-name').value.trim());
+    }).then(function(ok){
         el('s-chk').classList.add('hv');el('s-pin').classList.remove('hv');
-        el('otp-msg').innerHTML=ok?'<i class="fas fa-check-circle text-green-600"></i> تم الإرسال':'<i class="fas fa-exclamation-circle text-red-500"></i> خطأ';
-        el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال";btn.disabled=false;
-    }).catch(function(){toast("خطأ!");btn.innerText="إرسال";btn.disabled=false})
-}
-function verifyPin(){
-    if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;
-    uD.doc(tmpEmail).get().then(function(s){if(s.data().loginCode===pin){me=tmpEmail;localStorage.setItem('kimo_master_vip_v10',me);initApp()}else toast("كود خاطئ!")}).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})
+        var mg=el('otp-msg');
+        if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1 text-green-600"></i>تم إرسال الكود للإيميل<br>تفقد بريدك الوارد';
+        else mg.innerHTML='<i class="fas fa-exclamation-circle ml-1 text-red-500"></i>حدث خطأ في الإرسال<br>حاول مرة أخرى';
+        
+        // الكود مخفي في الـ UI، لا يظهر للمستخدم
+        el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false;
+    }).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})
 }
 
+function verifyPin(){
+    if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;
+    uD.doc(tmpEmail).get().then(function(s){
+        if(s.data().loginCode===pin){
+            me=tmpEmail;localStorage.setItem('kimo_master_vip_v10',me);initApp()
+        } else toast("كود خاطئ!")
+    }).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})
+}
+
+// === التطبيق الرئيسي ===
 function initApp(){
 el('v-auth').classList.add('hv');el('v-main').classList.remove('hv');
 if(me===ADM){el('btn-lo').classList.remove('hv');el('btn-ad').classList.remove('hv');el('btn-crg').classList.remove('hv')}
+
 uD.doc(me).onSnapshot(function(s){
 if(!s.exists)return logout();var d=s.data();if(d.status==='banned'){alert("محظور");logout();return}
 pBase=d.avatar||'';cBase=d.bizProfile?.cover||'';
 el('s-biz').checked=!!d.isBusiness;el('btn-biz').classList.toggle('hv',!d.isBusiness);
 el('s-nm').value=d.displayName||'';el('s-bi').value=d.bio||'';
 el('s-ip').src=pBase||av(d.displayName);
-if(d.isBusiness&&d.bizProfile){mProds=d.bizProfile.catalog||[];mQrs=d.bizProfile.quickReplies||[];el('b-grt').value=d.bizProfile.greeting||'';el('b-awy').value=d.bizProfile.away||'';el('b-cat').value=d.bizProfile.category||'';el('b-add').value=d.bizProfile.address||'';if(d.bizProfile.cover)el('bcp').src=d.bizProfile.cover;rPL();rQL()}
+if(d.isBusiness&&d.bizProfile){mProds=d.bizProfile.catalog||[];mQrs=d.bizProfile.quickReplies||[];
+el('b-grt').value=d.bizProfile.greeting||'';el('b-awy').value=d.bizProfile.away||'';
+el('b-cat').value=d.bizProfile.category||'';el('b-add').value=d.bizProfile.address||'';
+if(d.bizProfile.cover)el('bcp').src=d.bizProfile.cover;rPL();rQL()}
 });
+
 uD.onSnapshot(function(s){
-    s.forEach(function(doc){var email = doc.id; var data = doc.data(); uC[email] = data;if(email === aId && aTyp === 'direct'){var chatEl = el('v-chat'); if(chatEl && !chatEl.classList.contains('hv')){el('cn').innerText = data.displayName || ''; el('ci').src = data.avatar || av(data.displayName);el('cv').classList.toggle('hv', !data.isVerified);el('cst').innerText = data.isBusiness ? 'أعمال' : 'متاح';el('btn-shop').classList.toggle('hv', !data.isBusiness);}}}); rCL();
+    s.forEach(function(doc){
+        var email = doc.id;
+        var data = doc.data();
+        uC[email] = data;
+        if(email === aId && aTyp === 'direct'){
+            var chatEl = el('v-chat');
+            if(chatEl && !chatEl.classList.contains('hv')){
+                el('cn').innerText = data.displayName || '';
+                el('ci').src = data.avatar || av(data.displayName);
+                el('cv').classList.toggle('hv', !data.isVerified);
+                el('cst').innerText = data.isBusiness ? 'حساب أعمال' : 'متاح';
+                el('btn-shop').classList.toggle('hv', !data.isBusiness);
+            }
+        }
+    });
+    rCL();
 });
+
 gD.onSnapshot(function(s){
-    s.docChanges().forEach(function(change){var gid = change.doc.id; if(change.type === 'removed'){delete gC[gid]}else{gC[gid] = Object.assign({id:gid}, change.doc.data())}}); lGL();
-}); swTab('chats')
-}
+    s.docChanges().forEach(function(change){
+        var gid = change.doc.id;
+        if(change.type === 'removed'){delete gC[gid]}
+        else{gC[gid] = Object.assign({id:gid}, change.doc.data())}
+    });
+    lGL();
+});
+swTab('chats')}
 
-function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.email!==me&&u.status!=='banned')cs.push(u)}if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.email)!==-1});if(!cs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-comments text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد محادثات</p></div>';return}cs.forEach(function(u){var v=u.isVerified?'<span class="vb"><i class="fas fa-check"></i></span>':'';var b=u.isBusiness?'<span class="text-[7px] bg-yellow-100 text-yellow-700 px-1 rounded font-black">أعمال</span>':'';var lb=labels[u.email]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.email]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.email]+'</span>':'';l.innerHTML+='<div onclick="openChat(\''+u.email+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(u.bio||'متاح')+'</p></div></div>'})}
+function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.email!==me&&u.status!=='banned')cs.push(u)}
+if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.email)!==-1});
+if(!cs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-comments text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد محادثات</p></div>';return}
+cs.forEach(function(u){var v=u.isVerified?'<span class="vb"><i class="fas fa-check"></i></span>':'';var b=u.isBusiness?'<span class="text-[7px] bg-yellow-100 text-yellow-700 px-1 rounded font-black">أعمال</span>':'';
+var lb=labels[u.email]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.email]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.email]+'</span>':'';
+l.innerHTML+='<div onclick="openChat(\''+u.email+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(u.bio||'متاح')+'</p></div></div>'})}
 
-function swTab(t){['chats','groups','status'].forEach(function(x){el('t-'+x).classList.add('hv');el('nb-'+x).className='nb i'});el('t-'+x).classList.remove('hv');el('nb-'+x).className='nb a';if(t==='status')lSL()}
+function swTab(t){['chats','groups','status'].forEach(function(x){el('t-'+x).classList.add('hv');el('nb-'+x).className='nb i'});el('t-'+t).classList.remove('hv');el('nb-'+t).className='nb a';if(t==='status')lSL()}
 
-// === الدردشة والتحكم بالرسائل ===
-function openChat(id,typ){aId=id;aTyp=typ;el('v-chat').classList.remove('hv');el('qr-p').classList.add('hv');el('btn-grp-info').classList.add('hv');el('btn-shop').classList.add('hv');el('clbl').classList.add('hv');
-if(typ==='direct'){var u=uC[id];if(!u)return;el('cn').innerText=u.displayName;el('cst').innerText=u.isBusiness?'أعمال':'متاح';el('cv').classList.toggle('hv',!u.isVerified);el('ci').src=u.avatar||av(u.displayName);el('btn-shop').classList.toggle('hv',!u.isBusiness);el('c-ia').classList.remove('hv');el('j-grp').classList.add('hv');var lb=el('clbl');if(labels[id]){var l=LB.find(function(x){return x.n===labels[id]});lb.innerHTML='<span class="lt '+(l?.c||'')+'">'+labels[id]+'</span>';lb.classList.remove('hv')}else lb.classList.add('hv');lMsg(u.isBusiness)}else{var g=gC[id];if(!g){toast("المجتمع غير موجود!");el('v-chat').classList.add('hv');aId=null;return}el('cn').innerText=g.name;el('cst').innerText=(g.members?g.members.length:0)+' عضو';el('cv').classList.remove('hv');el('ci').src=av(g.name)+'&background=0ea5e9&color=fff&bold=true';el('btn-grp-info').classList.remove('hv');var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;el('j-grp').classList.toggle('hv',isM);el('c-ia').classList.toggle('hv',!isM);lMsg(false)}}
+// === الدردشة ===
+function openChat(id,typ){aId=id;aTyp=typ;el('v-chat').classList.remove('hv');el('qr-p').classList.add('hv');
+el('btn-grp-info').classList.add('hv');el('btn-shop').classList.add('hv');el('clbl').classList.add('hv');
+if(typ==='direct'){var u=uC[id];if(!u)return;
+el('cn').innerText=u.displayName;el('cst').innerText=u.isBusiness?'حساب أعمال':'متاح';
+el('cv').classList.toggle('hv',!u.isVerified);el('ci').src=u.avatar||av(u.displayName);
+el('btn-shop').classList.toggle('hv',!u.isBusiness);el('c-ia').classList.remove('hv');el('j-grp').classList.add('hv');
+var lb=el('clbl');if(labels[id]){var l=LB.find(function(x){return x.n===labels[id]});lb.innerHTML='<span class="lt '+(l?.c||'')+'">'+labels[id]+'</span>';lb.classList.remove('hv')}else lb.classList.add('hv');
+lMsg(u.isBusiness)}else{var g=gC[id];if(!g){toast("المجتمع غير موجود!");el('v-chat').classList.add('hv');aId=null;return}
+el('cn').innerText=g.name;el('cst').innerText=(g.members?g.members.length:0)+' عضو';el('cv').classList.remove('hv');
+el('ci').src=av(g.name)+'&background=0ea5e9&color=fff&bold=true';el('btn-grp-info').classList.remove('hv');
+var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;
+el('j-grp').classList.toggle('hv',isM);el('c-ia').classList.toggle('hv',!isM);lMsg(false)}}
 
 function lMsg(isB){if(msgUn){msgUn();msgUn=null}
 var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
-msgUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(Object.assign(d.data(),{_id:d.id}))});var h='';
-if(isB)h+='<div class="sy"><i class="fas fa-store ml-1"></i>حساب أعمال</div>';
-var ld='';ms.forEach(function(m){
+msgUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';
+if(isB)h+='<div class="sy"><i class="fas fa-store ml-1"></i>حساب أعمال</div>';var ld='';ms.forEach(function(m){
 var ds='';try{ds=m.t?(m.t.toMillis?m.t.toDate():new Date(m.t)).toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}):''}catch(e){}if(ds&&ds!==ld){h+='<div class="sy">'+ds+'</div>';ld=ds}
-var me2=m.s===me,ct='',act='';
-if(m.type==='voice'){ct='<audio controls src="'+m.data+'"></audio>';} // مشغل صوت قياسي يعمل
+var me2=m.s===me,ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';
 else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-w-full max-h-[180px] mb-0.5 cursor-pointer" onclick="window.open(this.src)">';
-else if(m.isCart)ct='<div class="cb mb-0.5">'+m.txt+'</div>';
-else ct='<p class="whitespace-pre-wrap">'+m.txt+'</p>';
-
-// أزرار الحذف والتعديل (ظاهرة دائماً للمستخدم)
-if(me2){
-    act='<div class="msg-opts">';
-    act+='<button onclick="editMsg(\''+m._id+'\',\''+encodeURIComponent(m.txt||'')+'\')" class="opt-btn edit"><i class="fas fa-pen"></i></button>';
-    act+='<button onclick="delMsg(\''+m._id+'\')" class="opt-btn del"><i class="fas fa-trash"></i></button>';
-    act+='</div>';
-}
-
-h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+' w-full"><div class="mb '+(me2?'mo':'mi')+' relative">'+ct+'<span class="mt">'+fts(m.t)+'</span>'+act+'</div></div>';
-});
+else if(m.isCart)ct='<div class="cb mb-0.5">'+m.txt+'</div>';else ct='<p class="whitespace-pre-wrap">'+m.txt+'</p>';
+h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+' w-full"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});
 el('mw').innerHTML=h;el('mc').scrollTop=el('mc').scrollHeight})}
-
-// === تعديل الرسالة ===
-function editMsg(id, encTxt){
-    var oldTxt = decodeURIComponent(encTxt);
-    // لا يمكن تعديل الصور أو الصوت بسهولة في هذا النظام، لذا نتحقق من وجود نص
-    if(!oldTxt) return toast("لا يمكن تعديل هذا المحتوى");
-    var newTxt = prompt("تعديل الرسالة:", oldTxt);
-    if(newTxt && newTxt !== oldTxt){
-        var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
-        col.doc(id).update({txt: newTxt}).then(function(){toast("تم التعديل ✅")}).catch(function(){toast("فشل التعديل")});
-    }
-}
-
-function delMsg(id){if(!confirm("حذف الرسالة؟"))return;
-var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
-col.doc(id).delete().then(function(){toast("تم الحذف")}).catch(function(){toast("فشل الحذف")});
-}
 
 function sendTxt(ct,ic){var inp=el('mi'),txt=ct||inp.value.trim();if(!txt)return;if(!ct)inp.value='';el('qr-p').classList.add('hv');
 var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
@@ -391,21 +447,23 @@ function closeChat(){if(msgUn){msgUn();msgUn=null}el('v-chat').classList.add('hv
 // === الإعدادات ===
 function openSettings(){el('v-set').classList.remove('hv')}function closeSettings(){el('v-set').classList.add('hv')}
 el('s-pi').onchange=function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){pBase=ev.target.result;el('s-ip').src=pBase};r.readAsDataURL(f)}};
-function saveProf(){
-    var n=el('s-nm').value.trim(),bio=el('s-bi').value.trim(),pw=el('s-pw').value.trim(),isB=el('s-biz').checked;if(!n)return toast("أدخل اسمك!");
-    var up={displayName:n,bio:bio,isBusiness:isB,avatar:pBase};if(pw&&pw.length>=4)up.loginCode=pw;
-    uC[me] = Object.assign({}, uC[me] || {}, up); rCL();
-    uD.doc(me).update(up).then(function(){toast("تم الحفظ ✅");closeSettings()}).catch(function(){toast("خطأ!")})}
+function saveProf(){var n=el('s-nm').value.trim(),bio=el('s-bi').value.trim(),pw=el('s-pw').value.trim(),isB=el('s-biz').checked;if(!n)return toast("أدخل اسمك!");var up={displayName:n,bio:bio,isBusiness:isB,avatar:pBase};if(pw&&pw.length>=4)up.loginCode=pw;
+uD.doc(me).update(up).then(function(){uC[me]=Object.assign({},uC[me]||{},up);rCL();toast("تم الحفظ ✅");closeSettings()}).catch(function(){toast("خطأ!")})}
 function logout(){localStorage.clear();if(msgUn)msgUn=null;location.reload()}
 
 // === إضافة صديق ===
 function openAddFr(){el('v-afr').classList.remove('hv');el('af-em').value=''}function closeAddFr(){el('v-afr').classList.add('hv')}
-function confirmAddFr(){var p=el('af-em').value.trim().toLowerCase();if(!p)return toast("أدخل الإيميل!");if(p===me)return toast("لا يمكنك إضافة نفسك!");uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
+function confirmAddFr(){var p=el('af-em').value.trim().toLowerCase();if(!p)return toast("أدخل الإيميل!");if(p===me)return toast("لا يمكنك إضافة نفسك!");
+uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل بعد!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
 
 // === المجتمعات ===
 function openCrGrp(){el('v-crg').classList.remove('hv');el('cg-nm').value='';el('cg-ds').value=''}function closeCrGrp(){el('v-crg').classList.add('hv')}
-function confirmCrGrp(){var n=el('cg-nm').value.trim();if(!n)return toast("أدخل الاسم!");var ds=el('cg-ds').value.trim();var gid='grp_'+Date.now();gD.doc(gid).set({name:n,description:ds,createdBy:me,members:[me],createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){gC[gid]={id:gid,name:n,description:ds,createdBy:me,members:[me]};lGL();closeCrGrp();setTimeout(function(){openChat(gid,'group')},300);toast("تم ✅")})}
-function lGL(){var l=el('gl');l.innerHTML='';var gs=[];for(var k in gC)gs.push(gC[k]);if(!gs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-shield-halved text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد مجتمعات</p></div>';return}gs.forEach(function(g){if(!g.id)return;var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;var cn=g.members?g.members.length:0;l.innerHTML+='<div onclick="'+(isM?"openChat('"+g.id+"','group')":"")+'" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white shadow-md shrink-0"><i class="fas fa-users text-sm"></i></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center gap-1 justify-end"><span class="vb"><i class="fas fa-check"></i></span><h3 class="font-black text-slate-800 text-[13px] truncate">'+g.name+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(g.description||'مجتمع')+' · '+cn+' عضو</p></div>'+(!isM?'<button onclick="event.stopPropagation();jGrp(\''+g.id+'\')" class="bg-sky-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-sm shrink-0">انضمام</button>':'')+'</div>'})}
+function confirmCrGrp(){var n=el('cg-nm').value.trim();if(!n)return toast("أدخل الاسم!");var ds=el('cg-ds').value.trim();var gid='grp_'+Date.now();
+gD.doc(gid).set({name:n,description:ds,createdBy:me,members:[me],createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){gC[gid]={id:gid,name:n,description:ds,createdBy:me,members:[me]};lGL();closeCrGrp();setTimeout(function(){openChat(gid,'group')},300);toast("تم ✅")})}
+function lGL(){var l=el('gl');l.innerHTML='';var gs=[];for(var k in gC)gs.push(gC[k]);if(!gs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-shield-halved text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد مجتمعات</p></div>';return}
+gs.forEach(function(g){if(!g.id)return;var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;var cn=g.members?g.members.length:0;
+l.innerHTML+='<div onclick="'+(isM?"openChat('"+g.id+"','group')":"")+'" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center text-white shadow-md shrink-0"><i class="fas fa-users text-sm"></i></div><div class="flex-1 text-right overflow-hidden"><div class="flex items-center gap-1 justify-end"><span class="vb"><i class="fas fa-check"></i></span><h3 class="font-black text-slate-800 text-[13px] truncate">'+g.name+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(g.description||'مجتمع')+' · '+cn+' عضو</p></div>'+(!isM?'<button onclick="event.stopPropagation();jGrp(\''+g.id+'\')" class="bg-sky-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-sm shrink-0">انضمام</button>':'')+'</div>'})}
+
 function jGrp(gid){gD.doc(gid).update({members:firebase.firestore.FieldValue.arrayUnion(me)}).then(function(){if(gC[gid]&&gC[gid].members)gC[gid].members.push(me);lGL();toast("تم الانضمام ✅")})}
 function joinGrp(){if(!aId)return;jGrp(aId);el('j-grp').classList.add('hv');el('c-ia').classList.remove('hv');el('btn-grp-info').classList.remove('hv')}
 
@@ -418,7 +476,10 @@ function delGrp(){if(!aId)return;if(!confirm("حذف نهائياً؟"))return;g
 // === الحالات ===
 function openCrSt(){el('v-cst').classList.remove('hv');el('cs-tx').value=''}function closeCrSt(){el('v-cst').classList.add('hv')}
 function confirmCrSt(){var t=el('cs-tx').value.trim();if(!t)return toast("اكتب شيئا!");sD.add({userId:me,text:t,lt:Date.now(),createdAt:firebase.firestore.FieldValue.serverTimestamp(),seenBy:[]}).then(function(){closeCrSt();toast("تم النشر ✅")})}
-function lSL(){sD.orderBy('lt','desc').onSnapshot(function(s){stCache={};s.forEach(function(d){var x=d.data();if(!stCache[x.userId])stCache[x.userId]=[];stCache[x.userId].push(Object.assign({},x,{_id:d.id}))});var l=el('sl');l.innerHTML='';var ks=Object.keys(stCache);if(!ks.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-circle-notch text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد حالات</p></div>';return}ks.forEach(function(uid){var u=uC[uid];if(!u)return;var ss=stCache[uid],allS=ss.every(function(x){return x.seenBy&&x.seenBy.indexOf(me)!==-1});l.innerHTML+='<div onclick="vSt(\''+uid+'\')" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="'+(allS?'srs':'sr')+' shrink-0"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div></div><div class="text-right"><h3 class="font-black text-slate-800 text-[13px]">'+u.displayName+'</h3><p class="text-[10px] text-gray-500">'+fts(ss[0].createdAt)+' · '+ss.length+'</p></div></div>'})})}
+function lSL(){sD.orderBy('lt','desc').onSnapshot(function(s){stCache={};s.forEach(function(d){var x=d.data();if(!stCache[x.userId])stCache[x.userId]=[];stCache[x.userId].push(Object.assign({},x,{_id:d.id}))});
+var l=el('sl');l.innerHTML='';var ks=Object.keys(stCache);if(!ks.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-circle-notch text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد حالات</p></div>';return}
+ks.forEach(function(uid){var u=uC[uid];if(!u)return;var ss=stCache[uid],allS=ss.every(function(x){return x.seenBy&&x.seenBy.indexOf(me)!==-1});
+l.innerHTML+='<div onclick="vSt(\''+uid+'\')" class="bg-white rounded-xl p-3 flex items-center gap-2.5 shadow-sm border border-gray-100 cursor-pointer active:bg-gray-50"><div class="'+(allS?'srs':'sr')+' shrink-0"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div></div><div class="text-right"><h3 class="font-black text-slate-800 text-[13px]">'+u.displayName+'</h3><p class="text-[10px] text-gray-500">'+fts(ss[0].createdAt)+' · '+ss.length+'</p></div></div>'})})}
 function vSt(uid){stData=stCache[uid]||[];if(!stData.length){toast("لا توجد حالات");return}stIdx=0;showSt();el('v-svw').classList.remove('hv')}
 function showSt(){if(stIdx>=stData.length){closeSV();return}var st=stData[stIdx],u=uC[st.userId];el('sv-tx').innerText=st.text;el('sv-us').innerText=u?u.displayName:'';el('sv-av').src=u?u.avatar||'':'';el('sv-pr').style.width=((stIdx+1)/stData.length*100)+'%';if(!st.seenBy||st.seenBy.indexOf(me)===-1)sD.doc(st._id).update({seenBy:firebase.firestore.FieldValue.arrayUnion(me)}).catch(function(){});clearTimeout(stTmr);stTmr=setTimeout(function(){stIdx++;showSt()},5000)}
 function nextSt(){clearTimeout(stTmr);stIdx++;if(stIdx>=stData.length)closeSV();else showSt()}
@@ -442,7 +503,8 @@ function closeProdModal(){el('v-prod').classList.add('hv')}
 el('prod-img-in').onchange=function(e){var f=e.target.files[0];if(!f)return;if(f.size>3e5){toast("حجم كبير (300KB)!");e.target.value='';return}var r=new FileReader();r.onload=function(ev){tmpProdImg=ev.target.result;el('prod-img-prev').src=tmpProdImg;el('prod-img-ph').classList.add('hv')};r.readAsDataURL(f);e.target.value=''};
 function confirmProd(){var n=el('prod-name').value.trim();if(!n)return toast("أدخل اسم!");var p=el('prod-price').value.trim();if(!p)return toast("أدخل السعر!");var img=el('prod-img-url').value.trim()||tmpProdImg||'https://picsum.photos/seed/'+encodeURIComponent(n)+Date.now()+'/400/300.jpg';mProds.push({name:n,price:p,image:img});rPL();closeProdModal();toast("تم ✅")}
 function rPL(){var e=el('b-pl');if(!mProds.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا منتجات</p>';return}e.innerHTML=mProds.map(function(p,i){return '<div class="flex items-center bg-gray-50 p-2 rounded-lg text-[10px] gap-2"><div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 border"><img src="'+p.image+'" class="w-full h-full object-cover"></div><div class="flex-1 min-w-0"><b class="text-slate-700 block truncate">'+p.name+'</b><span class="text-sky-600 font-black">'+p.price+' ج.م</span></div><button onclick="mProds.splice('+i+',1);rPL()" class="text-red-400 p-1 shrink-0"><i class="fas fa-trash"></i></button></div>'}).join('')}
-function addQr(){var k=prompt("كلمة (بدون /):");if(!k)return;var m=prompt("الرد:");if(!m)return;mQrs.push({keyword:k,message:m});rQL()}
+
+function addQr(){var k=prompt("كلمة مفتاحية (بدون /):");if(!k)return;var m=prompt("نص الرد:");if(!m)return;mQrs.push({keyword:k,message:m});rQL()}
 function rQL(){var e=el('b-ql');if(!mQrs.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا ردود</p>';return}e.innerHTML=mQrs.map(function(r,i){return '<div class="flex justify-between items-center bg-gray-50 p-1.5 rounded-lg text-[10px]"><button onclick="mQrs.splice('+i+',1);rQL()" class="text-red-400 p-0.5"><i class="fas fa-trash"></i></button><span class="text-gray-600 truncate max-w-[120px]">'+r.message+'</span><span class="bg-sky-100 text-sky-600 px-1.5 py-0.5 rounded font-black shrink-0">/'+r.keyword+'</span></div>'}).join('')}
 function saveBiz(){var biz={cover:cBase,category:el('b-cat').value,address:el('b-add').value,hours:el('b-hrs').value,greeting:el('b-grt').value,away:el('b-awy').value,catalog:mProds,quickReplies:mQrs};uD.doc(me).update({bizProfile:biz}).then(function(){toast("تم ✅");closeBiz()})}
 
