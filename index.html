@@ -2,13 +2,16 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Kimoup VIP</title>
+<title>Kimoup VIP - Email Login</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- مكتبة Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<!-- مكتبة EmailJS لإرسال الإيميلات -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Cairo','sans-serif']}}}}</script>
 <style>
 *{-webkit-tap-highlight-color:transparent;outline:none;scrollbar-width:none}
@@ -38,16 +41,16 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 .code-box{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:16px;text-align:center;border:2px solid #0ea5e9;box-shadow:0 0 30px rgba(14,165,233,.2)}
 .code-num{font-size:32px;font-weight:900;letter-spacing:10px;color:#0ea5e9;direction:ltr;text-shadow:0 0 20px rgba(14,165,233,.5)}
 .prod-img{width:100%;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px dashed #cbd5e1;transition:.2s}
-.phone-ok{border-color:#22c55e!important;background-color:#f0fdf4!important}
-.phone-err{border-color:#ef4444!important;background-color:#fef2f2!important}
-.wa-btn{background:#25d366;color:#fff;border:none;padding:10px 16px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;transition:.2s}
-.wa-btn:active{transform:scale(.97)}
+.email-ok{border-color:#22c55e!important;background-color:#f0fdf4!important}
+.email-err{border-color:#ef4444!important;background-color:#fef2f2!important}
+.btn-main{background:#0ea5e9;color:#fff;border:none;padding:10px 16px;border-radius:12px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;width:100%;transition:.2s}
+.btn-main:active{transform:scale(.97)}
 </style>
 </head>
 <body>
 
 <div id="sp" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 z-[999] flex flex-col items-center justify-center transition-opacity duration-700">
-<div class="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-2xl mb-5 border border-white/20"><i class="fas fa-bolt text-5xl text-sky-400"></i></div>
+<div class="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center shadow-2xl mb-5 border border-white/20"><i class="fas fa-envelope text-5xl text-sky-400"></i></div>
 <h1 class="text-3xl font-black text-white">Kimoup</h1>
 <p class="text-[10px] text-sky-300 font-bold uppercase tracking-[.3em] mt-1">Business VIP</p>
 <div class="mt-6 flex gap-1"><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:0s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.15s"></div><div class="w-2 h-2 bg-sky-400 rounded-full animate-bounce" style="animation-delay:.3s"></div></div>
@@ -57,26 +60,28 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 
 <div class="app">
 
-<!-- تسجيل الدخول -->
+<!-- تسجيل الدخول (بالإيميل) -->
 <div id="v-auth" class="absolute inset-0 bg-white z-[100] flex flex-col items-center justify-center p-5 hv">
 <div class="w-full max-w-sm text-center">
-<div class="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-xl"><i class="fas fa-bolt text-3xl text-sky-400"></i></div>
+<div class="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center mx-auto mb-5 shadow-xl"><i class="fas fa-envelope text-3xl text-sky-400"></i></div>
 <h2 class="text-2xl font-black text-slate-800 mb-1">تسجيل الدخول</h2>
-<p class="text-gray-400 text-xs mb-6">أدخل بياناتك للمتابعة</p>
+<p class="text-gray-400 text-xs mb-6">أدخل بريدك الإلكتروني للمتابعة</p>
 <div id="s-chk" class="space-y-3">
-<!-- حقل الاسم (يمكنك تعديله لتغيير اسمك القديم) -->
+<!-- حقل الاسم -->
 <div class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all">
     <input type="text" id="in-name" placeholder="الاسم (للتحديث أو التسجيل)" class="w-full bg-transparent outline-none font-bold text-lg text-right">
 </div>
-<div id="ph-wrap" class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all"><span class="text-gray-400 font-bold ml-2 border-l pl-2">+20</span><input type="tel" id="in-ph" placeholder="1012345678" class="w-full bg-transparent outline-none font-bold text-lg text-right" dir="ltr" oninput="checkPhFormat()"></div>
-<p id="ph-err" class="text-[10px] text-red-500 font-bold hv"></p>
-<button onclick="chkPhone()" id="btn-chk" class="w-full bg-sky-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">إرسال كود التحقق</button>
+<!-- حقل الإيميل -->
+<div id="em-wrap" class="bg-gray-50 border-2 border-gray-100 rounded-xl p-3 flex items-center transition-all">
+    <input type="email" id="in-em" placeholder="example@email.com" class="w-full bg-transparent outline-none font-bold text-lg text-right" dir="ltr" oninput="checkEmailFormat()">
+</div>
+<p id="em-err" class="text-[10px] text-red-500 font-bold hv"></p>
+<button onclick="chkEmail()" id="btn-chk" class="w-full bg-sky-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">إرسال كود التحقق</button>
 </div>
 <div id="s-pin" class="hv space-y-3">
 <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-xl"></i></div>
-<p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl"></p>
-<div class="code-box"><p class="text-[10px] text-gray-400 mb-2">كود التحقق الخاص بك</p><p id="otp-code" class="code-num"></p><button onclick="copyCode()" class="mt-2 bg-sky-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition"><i class="fas fa-copy ml-1"></i>نسخ الكود</button></div>
-<button onclick="sendViaWA()" id="wa-btn" class="wa-btn hv"><i class="fab fa-whatsapp text-lg"></i>إرسل الكود عبر واتساب</button>
+<p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl text-right"></p>
+<div class="code-box"><p class="text-[10px] text-gray-400 mb-2">كود التحقق الخاص بك (للاختبار)</p><p id="otp-code" class="code-num"></p><button onclick="copyCode()" class="mt-2 bg-sky-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition"><i class="fas fa-copy ml-1"></i>نسخ الكود</button></div>
 <input type="password" id="in-pin" placeholder="أدخل الكود" maxlength="6" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-black text-center text-3xl tracking-[.3em] border-2 border-transparent focus:border-green-500 transition" dir="ltr">
 <button onclick="verifyPin()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">دخول</button>
 </div>
@@ -95,7 +100,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 </div>
 <div class="flex-1 overflow-hidden relative">
 <div id="t-chats" class="absolute inset-0 overflow-y-auto px-3 py-3 bg-slate-50/50">
-<button onclick="openAddFr()" class="w-full py-3 bg-white border border-gray-200 rounded-xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-[.97] transition mb-3 text-xs"><i class="fas fa-user-plus text-sky-500"></i>إضافة جهة اتصال</button>
+<button onclick="openAddFr()" class="w-full py-3 bg-white border border-gray-200 rounded-xl flex justify-center items-center gap-2 text-slate-700 font-bold shadow-sm active:scale-[.97] transition mb-3 text-xs"><i class="fas fa-user-plus text-sky-500"></i>إضافة جهة اتصال (بالإيميل)</button>
 <div id="cl" class="space-y-0.5"></div>
 </div>
 <div id="t-groups" class="absolute inset-0 overflow-y-auto px-3 py-3 hv bg-slate-50/50">
@@ -173,7 +178,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 
 <!-- تعديل كود -->
 <div id="v-epin" class="hv fixed inset-0 bg-black/70 z-[120] flex items-center justify-center p-4 backdrop-blur-sm">
-<div class="bg-white w-full max-w-xs rounded-xl p-5 text-right shadow-2xl apo"><h3 class="font-black text-base mb-4 text-slate-800 border-b pb-2">تغيير كود</h3><p id="ep-ph" class="text-sm font-black text-sky-600 bg-sky-50 py-1.5 rounded-lg border border-sky-100 text-center mb-3" dir="ltr"></p><input type="text" id="ep-pin" placeholder="كود جديد" class="w-full p-2.5 bg-gray-50 rounded-lg outline-none font-black text-center text-xl tracking-widest border-2 border-sky-200 focus:border-sky-500 mb-4" dir="ltr"><div class="flex gap-2"><button onclick="closeEPin()" class="flex-1 py-2.5 bg-gray-100 text-gray-500 font-bold rounded-lg text-sm">إلغاء</button><button onclick="saveEPin()" class="flex-1 py-2.5 bg-sky-500 text-white font-black rounded-lg shadow-md text-sm">تغيير</button></div></div></div>
+<div class="bg-white w-full max-w-xs rounded-xl p-5 text-right shadow-2xl apo"><h3 class="font-black text-base mb-4 text-slate-800 border-b pb-2">تغيير كود</h3><p id="ep-em" class="text-sm font-black text-sky-600 bg-sky-50 py-1.5 rounded-lg border border-sky-100 text-center mb-3 break-all" dir="ltr"></p><input type="text" id="ep-pin" placeholder="كود جديد" class="w-full p-2.5 bg-gray-50 rounded-lg outline-none font-black text-center text-xl tracking-widest border-2 border-sky-200 focus:border-sky-500 mb-4" dir="ltr"><div class="flex gap-2"><button onclick="closeEPin()" class="flex-1 py-2.5 bg-gray-100 text-gray-500 font-bold rounded-lg text-sm">إلغاء</button><button onclick="saveEPin()" class="flex-1 py-2.5 bg-sky-500 text-white font-black rounded-lg shadow-md text-sm">تغيير</button></div></div></div>
 
 <!-- التجسس -->
 <div id="v-spy" class="hv fixed inset-0 bg-white z-[150] flex flex-col afi">
@@ -195,15 +200,20 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 
 <!-- إضافة صديق -->
 <div id="v-afr" class="hv fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 backdrop-blur-sm">
-<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-user-plus"></i></div><h3 class="mt-3 font-black text-base text-slate-800">إضافة صديق</h3><input type="tel" id="af-ph" placeholder="رقم الموبايل..." class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200" dir="ltr"><div class="flex gap-2 mt-4"><button onclick="closeAddFr()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmAddFr()" class="flex-1 py-2.5 bg-sky-500 text-white font-bold rounded-xl shadow-lg text-sm">تحدث الآن</button></div></div></div>
+<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-user-plus"></i></div>
+<h3 class="mt-3 font-black text-base text-slate-800">إضافة صديق</h3>
+<input type="email" id="af-em" placeholder="البريد الإلكتروني..." class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200" dir="ltr">
+<div class="flex gap-2 mt-4"><button onclick="closeAddFr()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmAddFr()" class="flex-1 py-2.5 bg-sky-500 text-white font-bold rounded-xl shadow-lg text-sm">تحدث الآن</button></div></div></div>
 
 <!-- إنشاء مجتمع -->
 <div id="v-crg" class="hv fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 backdrop-blur-sm">
-<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-users-cog"></i></div><h3 class="mt-3 font-black text-base text-slate-800">إنشاء مجتمع</h3><input type="text" id="cg-nm" placeholder="اسم المجتمع" class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200"><textarea id="cg-ds" placeholder="وصف (اختياري)" rows="2" class="w-full p-2.5 mt-1.5 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200 text-xs resize-none"></textarea><div class="flex gap-2 mt-4"><button onclick="closeCrGrp()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmCrGrp()" class="flex-1 py-2.5 bg-sky-500 text-white font-bold rounded-xl shadow-lg text-sm">إنشاء</button></div></div></div>
+<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-sky-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-users-cog"></i></div>
+<h3 class="mt-3 font-black text-base text-slate-800">إنشاء مجتمع</h3><input type="text" id="cg-nm" placeholder="اسم المجتمع" class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200"><textarea id="cg-ds" placeholder="وصف (اختياري)" rows="2" class="w-full p-2.5 mt-1.5 bg-gray-50 rounded-lg outline-none font-bold text-center border border-gray-200 text-xs resize-none"></textarea><div class="flex gap-2 mt-4"><button onclick="closeCrGrp()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmCrGrp()" class="flex-1 py-2.5 bg-sky-500 text-white font-bold rounded-xl shadow-lg text-sm">إنشاء</button></div></div></div>
 
 <!-- نشر حالة -->
 <div id="v-cst" class="hv fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 backdrop-blur-sm">
-<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-green-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-circle-notch"></i></div><h3 class="mt-3 font-black text-base text-slate-800">نشر حالة</h3><textarea id="cs-tx" placeholder="ماذا يدور في ذهنك؟" rows="3" class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold border border-gray-200 text-xs resize-none"></textarea><div class="flex gap-2 mt-4"><button onclick="closeCrSt()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmCrSt()" class="flex-1 py-2.5 bg-green-500 text-white font-bold rounded-xl shadow-lg text-sm">نشر</button></div></div></div>
+<div class="bg-white w-full max-w-xs rounded-xl p-5 text-center shadow-2xl apo"><div class="w-14 h-14 bg-green-500 rounded-full text-white flex items-center justify-center mx-auto -mt-12 border-[4px] border-white shadow-lg text-xl"><i class="fas fa-circle-notch"></i></div>
+<h3 class="mt-3 font-black text-base text-slate-800">نشر حالة</h3><textarea id="cs-tx" placeholder="ماذا يدور في ذهنك؟" rows="3" class="w-full p-2.5 mt-4 bg-gray-50 rounded-lg outline-none font-bold border border-gray-200 text-xs resize-none"></textarea><div class="flex gap-2 mt-4"><button onclick="closeCrSt()" class="flex-1 py-2.5 bg-gray-100 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="confirmCrSt()" class="flex-1 py-2.5 bg-green-500 text-white font-bold rounded-xl shadow-lg text-sm">نشر</button></div></div></div>
 
 <!-- عارض الحالات -->
 <div id="v-svw" class="hv fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-green-900 z-[120] flex flex-col afi">
@@ -214,7 +224,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <!-- بروفايل جهة -->
 <div id="v-cpf" class="hv fixed inset-0 bg-white z-[120] flex flex-col asu">
 <div class="h-[150px] bg-gradient-to-b from-sky-500 to-sky-600 relative shrink-0"><button onclick="closeCProf()" class="absolute top-3 right-3 bg-black/20 text-white w-8 h-8 rounded-full flex items-center justify-center active:scale-90 z-10 text-sm"><i class="fas fa-arrow-left"></i></button><div class="absolute -bottom-8 right-4 w-16 h-16 bg-white rounded-full p-0.5 shadow-xl border-3 border-white"><img id="cp-i" src="" class="w-full h-full rounded-full object-cover"></div></div>
-<div class="pt-10 px-4 text-right"><div class="flex items-center gap-1.5 justify-end"><span id="cp-v" class="hv"><span class="vb"><i class="fas fa-check"></i></span></span><h2 id="cp-n" class="text-lg font-black text-slate-800"></h2></div><p id="cp-b" class="text-xs text-gray-500 mt-0.5"></p><p id="cp-p" class="text-xs text-sky-600 font-bold mt-0.5" dir="ltr"></p><span id="cp-bz" class="hv mt-1.5 inline-block"><span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fas fa-store ml-1"></i>أعمال</span></span></div>
+<div class="pt-10 px-4 text-right"><div class="flex items-center gap-1.5 justify-end"><span id="cp-v" class="hv"><span class="vb"><i class="fas fa-check"></i></span></span><h2 id="cp-n" class="text-lg font-black text-slate-800"></h2></div><p id="cp-b" class="text-xs text-gray-500 mt-0.5"></p><p id="cp-p" class="text-xs text-sky-600 font-bold mt-0.5 break-all" dir="ltr"></p><span id="cp-bz" class="hv mt-1.5 inline-block"><span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full text-[10px] font-black"><i class="fas fa-store ml-1"></i>أعمال</span></span></div>
 <div class="flex-1 p-4 space-y-2 mt-3"><button onclick="closeCProf()" class="w-full py-3 bg-sky-500 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 text-xs"><i class="fas fa-comment"></i>رسالة</button><button id="cp-sh" onclick="closeCProf();setTimeout(openCat,300)" class="hv w-full py-3 bg-green-500 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2 text-xs"><i class="fas fa-shopping-bag"></i>المتجر</button></div></div>
 
 <!-- معلومات المجتمع -->
@@ -230,11 +240,22 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 </div>
 
 <script>
+// ==========================================
+// إعدادات EmailJS (مطلوبة لإرسال الإيميلات)
+// ==========================================
+// سجل في https://www.emailjs.com/ واحصل على هذه البيانات مجاناً
+var EMAIL_JS_PUBLIC_KEY = "-guVxoy-X4LDx8h7Z"; 
+var EMAIL_JS_SERVICE_ID = "service_xp8qi9j";
+var EMAIL_JS_TEMPLATE_ID = "template_yfi1psd";
+// ==========================================
+
 var db=null;try{firebase.initializeApp({apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",authDomain:"whatsapp-fcd3c.firebaseapp.com",projectId:"whatsapp-fcd3c",storageBucket:"whatsapp-fcd3c.firebasestorage.app",messagingSenderId:"369090984748",appId:"1:369090984748:web:cba013025b108578cd0a89"});db=firebase.firestore()}catch(e){}
-var ADM="+201112215950",A='kimo-master-vip-v10',uD=null,cD=null,gD=null,sD=null;
+
+// تغيير الأدمن لإيميل
+var ADM="admin@kimoup.com",A='kimo-master-vip-v10',uD=null,cD=null,gD=null,sD=null;
 if(db){uD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('users');cD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('chats');gD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('groups');sD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('status')}
 
-var me=localStorage.getItem('kimo_master_vip_v10'),aId=null,aTyp='direct',uC={},gC={},tmpPh='',tmpCode='',pBase='',cBase='',mRec=null,aCh=[],spyId=null,epPh=null,mProds=[],mQrs=[],cart=[],msgUn=null,spyUn=null,stTmr=null,stData=[],stIdx=0,stCache={},labels={};
+var me=localStorage.getItem('kimo_master_vip_v10'),aId=null,aTyp='direct',uC={},gC={},tmpEmail='',tmpCode='',pBase='',cBase='',mRec=null,aCh=[],spyId=null,epEmail=null,mProds=[],mQrs=[],cart=[],msgUn=null,spyUn=null,stTmr=null,stData=[],stIdx=0,stCache={},labels={};
 try{labels=JSON.parse(localStorage.getItem('kimo_lb')||'{}')}catch(e){labels={}}
 var LB=[{n:'عميل جديد',c:'bg-blue-100 text-blue-700'},{n:'مهتم',c:'bg-yellow-100 text-yellow-700'},{n:'بانتظار الدفع',c:'bg-orange-100 text-orange-700'},{n:'مكتمل',c:'bg-green-100 text-green-700'},{n:'ملغي',c:'bg-red-100 text-red-700'},{n:'VIP',c:'bg-purple-100 text-purple-700'}];
 var tmpProdImg='';
@@ -245,69 +266,97 @@ function cid(a,b){return[a,b].sort().join('_')}
 function copyCode(){try{navigator.clipboard.writeText(tmpCode);toast("تم نسخ الكود ✅")}catch(e){toast("الكود: "+tmpCode)}}
 function av(n){return'https://ui-avatars.com/api/?name='+encodeURIComponent(n||'U')}
 
-// === فحص رقم مصري ===
-function checkPhFormat(){var v=el('in-ph').value.replace(/\D/g,''),w=el('ph-wrap'),er=el('ph-err'),btn=el('btn-chk');
-w.classList.remove('phone-ok','phone-err');er.classList.add('hv');btn.disabled=false;
-if(!v)return;if(!/^(10|11|12|15)\d{8}$/.test(v)){w.classList.add('phone-err');er.innerText='⚠️ يجب أن يبدأ بـ 010/011/012/015 (11 رقم)';er.classList.remove('hv');btn.disabled=true}
-else{w.classList.add('phone-ok');er.innerText='✓ رقم مصري صالح';er.classList.remove('hv');er.style.color='#16a34a'}}
+// === فحص صيغة الإيميل ===
+function checkEmailFormat(){
+    var v=el('in-em').value.trim(),w=el('em-wrap'),er=el('em-err'),btn=el('btn-chk');
+    w.classList.remove('email-ok','email-err');er.classList.add('hv');btn.disabled=false;
+    if(!v)return;
+    // Regex بسيط للتحقق من الإيميل
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+        w.classList.add('email-err');er.innerText='⚠️ صيغة البريد الإلكتروني غير صحيحة';er.classList.remove('hv');btn.disabled=true;
+    } else {
+        w.classList.add('email-ok');er.innerText='✓ بريد إلكتروني صالح';er.classList.remove('hv');er.style.color='#16a34a';
+    }
+}
 
 // === السبلش ===
-function bootApp(){var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
+function bootApp(){
+    // تهيئة EmailJS
+    try{
+        if(EMAIL_JS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY_HERE"){
+            emailjs.init(EMAIL_JS_PUBLIC_KEY);
+        }
+    } catch(e){ console.log("EmailJS init error"); }
+
+    var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
 window.addEventListener('load',function(){if(firebase.auth)firebase.auth().signInAnonymously().catch(function(){});setTimeout(bootApp,1000)});
 
-// === إرسال كود عبر واتساب (مجاني 100%) ===
-function sendViaWA(){if(!tmpCode)return;var num=tmpPh.replace('+','');var msg=encodeURIComponent('كود Kimoup: '+tmpCode+'\nلا تشاركه مع أحد');
-window.open('https://wa.me/'+num+'?text='+msg,'_blank');toast('تم فتح واتساب - أرسل الكود لنفسك')}
-
-// === إرسال SMS عبر TextBelt ===
-function sendSMS(phone,code){return fetch('https://textbelt.com/text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:phone,message:'كود Kimoup: '+code+'\nلا تشاركه مع أحد',key:'textbelt'})}).then(function(r){return r.json()}).then(function(d){return d.success===true}).catch(function(){return false})}
-
-// === تسجيل الدخول (تم تعديلها لتحديث الاسم لحسابات قديمة أيضاً) ===
-function chkPhone(){if(!uD){toast("خطأ!");return}
-// 1. جلب الاسم المدخل من الحقل
-var nameInput = el('in-name').value.trim();
-var raw=el('in-ph').value.replace(/\D/g,'');
-if(!raw||!/^(10|11|12|15)\d{8}$/.test(raw))return toast("رقم غير صالح!");
-if(raw.startsWith('0'))raw=raw.substring(1);tmpPh="+20"+raw;var btn=el('btn-chk');btn.innerText="جاري...";btn.disabled=true;
-var code=Math.floor(1e5+Math.random()*9e5).toString();tmpCode=code;
-
-uD.doc(tmpPh).get().then(function(doc){
-    // 2. تجهيز بيانات التحديث (الكود دائماً يتغير)
-    var updateData = { loginCode: code };
-    
-    // إذا قمت بكتابة اسم جديد، أضفه للتحديث
-    if(nameInput) {
-        updateData.displayName = nameInput;
+// === إرسال OTP عبر الإيميل ===
+function sendEmailOTP(email, code, name){
+    if(EMAIL_JS_PUBLIC_KEY === "YOUR_PUBLIC_KEY_HERE" || !EMAIL_JS_SERVICE_ID || !EMAIL_JS_TEMPLATE_ID){
+        console.warn("EmailJS Keys missing. Using mock mode.");
+        return Promise.resolve(false); // فشل مقصود للذهاب للوضع اليدوي
     }
+    var templateParams = {
+        to_email: email,
+        to_name: name || "مستخدم",
+        code: code
+    };
+    return emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, templateParams)
+        .then(function() { return true; })
+        .catch(function(e) { console.error(e); return false; });
+}
 
-    if(!doc.exists){
-        // مستخدم جديد: إنشاء الحساب بالاسم
-        return uD.doc(tmpPh).set({
-            phone:tmpPh,
-            displayName: nameInput || "مستخدم جديد", 
-            bio:'متاح',
-            status:'approved',
-            loginCode:code,
-            isVerified:tmpPh===ADM,
-            isBusiness:false,
-            contacts:[],
-            createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        });
-    } else if(doc.data().status==='banned'){
-        toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null;
-    } else {
-        // مستخدم موجود: تحديث الكود و (اختيارياً) الاسم إذا تم كتابته
-        return uD.doc(tmpPh).update(updateData);
-    }
-}).then(function(){return sendSMS(tmpPh,code)}).then(function(ok){
-el('s-chk').classList.add('hv');el('s-pin').classList.remove('hv');el('wa-btn').classList.remove('hv');
-var mg=el('otp-msg');
-if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1"></i>تم إرسال الكود عبر SMS';else mg.innerHTML='<i class="fab fa-whatsapp ml-1 text-green-600"></i>لم يتم إرسال SMS - استخدم واتساب أو الكود بالأسفل';
-el('otp-code').innerText=code;el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false;
-}).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})}
+// === تسجيل الدخول (بالإيميل) ===
+function chkEmail(){
+    if(!uD){toast("خطأ!");return}
+    var nameInput = el('in-name').value.trim();
+    var raw=el('in-em').value.trim().toLowerCase(); // تحويل لحروف صغيرة لتوحيد المعرف
+    if(!raw||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw))return toast("بريد إلكتروني غير صحيح!");
+    tmpEmail=raw;var btn=el('btn-chk');btn.innerText="جاري...";btn.disabled=true;
+    var code=Math.floor(1e5+Math.random()*9e5).toString();tmpCode=code;
 
-function verifyPin(){if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;
-uD.doc(tmpPh).get().then(function(s){if(s.data().loginCode===pin){me=tmpPh;localStorage.setItem('kimo_master_vip_v10',me);initApp()}else toast("كود خاطئ!")}).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})}
+    uD.doc(tmpEmail).get().then(function(doc){
+        var updateData = { loginCode: code };
+        if(nameInput) updateData.displayName = nameInput;
+
+        if(!doc.exists){
+            return uD.doc(tmpEmail).set({
+                email:tmpEmail,
+                displayName: nameInput || "مستخدم جديد", 
+                bio:'متاح',
+                status:'approved',
+                loginCode:code,
+                isVerified:tmpEmail===ADM,
+                isBusiness:false,
+                contacts:[],
+                createdAt:firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else if(doc.data().status==='banned'){
+            toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null;
+        } else {
+            return uD.doc(tmpEmail).update(updateData);
+        }
+    }).then(function(){
+        return sendEmailOTP(tmpEmail, code, el('in-name').value.trim());
+    }).then(function(ok){
+        el('s-chk').classList.add('hv');el('s-pin').classList.remove('hv');
+        var mg=el('otp-msg');
+        if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1 text-green-600"></i>تم إرسال الكود للإيميل'; 
+        else mg.innerHTML='<i class="fas fa-exclamation-circle ml-1 text-red-500"></i>لم يتم الإرسال (تأكد من مفاتيح EmailJS)<br>استخدم الكود الظاهر بالأسفل';
+        
+        el('otp-code').innerText=code;el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false;
+    }).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})
+}
+
+function verifyPin(){
+    if(!uD)return;var pin=el('in-pin').value.trim();if(!pin||pin.length<4)return toast("كود خاطئ!");var btn=el('btn-pin');btn.innerText="...";btn.disabled=true;
+    uD.doc(tmpEmail).get().then(function(s){
+        if(s.data().loginCode===pin){
+            me=tmpEmail;localStorage.setItem('kimo_master_vip_v10',me);initApp()
+        } else toast("كود خاطئ!")
+    }).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})
+}
 
 // === التطبيق الرئيسي ===
 function initApp(){
@@ -328,10 +377,10 @@ if(d.bizProfile.cover)el('bcp').src=d.bizProfile.cover;rPL();rQL()}
 
 uD.onSnapshot(function(s){
     s.forEach(function(doc){
-        var phone = doc.id;
+        var email = doc.id;
         var data = doc.data();
-        uC[phone] = data;
-        if(phone === aId && aTyp === 'direct'){
+        uC[email] = data;
+        if(email === aId && aTyp === 'direct'){
             var chatEl = el('v-chat');
             if(chatEl && !chatEl.classList.contains('hv')){
                 el('cn').innerText = data.displayName || '';
@@ -355,12 +404,12 @@ gD.onSnapshot(function(s){
 });
 swTab('chats')}
 
-function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.phone!==me&&u.status!=='banned')cs.push(u)}
-if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.phone)!==-1});
+function rCL(){var l=el('cl');l.innerHTML='';var mc=[];try{mc=uC[me]?.contacts||[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.email!==me&&u.status!=='banned')cs.push(u)}
+if(me!==ADM)cs=cs.filter(function(u){return mc.indexOf(u.email)!==-1});
 if(!cs.length){l.innerHTML='<div class="text-center py-10 text-gray-400"><i class="fas fa-comments text-3xl mb-2 block text-gray-300"></i><p class="font-bold text-xs">لا توجد محادثات</p></div>';return}
 cs.forEach(function(u){var v=u.isVerified?'<span class="vb"><i class="fas fa-check"></i></span>':'';var b=u.isBusiness?'<span class="text-[7px] bg-yellow-100 text-yellow-700 px-1 rounded font-black">أعمال</span>':'';
-var lb=labels[u.phone]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.phone]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.phone]+'</span>':'';
-l.innerHTML+='<div onclick="openChat(\''+u.phone+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(u.bio||'متاح')+'</p></div></div>'})}
+var lb=labels[u.email]?'<span class="lt '+(LB.find(function(x){return x.n===labels[u.email]})?.c||'bg-gray-100 text-gray-600')+'">'+labels[u.email]+'</span>':'';
+l.innerHTML+='<div onclick="openChat(\''+u.email+'\',\'direct\')" class="flex flex-row-reverse items-center gap-2.5 p-2.5 active:bg-gray-100 rounded-xl cursor-pointer"><div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></div><div class="text-right flex-1 overflow-hidden"><div class="flex items-center justify-end gap-1 flex-wrap">'+v+b+lb+'<h3 class="font-black text-[13px] text-slate-800 truncate">'+u.displayName+'</h3></div><p class="text-[10px] text-gray-500 truncate">'+(u.bio||'متاح')+'</p></div></div>'})}
 
 function swTab(t){['chats','groups','status'].forEach(function(x){el('t-'+x).classList.add('hv');el('nb-'+x).className='nb i'});el('t-'+t).classList.remove('hv');el('nb-'+t).className='nb a';if(t==='status')lSL()}
 
@@ -410,8 +459,8 @@ uD.doc(me).update(up).then(function(){uC[me]=Object.assign({},uC[me]||{},up);rCL
 function logout(){localStorage.clear();if(msgUn)msgUn=null;location.reload()}
 
 // === إضافة صديق ===
-function openAddFr(){el('v-afr').classList.remove('hv');el('af-ph').value=''}function closeAddFr(){el('v-afr').classList.add('hv')}
-function confirmAddFr(){var p=el('af-ph').value.trim();if(!p)return toast("أدخل رقم!");if(p.startsWith('0'))p=p.substring(1);p="+20"+p;if(p===me)return toast("لا يمكنك إضافة نفسك!");
+function openAddFr(){el('v-afr').classList.remove('hv');el('af-em').value=''}function closeAddFr(){el('v-afr').classList.add('hv')}
+function confirmAddFr(){var p=el('af-em').value.trim().toLowerCase();if(!p)return toast("أدخل الإيميل!");if(p===me)return toast("لا يمكنك إضافة نفسك!");
 uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل بعد!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
 
 // === المجتمعات ===
@@ -445,7 +494,7 @@ function prevSt(){clearTimeout(stTmr);stIdx=Math.max(0,stIdx-1);showSt()}
 function closeSV(){clearTimeout(stTmr);el('v-svw').classList.add('hv')}
 
 // === بروفايل ===
-function openCProf(){if(!aId||aTyp!=='direct')return;var u=uC[aId];if(!u)return;el('cp-i').src=u.avatar||av(u.displayName);el('cp-n').innerText=u.displayName;el('cp-b').innerText=u.bio||'متاح';el('cp-p').innerText=u.phone;el('cp-v').classList.toggle('hv',!u.isVerified);el('cp-bz').classList.toggle('hv',!u.isBusiness);el('cp-sh').classList.toggle('hv',!u.isBusiness);el('v-cpf').classList.remove('hv')}
+function openCProf(){if(!aId||aTyp!=='direct')return;var u=uC[aId];if(!u)return;el('cp-i').src=u.avatar||av(u.displayName);el('cp-n').innerText=u.displayName;el('cp-b').innerText=u.bio||'متاح';el('cp-p').innerText=u.email;el('cp-v').classList.toggle('hv',!u.isVerified);el('cp-bz').classList.toggle('hv',!u.isBusiness);el('cp-sh').classList.toggle('hv',!u.isBusiness);el('v-cpf').classList.remove('hv')}
 function closeCProf(){el('v-cpf').classList.add('hv')}
 
 // === التسميات ===
@@ -475,14 +524,14 @@ function sendOrder(){if(!cart.length)return toast("السلة فارغة!");var 
 
 // === الإدارة ===
 function openAdmin(){el('v-adm').classList.remove('hv');loadAdminList()}function closeAdmin(){el('v-adm').classList.add('hv')}
-function loadAdminList(){uD.get().then(function(s){var l=el('al');l.innerHTML='';s.docs.forEach(function(doc){var u=doc.data();if(u.phone===ADM)return;l.innerHTML+='<div class="bg-white p-3 rounded-xl flex flex-col gap-2 shadow-sm"><div class="flex justify-between items-center text-right"><div><p class="font-black text-sm">'+u.displayName+(u.isVerified?' <span class="vb"><i class="fas fa-check"></i></span>':'')+'</p><p class="text-[10px] text-gray-400">'+u.phone+'</p><p class="text-[10px] text-sky-600 font-bold">كود: '+u.loginCode+'</p></div><span class="px-2 py-0.5 rounded-full text-white text-[9px] '+(u.status==='banned'?'bg-red-500':'bg-green-500')+' shadow">'+u.status+'</span></div><div class="flex flex-wrap gap-1 justify-end border-t pt-1.5"><button onclick="uUpd(\''+u.phone+'\',{isVerified:'+!u.isVerified+'})" class="text-[9px] bg-sky-500 text-white px-2 py-1 rounded-lg">توثيق</button><button onclick="openEPin(\''+u.phone+'\')" class="text-[9px] bg-yellow-400 px-2 py-1 rounded-lg">كود</button><button onclick="uUpd(\''+u.phone+'\',{status:\'banned\'})" class="text-[9px] bg-red-600 text-white px-2 py-1 rounded-lg">حظر</button><button onclick="uUpd(\''+u.phone+'\',{status:\'approved\'})" class="text-[9px] bg-green-500 text-white px-2 py-1 rounded-lg">فك</button><button onclick="openSpy(\''+u.phone+'\',\''+u.displayName+'\')" class="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-lg"><i class="fas fa-eye"></i> مراقبة</button></div></div>'})})}
+function loadAdminList(){uD.get().then(function(s){var l=el('al');l.innerHTML='';s.docs.forEach(function(doc){var u=doc.data();if(u.email===ADM)return;l.innerHTML+='<div class="bg-white p-3 rounded-xl flex flex-col gap-2 shadow-sm"><div class="flex justify-between items-center text-right"><div><p class="font-black text-sm">'+u.displayName+(u.isVerified?' <span class="vb"><i class="fas fa-check"></i></span>':'')+'</p><p class="text-[10px] text-gray-400 break-all">'+u.email+'</p><p class="text-[10px] text-sky-600 font-bold">كود: '+u.loginCode+'</p></div><span class="px-2 py-0.5 rounded-full text-white text-[9px] '+(u.status==='banned'?'bg-red-500':'bg-green-500')+' shadow">'+u.status+'</span></div><div class="flex flex-wrap gap-1 justify-end border-t pt-1.5"><button onclick="uUpd(\''+u.email+'\',{isVerified:'+!u.isVerified+'})" class="text-[9px] bg-sky-500 text-white px-2 py-1 rounded-lg">توثيق</button><button onclick="openEPin(\''+u.email+'\')" class="text-[9px] bg-yellow-400 px-2 py-1 rounded-lg">كود</button><button onclick="uUpd(\''+u.email+'\',{status:\'banned\'})" class="text-[9px] bg-red-600 text-white px-2 py-1 rounded-lg">حظر</button><button onclick="uUpd(\''+u.email+'\',{status:\'approved\'})" class="text-[9px] bg-green-500 text-white px-2 py-1 rounded-lg">فك</button><button onclick="openSpy(\''+u.email+'\',\''+u.displayName+'\')" class="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-lg"><i class="fas fa-eye"></i> مراقبة</button></div></div>'})})}
 function uUpd(p,up){uD.doc(p).update(up).then(function(){setTimeout(loadAdminList,500);toast("تم ✅")})}
-function openEPin(p){epPh=p;el('ep-ph').innerText=p;el('ep-pin').value=uC[p]?uC[p].loginCode||'':'';el('v-epin').classList.remove('hv')}
-function saveEPin(){var pin=el('ep-pin').value.trim();if(pin){uD.doc(epPh).update({loginCode:pin}).then(function(){closeEPin();setTimeout(loadAdminList,500);toast("تم ✅")})}}
+function openEPin(p){epEmail=p;el('ep-em').innerText=p;el('ep-pin').value=uC[p]?uC[p].loginCode||'':'';el('v-epin').classList.remove('hv')}
+function saveEPin(){var pin=el('ep-pin').value.trim();if(pin){uD.doc(epEmail).update({loginCode:pin}).then(function(){closeEPin();setTimeout(loadAdminList,500);toast("تم ✅")})}}
 function closeEPin(){el('v-epin').classList.add('hv')}
 
 // === التجسس ===
-function openSpy(uid,nm){spyId=uid;el('sp-nm').innerText=nm;el('v-spy').classList.remove('hv');var mc2=[];try{mc2=uC[uid]?uC[uid].contacts||[]:[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.phone!==uid&&u.status!=='banned')cs.push(u)}if(uid!==ADM)cs=cs.filter(function(u){return mc2.indexOf(u.phone)!==-1});el('sp-cts').innerHTML=cs.map(function(u){return '<button onclick="spyChat(\''+u.phone+'\')" class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow shrink-0 active:scale-90 transition"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></button>'}).join('');el('sp-ph').classList.remove('hv');el('smw').innerHTML='';if(spyUn){spyUn();spyUn=null}}
+function openSpy(uid,nm){spyId=uid;el('sp-nm').innerText=nm;el('v-spy').classList.remove('hv');var mc2=[];try{mc2=uC[uid]?uC[uid].contacts||[]:[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.email!==uid&&u.status!=='banned')cs.push(u)}if(uid!==ADM)cs=cs.filter(function(u){return mc2.indexOf(u.email)!==-1});el('sp-cts').innerHTML=cs.map(function(u){return '<button onclick="spyChat(\''+u.email+'\')" class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow shrink-0 active:scale-90 transition"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></button>'}).join('');el('sp-ph').classList.remove('hv');el('smw').innerHTML='';if(spyUn){spyUn();spyUn=null}}
 function spyChat(tid){if(spyUn){spyUn();spyUn=null}el('sp-ph').classList.add('hv');var c=cid(spyId,tid),col=cD.doc(c).collection('messages');spyUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';ms.forEach(function(m){var me2=m.s===spyId;var ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-h-[120px] mb-0.5">';else ct='<p class="whitespace-pre-wrap text-xs">'+m.txt+'</p>';h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+'"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});el('smw').innerHTML=h;el('smc').scrollTop=el('smc').scrollHeight})}
 function closeSpy(){if(spyUn){spyUn();spyUn=null}el('v-spy').classList.add('hv')}
 </script>
