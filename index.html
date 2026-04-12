@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<!-- مكتبة EmailJS لإرسال الإيميلات -->
+<!-- مكتبة EmailJS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Cairo','sans-serif']}}}}</script>
 <style>
@@ -27,7 +27,102 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 .vb{background:#0ea5e9;color:#fff;border-radius:50%;width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center;font-size:7px;margin-right:2px;box-shadow:0 0 0 1.5px #fff;flex-shrink:0}
 .sy{background:#fff3cd;color:#856404;font-size:10px;text-align:center;padding:4px 12px;border-radius:8px;margin:6px auto;font-weight:700;width:fit-content;border:1px solid #ffeaa7}
 .cb{background:#f0f9ff;border:1.5px solid #0ea5e9;border-radius:10px;padding:8px;width:100%;color:#0c4a6e;font-size:11px;white-space:pre-line}
-.hv{display:none!important}::-webkit-scrollbar{display:none}audio{height:30px;width:180px}
+.hv{display:none!important}::-webkit-scrollbar{display:none}
+
+/* === تأثيرات الأدمن === */
+.admin-gold-theme {
+    background: linear-gradient(135deg, #1a1a1a, #2d1b4e, #000);
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 215, 0, 0.1);
+    color: #fff;
+}
+.admin-gold-text {
+    color: #ffd700 !important;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+.admin-badge {
+    background: linear-gradient(90deg, #FFD700, #FDB931);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+    animation: shine 3s infinite linear;
+}
+@keyframes shine { 0% { filter: brightness(1); } 50% { filter: brightness(1.3); } 100% { filter: brightness(1); } }
+
+/* === رسائل الصوت المحسنة === */
+.voice-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    width: 220px;
+    transition: 0.2s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.voice-note:active { transform: scale(0.97); }
+.mo .voice-note { background: #fff; float: right; }
+.mi .voice-note { background: #fff; float: left; }
+
+.v-icon {
+    width: 30px; height: 30px;
+    background: #0ea5e9;
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+}
+.mi .v-icon { background: #25d366; }
+
+.v-wave {
+    flex: 1;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+.v-bar {
+    width: 3px;
+    background: #cbd5e1;
+    border-radius: 2px;
+    height: 20%;
+    transition: height 0.2s ease;
+}
+.voice-note.playing .v-bar {
+    background: #0ea5e9;
+    animation: wave 0.8s infinite ease-in-out;
+}
+.mi .voice-note.playing .v-bar { background: #25d366; }
+
+/* توليد تأخير للحركات */
+.v-bar:nth-child(1) { animation-delay: 0.1s; }
+.v-bar:nth-child(2) { animation-delay: 0.2s; }
+.v-bar:nth-child(3) { animation-delay: 0.3s; }
+.v-bar:nth-child(4) { animation-delay: 0.1s; }
+.v-bar:nth-child(5) { animation-delay: 0.4s; }
+.v-bar:nth-child(6) { animation-delay: 0.2s; }
+.v-bar:nth-child(7) { animation-delay: 0.1s; }
+.v-bar:nth-child(8) { animation-delay: 0.3s; }
+.v-bar:nth-child(9) { animation-delay: 0.2s; }
+
+@keyframes wave {
+    0%, 100% { height: 20%; }
+    50% { height: 100%; }
+}
+
+.v-time {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: left;
+}
+
+/* باقي التنسيقات */
+audio{height:0;width:0;display:none}
 .nb{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;transition:.2s;padding:6px 0;cursor:pointer;border:none;background:none}
 .nb.a{color:#0ea5e9;border-top:3px solid #0ea5e9;background:linear-gradient(to bottom,#f0f9ff,#fff)}
 .nb.i{color:#94a3b8;border-top:3px solid transparent}
@@ -81,7 +176,6 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 <div id="s-pin" class="hv space-y-3">
 <div class="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-unlock-keyhole text-xl"></i></div>
 <p id="otp-msg" class="text-xs font-bold px-3 py-2 bg-gray-100 rounded-xl text-right"></p>
-<!-- الكود مخفي الآن بواسطة class="hv" -->
 <div class="code-box hv"><p class="text-[10px] text-gray-400 mb-2">كود التحقق الخاص بك</p><p id="otp-code" class="code-num"></p><button onclick="copyCode()" class="mt-2 bg-sky-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition"><i class="fas fa-copy ml-1"></i>نسخ الكود</button></div>
 <input type="password" id="in-pin" placeholder="أدخل الكود" maxlength="6" class="w-full p-3 bg-gray-50 rounded-xl outline-none font-black text-center text-3xl tracking-[.3em] border-2 border-transparent focus:border-green-500 transition" dir="ltr">
 <button onclick="verifyPin()" id="btn-pin" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition">دخول</button>
@@ -189,15 +283,17 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 
 <!-- الإعدادات -->
 <div id="v-set" class="hv fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 backdrop-blur-sm">
-<div class="bg-white w-full max-w-sm rounded-xl overflow-hidden shadow-2xl apo max-h-[82vh] flex flex-col">
-<div class="p-4 text-right border-b bg-slate-50"><h3 class="font-black text-base text-slate-800"><i class="fas fa-cog text-gray-400 ml-1"></i>الإعدادات</h3></div>
-<div class="p-4 space-y-3 flex-1 overflow-y-auto text-right">
+<div class="bg-white w-full max-w-sm rounded-xl overflow-hidden shadow-2xl apo max-h-[82vh] flex flex-col transition-all duration-500" id="v-set-card">
+<div class="p-4 text-right border-b bg-slate-50" id="v-set-header">
+    <h3 class="font-black text-base text-slate-800" id="set-title"><i class="fas fa-cog text-gray-400 ml-1"></i>الإعدادات</h3>
+</div>
+<div class="p-4 space-y-3 flex-1 overflow-y-auto text-right" id="v-set-body">
 <div class="flex flex-col items-center gap-1.5"><div class="w-16 h-16 rounded-full overflow-hidden border-3 border-sky-100 shadow-lg"><img id="s-ip" src="" class="w-full h-full object-cover"></div><label class="bg-sky-50 text-sky-600 px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer active:scale-95 transition"><i class="fas fa-camera ml-1"></i>الصورة<input type="file" id="s-pi" class="hidden" accept="image/*"></label></div>
 <div><label class="text-[10px] text-gray-500 font-bold">الاسم</label><input type="text" id="s-nm" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-xs"></div>
 <div><label class="text-[10px] text-gray-500 font-bold">النبذة</label><input type="text" id="s-bi" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-xs"></div>
 <div><label class="text-[10px] text-gray-500 font-bold">كود جديد (4+ أرقام)</label><input type="text" id="s-pw" placeholder="اتركه فارغ" class="w-full p-2.5 bg-gray-50 rounded-lg mt-0.5 outline-none font-bold border border-gray-200 focus:border-sky-500 text-center tracking-widest" dir="ltr"></div>
 <div class="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg"><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="s-biz" class="sr-only peer"><div class="w-9 h-4 bg-gray-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-sky-500"></div></label><span class="font-bold text-xs">حساب أعمال <i class="fas fa-store text-yellow-500 mr-1"></i></span></div></div>
-<div class="p-3 border-t flex gap-2 bg-slate-50"><button onclick="closeSettings()" class="flex-1 py-2.5 bg-gray-200 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="saveProf()" class="flex-1 py-2.5 bg-sky-500 text-white font-black rounded-lg shadow-lg text-sm">حفظ</button></div></div></div>
+<div class="p-3 border-t flex gap-2 bg-slate-50" id="v-set-footer"><button onclick="closeSettings()" class="flex-1 py-2.5 bg-gray-200 text-gray-600 font-bold rounded-lg text-sm">إلغاء</button><button onclick="saveProf()" class="flex-1 py-2.5 bg-sky-500 text-white font-black rounded-lg shadow-lg text-sm">حفظ</button></div></div></div>
 
 <!-- إضافة صديق -->
 <div id="v-afr" class="hv fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-3 backdrop-blur-sm">
@@ -242,7 +338,7 @@ body{background:#0f172a;height:100vh;overflow:hidden;display:flex;align-items:ce
 
 <script>
 // ==========================================
-// إعدادات EmailJS (مطلوبة لإرسال الإيميلات)
+// إعدادات EmailJS
 // ==========================================
 var EMAIL_JS_PUBLIC_KEY = "-guVxoy-X4LDx8h7Z"; 
 var EMAIL_JS_SERVICE_ID = "service_xp8qi9j";
@@ -251,14 +347,15 @@ var EMAIL_JS_TEMPLATE_ID = "template_yfi1psd";
 
 var db=null;try{firebase.initializeApp({apiKey:"AIzaSyBS3GcNh5ltgwUqSClSTUoRNgdJiTOf0RM",authDomain:"whatsapp-fcd3c.firebaseapp.com",projectId:"whatsapp-fcd3c",storageBucket:"whatsapp-fcd3c.firebasestorage.app",messagingSenderId:"369090984748",appId:"1:369090984748:web:cba013025b108578cd0a89"});db=firebase.firestore()}catch(e){}
 
-// تغيير الأدمن للإيميل المطلوب
+// Admin settings
 var ADM="kareemwael0213@gmail.com",A='kimo-master-vip-v10',uD=null,cD=null,gD=null,sD=null;
 if(db){uD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('users');cD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('chats');gD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('groups');sD=db.collection('artifacts').doc(A).collection('public').doc('data').collection('status')}
 
 var me=localStorage.getItem('kimo_master_vip_v10'),aId=null,aTyp='direct',uC={},gC={},tmpEmail='',tmpCode='',pBase='',cBase='',mRec=null,aCh=[],spyId=null,epEmail=null,mProds=[],mQrs=[],cart=[],msgUn=null,spyUn=null,stTmr=null,stData=[],stIdx=0,stCache={},labels={};
 try{labels=JSON.parse(localStorage.getItem('kimo_lb')||'{}')}catch(e){labels={}}
 var LB=[{n:'عميل جديد',c:'bg-blue-100 text-blue-700'},{n:'مهتم',c:'bg-yellow-100 text-yellow-700'},{n:'بانتظار الدفع',c:'bg-orange-100 text-orange-700'},{n:'مكتمل',c:'bg-green-100 text-green-700'},{n:'ملغي',c:'bg-red-100 text-red-700'},{n:'VIP',c:'bg-purple-100 text-purple-700'}];
-var tmpProdImg='';
+var tmpProdImg='', currentAudio = null;
+
 function el(id){return document.getElementById(id)}
 function toast(m){var t=el('toast');t.innerText=m;t.classList.remove('hv');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.add('hv')},3000)}
 function fts(ts){if(!ts)return'';try{var d=ts.toMillis?ts.toDate():new Date(ts),n=Date.now()-d;if(n<6e4)return'الآن';if(n<36e5)return Math.floor(n/6e4)+' د';return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0')}catch(e){return''}}
@@ -266,7 +363,7 @@ function cid(a,b){return[a,b].sort().join('_')}
 function copyCode(){try{navigator.clipboard.writeText(tmpCode);toast("تم نسخ الكود ✅")}catch(e){toast("الكود: "+tmpCode)}}
 function av(n){return'https://ui-avatars.com/api/?name='+encodeURIComponent(n||'U')}
 
-// === فحص صيغة الإيميل ===
+// فحص صيغة الإيميل
 function checkEmailFormat(){
     var v=el('in-em').value.trim(),w=el('em-wrap'),er=el('em-err'),btn=el('btn-chk');
     w.classList.remove('email-ok','email-err');er.classList.add('hv');btn.disabled=false;
@@ -278,28 +375,19 @@ function checkEmailFormat(){
     }
 }
 
-// === السبلش ===
+// السبلش
 function bootApp(){
-    try{
-        emailjs.init(EMAIL_JS_PUBLIC_KEY);
-    } catch(e){ console.log("EmailJS init error"); }
-
+    try{emailjs.init(EMAIL_JS_PUBLIC_KEY);}catch(e){}
     var sp=el('sp');if(sp){sp.style.opacity='0';setTimeout(function(){sp.classList.add('hv');if(me&&uD)initApp();else if(!me)el('v-auth').classList.remove('hv');else toast("خطأ في الاتصال");},600)}}
 window.addEventListener('load',function(){if(firebase.auth)firebase.auth().signInAnonymously().catch(function(){});setTimeout(bootApp,1000)});
 
-// === إرسال OTP عبر الإيميل ===
+// إرسال OTP
 function sendEmailOTP(email, code, name){
-    var templateParams = {
-        to_email: email,
-        to_name: name || "مستخدم",
-        code: code
-    };
-    return emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, templateParams)
-        .then(function() { return true; })
-        .catch(function(e) { console.error(e); return false; });
+    var templateParams = { to_email: email, to_name: name || "مستخدم", code: code };
+    return emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, templateParams).then(function() { return true; }).catch(function(e) { console.error(e); return false; });
 }
 
-// === تسجيل الدخول (بالإيميل) ===
+// تسجيل الدخول (مع إصلاح حفظ الاسم)
 function chkEmail(){
     if(!uD){toast("خطأ!");return}
     var nameInput = el('in-name').value.trim();
@@ -310,6 +398,7 @@ function chkEmail(){
 
     uD.doc(tmpEmail).get().then(function(doc){
         var updateData = { loginCode: code };
+        // إذا أدخل المستخدم اسمًا، نحدثه سواء كان جديدًا أو قديمًا
         if(nameInput) updateData.displayName = nameInput;
 
         if(!doc.exists){
@@ -327,6 +416,7 @@ function chkEmail(){
         } else if(doc.data().status==='banned'){
             toast("محظور!");btn.innerText="إرسال كود";btn.disabled=false;return null;
         } else {
+            // تحديث الاسم للعضو الحالي إذا كتبه
             return uD.doc(tmpEmail).update(updateData);
         }
     }).then(function(){
@@ -336,8 +426,6 @@ function chkEmail(){
         var mg=el('otp-msg');
         if(ok)mg.innerHTML='<i class="fas fa-check-circle ml-1 text-green-600"></i>تم إرسال الكود للإيميل<br>تفقد بريدك الوارد';
         else mg.innerHTML='<i class="fas fa-exclamation-circle ml-1 text-red-500"></i>حدث خطأ في الإرسال<br>حاول مرة أخرى';
-        
-        // الكود مخفي في الـ UI، لا يظهر للمستخدم
         el('in-pin').value='';el('in-pin').focus();btn.innerText="إرسال كود";btn.disabled=false;
     }).catch(function(){toast("خطأ!");btn.innerText="إرسال كود";btn.disabled=false})
 }
@@ -351,7 +439,7 @@ function verifyPin(){
     }).catch(function(){toast("فشل!")}).finally(function(){btn.innerText="دخول";btn.disabled=false})
 }
 
-// === التطبيق الرئيسي ===
+// تشغيل التطبيق
 function initApp(){
 el('v-auth').classList.add('hv');el('v-main').classList.remove('hv');
 if(me===ADM){el('btn-lo').classList.remove('hv');el('btn-ad').classList.remove('hv');el('btn-crg').classList.remove('hv')}
@@ -406,7 +494,7 @@ l.innerHTML+='<div onclick="openChat(\''+u.email+'\',\'direct\')" class="flex fl
 
 function swTab(t){['chats','groups','status'].forEach(function(x){el('t-'+x).classList.add('hv');el('nb-'+x).className='nb i'});el('t-'+t).classList.remove('hv');el('nb-'+t).className='nb a';if(t==='status')lSL()}
 
-// === الدردشة ===
+// الدردشة
 function openChat(id,typ){aId=id;aTyp=typ;el('v-chat').classList.remove('hv');el('qr-p').classList.add('hv');
 el('btn-grp-info').classList.add('hv');el('btn-shop').classList.add('hv');el('clbl').classList.add('hv');
 if(typ==='direct'){var u=uC[id];if(!u)return;
@@ -420,12 +508,59 @@ el('ci').src=av(g.name)+'&background=0ea5e9&color=fff&bold=true';el('btn-grp-inf
 var isM=(g.members&&g.members.indexOf(me)!==-1)||g.createdBy===me||me===ADM;
 el('j-grp').classList.toggle('hv',isM);el('c-ia').classList.toggle('hv',!isM);lMsg(false)}}
 
+// مشغل الصوت المحسن
+function toggleAudio(div) {
+    var audio = div.querySelector('audio');
+    var icon = div.querySelector('.v-icon i');
+    var timeDisplay = div.querySelector('.v-time');
+    
+    if(!audio) return;
+
+    // إيقاف أي صوت آخر
+    if(currentAudio && currentAudio !== audio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        var prevDiv = document.querySelector('.voice-note.playing');
+        if(prevDiv) {
+            prevDiv.classList.remove('playing');
+            prevDiv.querySelector('.v-icon i').className = 'fas fa-play';
+        }
+    }
+
+    if(audio.paused) {
+        audio.play();
+        currentAudio = audio;
+        icon.className = 'fas fa-pause';
+        div.classList.add('playing');
+    } else {
+        audio.pause();
+        icon.className = 'fas fa-play';
+        div.classList.remove('playing');
+    }
+
+    audio.ontimeupdate = function() {
+        var mins = Math.floor(audio.currentTime / 60);
+        var secs = Math.floor(audio.currentTime % 60);
+        timeDisplay.innerText = mins + ":" + (secs<10?'0':'') + secs;
+    };
+    audio.onended = function() {
+        icon.className = 'fas fa-play';
+        div.classList.remove('playing');
+        audio.currentTime = 0;
+    };
+}
+
 function lMsg(isB){if(msgUn){msgUn();msgUn=null}
 var c=aTyp==='group'?aId:cid(me,aId),col=aTyp==='group'?gD.doc(c).collection('messages'):cD.doc(c).collection('messages');
 msgUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';
 if(isB)h+='<div class="sy"><i class="fas fa-store ml-1"></i>حساب أعمال</div>';var ld='';ms.forEach(function(m){
 var ds='';try{ds=m.t?(m.t.toMillis?m.t.toDate():new Date(m.t)).toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'}):''}catch(e){}if(ds&&ds!==ld){h+='<div class="sy">'+ds+'</div>';ld=ds}
-var me2=m.s===me,ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';
+var me2=m.s===me,ct='';
+if(m.type==='voice'){
+    // توليد شكل الموجة العشوائي
+    var bars='';for(var k=0;k<9;k++)bars+='<div class="v-bar"></div>';
+    ct='<div class="voice-note" onclick="toggleAudio(this)"><div class="v-icon"><i class="fas fa-play"></i></div><div class="v-wave">'+bars+'</div><div class="v-time">0:00</div><audio src="'+m.data+'"></audio></div>';
+}
 else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-w-full max-h-[180px] mb-0.5 cursor-pointer" onclick="window.open(this.src)">';
 else if(m.isCart)ct='<div class="cb mb-0.5">'+m.txt+'</div>';else ct='<p class="whitespace-pre-wrap">'+m.txt+'</p>';
 h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+' w-full"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});
@@ -444,19 +579,44 @@ function handleQr(v){var p=el('qr-p');if(v.startsWith('/')&&mQrs.length){var f=m
 function useQr(i){el('mi').value=mQrs[i].message;el('qr-p').classList.add('hv');el('mi').focus()}
 function closeChat(){if(msgUn){msgUn();msgUn=null}el('v-chat').classList.add('hv');aId=null}
 
-// === الإعدادات ===
-function openSettings(){el('v-set').classList.remove('hv')}function closeSettings(){el('v-set').classList.add('hv')}
+// الإعدادات (مع تأثيرات الأدمن)
+function openSettings(){
+    el('v-set').classList.remove('hv');
+    var card = el('v-set-card');
+    var header = el('v-set-header');
+    var footer = el('v-set-footer');
+    var title = el('set-title');
+    
+    // إزالة الكلاسات القديمة
+    card.classList.remove('admin-gold-theme');
+    header.classList.remove('bg-slate-800');
+    footer.classList.remove('bg-slate-800', 'border-gray-700');
+    el('s-nm').classList.remove('admin-gold-text');
+    
+    if(me === ADM) {
+        // تفعيل وضع الأدمن
+        card.classList.add('admin-gold-theme');
+        header.classList.add('bg-slate-800', 'border-b', 'border-yellow-600');
+        footer.classList.add('bg-slate-800', 'border-t', 'border-yellow-600');
+        title.innerHTML = '<i class="fas fa-crown text-yellow-400 ml-1 admin-badge"></i> إعدادات الأدمن VIP';
+        el('s-nm').classList.add('admin-gold-text');
+    } else {
+        title.innerHTML = '<i class="fas fa-cog text-gray-400 ml-1"></i> الإعدادات';
+    }
+}
+
+function closeSettings(){el('v-set').classList.add('hv')}
 el('s-pi').onchange=function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){pBase=ev.target.result;el('s-ip').src=pBase};r.readAsDataURL(f)}};
 function saveProf(){var n=el('s-nm').value.trim(),bio=el('s-bi').value.trim(),pw=el('s-pw').value.trim(),isB=el('s-biz').checked;if(!n)return toast("أدخل اسمك!");var up={displayName:n,bio:bio,isBusiness:isB,avatar:pBase};if(pw&&pw.length>=4)up.loginCode=pw;
-uD.doc(me).update(up).then(function(){uC[me]=Object.assign({},uC[me]||{},up);rCL();toast("تم الحفظ ✅");closeSettings()}).catch(function(){toast("خطأ!")})}
+uD.doc(me).update(up).then(function(){uC[me]=Object.assign({},uC[me]||{},up);rCL();toast("تم الحفظ ✅");closeSettings()}).catch(function(e){console.error(e);toast("خطأ في الحفظ!")})}
 function logout(){localStorage.clear();if(msgUn)msgUn=null;location.reload()}
 
-// === إضافة صديق ===
+// إضافة صديق
 function openAddFr(){el('v-afr').classList.remove('hv');el('af-em').value=''}function closeAddFr(){el('v-afr').classList.add('hv')}
 function confirmAddFr(){var p=el('af-em').value.trim().toLowerCase();if(!p)return toast("أدخل الإيميل!");if(p===me)return toast("لا يمكنك إضافة نفسك!");
 uD.doc(p).get().then(function(d){if(!d.exists){toast("غير مسجل بعد!");return}if(d.data().status==='banned'){toast("محظور!");return}return uD.doc(me).update({contacts:firebase.firestore.FieldValue.arrayUnion(p)}).then(function(){return uD.doc(p).update({contacts:firebase.firestore.FieldValue.arrayUnion(me)})})}).then(function(){closeAddFr();openChat(p,'direct');toast("تم ✅")}).catch(function(){toast("خطأ!")})}
 
-// === المجتمعات ===
+// المجتمعات
 function openCrGrp(){el('v-crg').classList.remove('hv');el('cg-nm').value='';el('cg-ds').value=''}function closeCrGrp(){el('v-crg').classList.add('hv')}
 function confirmCrGrp(){var n=el('cg-nm').value.trim();if(!n)return toast("أدخل الاسم!");var ds=el('cg-ds').value.trim();var gid='grp_'+Date.now();
 gD.doc(gid).set({name:n,description:ds,createdBy:me,members:[me],createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){gC[gid]={id:gid,name:n,description:ds,createdBy:me,members:[me]};lGL();closeCrGrp();setTimeout(function(){openChat(gid,'group')},300);toast("تم ✅")})}
@@ -473,7 +633,7 @@ function editGrpName(){if(!aId)return;var nn=prompt("الاسم الجديد:",g
 function leaveGrp(){if(!aId)return;if(!confirm("مغادرة؟"))return;gD.doc(aId).update({members:firebase.firestore.FieldValue.arrayRemove(me)}).then(function(){if(gC[aId]&&gC[aId].members){var i=gC[aId].members.indexOf(me);if(i!==-1)gC[aId].members.splice(i,1)}closeGrpInfo();closeChat();lGL();toast("تمت المغادرة")})}
 function delGrp(){if(!aId)return;if(!confirm("حذف نهائياً؟"))return;gD.doc(aId).collection('messages').get().then(function(s){var batch=db.batch();s.docs.forEach(function(d){batch.delete(d.ref)});return batch.commit()}).then(function(){return gD.doc(aId).delete()}).then(function(){delete gC[aId];closeGrpInfo();closeChat();lGL();toast("تم الحذف")})}
 
-// === الحالات ===
+// الحالات
 function openCrSt(){el('v-cst').classList.remove('hv');el('cs-tx').value=''}function closeCrSt(){el('v-cst').classList.add('hv')}
 function confirmCrSt(){var t=el('cs-tx').value.trim();if(!t)return toast("اكتب شيئا!");sD.add({userId:me,text:t,lt:Date.now(),createdAt:firebase.firestore.FieldValue.serverTimestamp(),seenBy:[]}).then(function(){closeCrSt();toast("تم النشر ✅")})}
 function lSL(){sD.orderBy('lt','desc').onSnapshot(function(s){stCache={};s.forEach(function(d){var x=d.data();if(!stCache[x.userId])stCache[x.userId]=[];stCache[x.userId].push(Object.assign({},x,{_id:d.id}))});
@@ -486,16 +646,16 @@ function nextSt(){clearTimeout(stTmr);stIdx++;if(stIdx>=stData.length)closeSV();
 function prevSt(){clearTimeout(stTmr);stIdx=Math.max(0,stIdx-1);showSt()}
 function closeSV(){clearTimeout(stTmr);el('v-svw').classList.add('hv')}
 
-// === بروفايل ===
+// بروفايل
 function openCProf(){if(!aId||aTyp!=='direct')return;var u=uC[aId];if(!u)return;el('cp-i').src=u.avatar||av(u.displayName);el('cp-n').innerText=u.displayName;el('cp-b').innerText=u.bio||'متاح';el('cp-p').innerText=u.email;el('cp-v').classList.toggle('hv',!u.isVerified);el('cp-bz').classList.toggle('hv',!u.isBusiness);el('cp-sh').classList.toggle('hv',!u.isBusiness);el('v-cpf').classList.remove('hv')}
 function closeCProf(){el('v-cpf').classList.add('hv')}
 
-// === التسميات ===
+// التسميات
 function openLabel(){if(!aId||aTyp!=='direct')return;el('v-lbl').classList.remove('hv');var cur=labels[aId]||'';var html='';LB.forEach(function(l){html+='<button onclick="asLbl(\''+l.n+'\')" class="w-full p-2 rounded-lg text-xs font-bold text-right '+(cur===l.n?'bg-sky-500 text-white shadow-md':'bg-gray-50 text-gray-700')+' active:scale-[.97] transition flex items-center justify-between">'+l.n+(cur===l.n?'<i class="fas fa-check"></i>':'')+'</button>'});html+='<button onclick="asLbl(\'\')" class="w-full p-2 rounded-lg text-xs font-bold text-right bg-red-50 text-red-500 active:scale-[.97] transition">إزالة</button>';el('lb-ops').innerHTML=html}
 function asLbl(lb){if(lb)labels[aId]=lb;else delete labels[aId];localStorage.setItem('kimo_lb',JSON.stringify(labels));closeLbl();var e=el('clbl');if(lb){var l=LB.find(function(x){return x.n===lb});e.innerHTML='<span class="lt '+(l?.c||'')+'">'+lb+'</span>';e.classList.remove('hv')}else e.classList.add('hv');rCL();toast(lb?'تم: '+lb:'تمت الإزالة')}
 function closeLbl(){el('v-lbl').classList.add('hv')}
 
-// === أدوات الأعمال ===
+// أدوات الأعمال
 function openBiz(){el('v-biz').classList.remove('hv')}function closeBiz(){el('v-biz').classList.add('hv')}
 el('bci').onchange=function(e){var f=e.target.files[0];if(f){var r=new FileReader();r.onload=function(ev){cBase=ev.target.result;el('bcp').src=cBase};r.readAsDataURL(f)}};
 function openProdModal(){tmpProdImg='';el('prod-img-prev').src='';el('prod-img-ph').classList.remove('hv');el('prod-img-url').value='';el('prod-name').value='';el('prod-price').value='';el('v-prod').classList.remove('hv')}
@@ -508,14 +668,14 @@ function addQr(){var k=prompt("كلمة مفتاحية (بدون /):");if(!k)ret
 function rQL(){var e=el('b-ql');if(!mQrs.length){e.innerHTML='<p class="text-[10px] text-gray-400 text-center py-2">لا ردود</p>';return}e.innerHTML=mQrs.map(function(r,i){return '<div class="flex justify-between items-center bg-gray-50 p-1.5 rounded-lg text-[10px]"><button onclick="mQrs.splice('+i+',1);rQL()" class="text-red-400 p-0.5"><i class="fas fa-trash"></i></button><span class="text-gray-600 truncate max-w-[120px]">'+r.message+'</span><span class="bg-sky-100 text-sky-600 px-1.5 py-0.5 rounded font-black shrink-0">/'+r.keyword+'</span></div>'}).join('')}
 function saveBiz(){var biz={cover:cBase,category:el('b-cat').value,address:el('b-add').value,hours:el('b-hrs').value,greeting:el('b-grt').value,away:el('b-awy').value,catalog:mProds,quickReplies:mQrs};uD.doc(me).update({bizProfile:biz}).then(function(){toast("تم ✅");closeBiz()})}
 
-// === الكتالوج ===
+// الكتالوج
 function openCat(){if(!aId)return;var u=uC[aId];if(!u||!u.bizProfile)return;var bp=u.bizProfile;el('s-cv').src=bp.cover||'https://picsum.photos/seed/store/800/300.jpg';el('s-lg').src=u.avatar||'';el('s-nm').innerText=u.displayName;el('s-ct').innerText=bp.category||'';el('s-hr').innerHTML='<i class="far fa-clock text-sky-500 ml-1"></i>'+(bp.hours||'مفتوح دائماً');el('s-lo').innerHTML='<i class="fas fa-map-marker-alt text-sky-500 ml-1"></i>'+(bp.address||'');cart=[];updCart();var prods=bp.catalog||[];var pl=el('s-pl');if(!prods.length)pl.innerHTML='<p class="col-span-2 text-center text-gray-400 text-xs py-8">لا توجد منتجات</p>';else pl.innerHTML=prods.map(function(p,i){return '<div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100"><div class="h-24 bg-gray-100"><img src="'+p.image+'" class="w-full h-full object-cover"></div><div class="p-2"><p class="font-black text-xs text-slate-800 truncate">'+p.name+'</p><div class="flex justify-between items-center mt-1"><span class="text-sky-600 font-black text-[10px]">'+p.price+' ج.م</span><button onclick="addCart('+i+')" class="bg-green-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs active:scale-90 shadow"><i class="fas fa-plus"></i></button></div></div></div>'}).join('');el('v-cat').classList.remove('hv')}
 function closeCat(){el('v-cat').classList.add('hv')}
 function addCart(i){var u=uC[aId];var prods=u&&u.bizProfile?u.bizProfile.catalog||[]:[];var p=prods[i];if(!p)return;var ex=cart.find(function(x){return x.name===p.name});if(ex)ex.qty++;else cart.push(Object.assign({},p,{qty:1}));updCart();toast("تمت الإضافة")}
 function updCart(){var tot=cart.reduce(function(s,x){return s+parseFloat(x.price||0)*x.qty},0);el('c-tot').innerText=tot+' ج.م';el('c-cnt').innerText=cart.reduce(function(s,x){return s+x.qty},0)}
 function sendOrder(){if(!cart.length)return toast("السلة فارغة!");var txt=cart.map(function(x){return '• '+x.name+' ×'+x.qty+' = '+(parseFloat(x.price)*x.qty)+' ج.م'}).join('\n')+'\n\nالمجموع: '+cart.reduce(function(s,x){return s+parseFloat(x.price)*x.qty},0)+' ج.م';sendTxt(txt,true);closeCat();cart=[];toast("تم إرسال الطلب ✅")}
 
-// === الإدارة ===
+// الإدارة
 function openAdmin(){el('v-adm').classList.remove('hv');loadAdminList()}function closeAdmin(){el('v-adm').classList.add('hv')}
 function loadAdminList(){uD.get().then(function(s){var l=el('al');l.innerHTML='';s.docs.forEach(function(doc){var u=doc.data();if(u.email===ADM)return;l.innerHTML+='<div class="bg-white p-3 rounded-xl flex flex-col gap-2 shadow-sm"><div class="flex justify-between items-center text-right"><div><p class="font-black text-sm">'+u.displayName+(u.isVerified?' <span class="vb"><i class="fas fa-check"></i></span>':'')+'</p><p class="text-[10px] text-gray-400 break-all">'+u.email+'</p><p class="text-[10px] text-sky-600 font-bold">كود: '+u.loginCode+'</p></div><span class="px-2 py-0.5 rounded-full text-white text-[9px] '+(u.status==='banned'?'bg-red-500':'bg-green-500')+' shadow">'+u.status+'</span></div><div class="flex flex-wrap gap-1 justify-end border-t pt-1.5"><button onclick="uUpd(\''+u.email+'\',{isVerified:'+!u.isVerified+'})" class="text-[9px] bg-sky-500 text-white px-2 py-1 rounded-lg">توثيق</button><button onclick="openEPin(\''+u.email+'\')" class="text-[9px] bg-yellow-400 px-2 py-1 rounded-lg">كود</button><button onclick="uUpd(\''+u.email+'\',{status:\'banned\'})" class="text-[9px] bg-red-600 text-white px-2 py-1 rounded-lg">حظر</button><button onclick="uUpd(\''+u.email+'\',{status:\'approved\'})" class="text-[9px] bg-green-500 text-white px-2 py-1 rounded-lg">فك</button><button onclick="openSpy(\''+u.email+'\',\''+u.displayName+'\')" class="text-[9px] bg-slate-900 text-white px-2 py-1 rounded-lg"><i class="fas fa-eye"></i> مراقبة</button></div></div>'})})}
 function uUpd(p,up){uD.doc(p).update(up).then(function(){setTimeout(loadAdminList,500);toast("تم ✅")})}
@@ -523,7 +683,7 @@ function openEPin(p){epEmail=p;el('ep-em').innerText=p;el('ep-pin').value=uC[p]?
 function saveEPin(){var pin=el('ep-pin').value.trim();if(pin){uD.doc(epEmail).update({loginCode:pin}).then(function(){closeEPin();setTimeout(loadAdminList,500);toast("تم ✅")})}}
 function closeEPin(){el('v-epin').classList.add('hv')}
 
-// === التجسس ===
+// التجسس
 function openSpy(uid,nm){spyId=uid;el('sp-nm').innerText=nm;el('v-spy').classList.remove('hv');var mc2=[];try{mc2=uC[uid]?uC[uid].contacts||[]:[]}catch(e){}var cs=[];for(var k in uC){var u=uC[k];if(u.email!==uid&&u.status!=='banned')cs.push(u)}if(uid!==ADM)cs=cs.filter(function(u){return mc2.indexOf(u.email)!==-1});el('sp-cts').innerHTML=cs.map(function(u){return '<button onclick="spyChat(\''+u.email+'\')" class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow shrink-0 active:scale-90 transition"><img src="'+(u.avatar||av(u.displayName))+'" class="w-full h-full object-cover"></button>'}).join('');el('sp-ph').classList.remove('hv');el('smw').innerHTML='';if(spyUn){spyUn();spyUn=null}}
 function spyChat(tid){if(spyUn){spyUn();spyUn=null}el('sp-ph').classList.add('hv');var c=cid(spyId,tid),col=cD.doc(c).collection('messages');spyUn=col.orderBy('t').onSnapshot(function(s){var ms=[];s.forEach(function(d){ms.push(d.data())});var h='';ms.forEach(function(m){var me2=m.s===spyId;var ct='';if(m.type==='voice')ct='<audio controls src="'+m.data+'" class="mb-0.5"></audio>';else if(m.type==='image')ct='<img src="'+m.data+'" class="rounded-lg max-h-[120px] mb-0.5">';else ct='<p class="whitespace-pre-wrap text-xs">'+m.txt+'</p>';h+='<div class="flex flex-col '+(me2?'items-end':'items-start')+'"><div class="mb '+(me2?'mo':'mi')+'">'+ct+'<span class="mt">'+fts(m.t)+'</span></div></div>'});el('smw').innerHTML=h;el('smc').scrollTop=el('smc').scrollHeight})}
 function closeSpy(){if(spyUn){spyUn();spyUn=null}el('v-spy').classList.add('hv')}
