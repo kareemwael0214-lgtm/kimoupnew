@@ -51,8 +51,11 @@
 
         /* Message Bubbles */
         #mc { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; gap: 6px; scroll-behavior: smooth; }
-        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-break: normal !important; line-break: strict; transition: all 0.2s; }
-        .mb p { word-break: normal !important; overflow-wrap: break-word; white-space: pre-wrap; }
+        
+        /* THE FIX FOR TEXT WRAPPING */
+        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-wrap: break-word; word-break: normal; transition: all 0.2s; }
+        .mb p { word-break: normal; overflow-wrap: break-word; white-space: pre-wrap; margin: 0; padding: 0; }
+        
         .mb:active { transform: scale(0.98); }
         .mo { background: linear-gradient(135deg, #dcf8c6, #c5f0a8); border-top-right-radius: 4px; align-self: flex-end; }
         .mi { background: #fff; border-top-left-radius: 4px; align-self: flex-start; border: 1px solid rgba(0,0,0,0.03); }
@@ -70,7 +73,7 @@
         .msg-deleted { color: #8696a0; font-style: italic; font-size: 13px; text-align: center; padding: 4px 0; }
         .vb { background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: #fff; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 7px; margin-right: 3px; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }
         .sy { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); color: #64748b; font-size: 11px; text-align: center; padding: 6px 16px; border-radius: 20px; margin: 10px auto; font-weight: 800; width: fit-content; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; }
+        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; word-break: normal; overflow-wrap: break-word; }
         
         .admin-gold-theme { background: linear-gradient(135deg,#1a1a1a,#2d1b4e,#000); border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255,215,0,.3), inset 0 0 20px rgba(255,215,0,.1); color: #fff; }
         .admin-gold-text { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255,215,0,.6); }
@@ -1187,8 +1190,8 @@ function lMsg(isB){
             if(m.deleted) ct = '<p class="msg-deleted"><i class="fas fa-ban ml-1"></i>تم مسح الرسالة</p>';
             else if(m.type === 'voice') ct = '<div class="voice-note" onclick="event.stopPropagation();toggleAudio(this)"><div class="v-icon"><i class="fas fa-play ml-0.5"></i></div><div class="v-wave"><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div></div><audio src="'+m.data+'"></audio></div>';
             else if(m.type === 'image') ct = '<img src="'+m.data+'" class="rounded-xl max-w-[200px] max-h-[250px] mb-1 cursor-pointer shadow-sm border border-black/5" onclick="window.open(this.src)">';
-            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm" dir="auto">' + actualTxt + '</div>';
-            else ct = '<p class="leading-relaxed text-sm" dir="auto">' + actualTxt + '</p>';
+            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm" dir="auto" style="word-break: normal; overflow-wrap: break-word;">' + actualTxt + '</div>';
+            else ct = '<p class="leading-relaxed text-sm" dir="auto" style="word-break: normal; overflow-wrap: break-word; white-space: pre-wrap;">' + actualTxt + '</p>';
             
             var editTag = m.edited && !m.deleted ? '<span class="msg-edited">(معدلة)</span>' : '';
             var reaction = m.liked && !m.deleted ? '<i class="fas fa-heart liked-heart"></i>' : '';
@@ -1855,7 +1858,7 @@ function spyChat(tid){
             if(m.deleted) ct = '<p class="msg-deleted text-[10px]">(رسالة محذوفة)</p>';
             else if(m.type === 'voice') ct = '<audio controls src="' + m.data + '" class="mb-1 h-8 w-48"></audio>';
             else if(m.type === 'image') ct = '<img src="' + m.data + '" class="rounded-lg max-h-[140px] mb-1">';
-            else ct = '<p class="text-xs" dir="auto">' + m.txt + '</p>';
+            else ct = '<p class="text-xs" dir="auto" style="word-break: normal; overflow-wrap: break-word; white-space: pre-wrap;">' + m.txt + '</p>';
             h += '<div class="flex flex-col ' + (me2 ? 'items-end' : 'items-start') + ' mb-1"><div class="mb ' + (me2 ? 'mo' : 'mi') + ' shadow-sm">' + ct + '</div></div>';
         });
         el('smw').innerHTML = h; el('smc').scrollTop = el('smc').scrollHeight;
