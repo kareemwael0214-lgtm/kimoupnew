@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-    <title>Kimoup VIP - Ultimate V13</title>
+    <title>Kimoup VIP - Ultimate V14</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -52,9 +52,9 @@
         /* Message Bubbles */
         #mc { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; gap: 6px; scroll-behavior: smooth; }
         
-        /* THE FIX FOR TEXT WRAPPING */
-        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-wrap: break-word; word-break: normal; transition: all 0.2s; }
-        .mb p { word-break: normal; overflow-wrap: break-word; white-space: pre-wrap; margin: 0; padding: 0; }
+        /* 🔥 THE FIX FOR TEXT WRAPPING 🔥 */
+        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: anywhere; word-break: normal; transition: all 0.2s; }
+        .mb p { word-break: normal; overflow-wrap: anywhere; white-space: pre-wrap; margin: 0; padding: 0; }
         
         .mb:active { transform: scale(0.98); }
         .mo { background: linear-gradient(135deg, #dcf8c6, #c5f0a8); border-top-right-radius: 4px; align-self: flex-end; }
@@ -73,7 +73,7 @@
         .msg-deleted { color: #8696a0; font-style: italic; font-size: 13px; text-align: center; padding: 4px 0; }
         .vb { background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: #fff; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 7px; margin-right: 3px; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }
         .sy { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); color: #64748b; font-size: 11px; text-align: center; padding: 6px 16px; border-radius: 20px; margin: 10px auto; font-weight: 800; width: fit-content; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; word-break: normal; overflow-wrap: break-word; }
+        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; word-break: normal; overflow-wrap: anywhere; }
         
         .admin-gold-theme { background: linear-gradient(135deg,#1a1a1a,#2d1b4e,#000); border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255,215,0,.3), inset 0 0 20px rgba(255,215,0,.1); color: #fff; }
         .admin-gold-text { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255,215,0,.6); }
@@ -158,7 +158,7 @@
         <i class="fas fa-gem text-5xl text-sky-400 drop-shadow-lg"></i>
     </div>
     <h1 class="text-3xl font-black text-white tracking-wide">Kimoup</h1>
-    <p class="text-[10px] text-sky-300 font-bold uppercase tracking-[.3em] mt-1">Ultimate V13</p>
+    <p class="text-[10px] text-sky-300 font-bold uppercase tracking-[.3em] mt-1">Ultimate V14</p>
     <div class="mt-8 flex gap-2">
         <div class="w-2 h-2 bg-sky-400 rounded-full animate-ping"></div>
         <div class="w-2 h-2 bg-sky-400 rounded-full animate-ping" style="animation-delay:.2s"></div>
@@ -219,7 +219,7 @@
             <div class="flex items-center gap-3">
                 <div class="text-right">
                     <h1 class="font-black text-xl text-slate-800 leading-none">Kimoup</h1>
-                    <p class="text-[9px] text-sky-500 font-bold uppercase tracking-widest mt-1">Ultimate V13</p>
+                    <p class="text-[9px] text-sky-500 font-bold uppercase tracking-widest mt-1">Ultimate V14</p>
                 </div>
                 <div class="w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-900 rounded-full flex items-center justify-center shadow-lg border-2 border-sky-400 relative">
                     <i class="fas fa-paper-plane text-white text-sm"></i>
@@ -361,9 +361,9 @@
         <!-- الردود السريعة -->
         <div id="qr-p" class="hv absolute bottom-[70px] left-2 right-2 z-30 max-h-[160px] overflow-y-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 p-2"></div>
         
-        <!-- حقل إدخال الرسالة -->
+        <!-- حقل إدخال الرسالة (مع تعديل أزرار المايك) -->
         <div id="c-ia" class="p-2.5 bg-white/90 backdrop-blur-md flex gap-2 items-end z-30 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
-            <button id="btn-vc" onmousedown="startV(event)" ontouchstart="startV(event)" onmouseup="stopV(event)" ontouchend="stopV(event)" class="w-11 h-11 bg-gradient-to-br from-sky-400 to-sky-600 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0"><i class="fas fa-microphone text-lg"></i></button>
+            <button id="btn-vc" onmousedown="startV(event)" ontouchstart="startV(event)" onmouseup="stopV(event)" ontouchend="stopV(event)" onmouseleave="stopV(event)" ontouchcancel="stopV(event)" class="w-11 h-11 bg-gradient-to-br from-sky-400 to-sky-600 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0"><i class="fas fa-microphone text-lg"></i></button>
             <div class="flex-1 bg-slate-50 rounded-2xl px-4 py-3 flex items-center shadow-inner border border-gray-200 focus-within:border-sky-300 transition-all min-h-[44px]">
                 <textarea id="mi" placeholder="اكتب رسالة..." class="w-full bg-transparent outline-none font-bold text-sm text-slate-700 resize-none max-h-[80px] min-h-[20px]" rows="1" oninput="this.style.height = '';this.style.height = Math.min(this.scrollHeight, 80) + 'px'; handleQr(this.value); sendTyping();" onfocus="handleQr(this.value)" onblur="setTimeout(function(){document.getElementById('qr-p').classList.add('hv')},200)"></textarea>
             </div>
@@ -827,6 +827,11 @@ var typingTimeout = null, amITyping = false;
 var currentWp = localStorage.getItem('kimo_wp') || '';
 var pinnedMsgId = null;
 
+// Voice Recording State
+var mediaRecorder = null;
+var audioChunks = [];
+var isRecording = false;
+
 var labels = {};
 try { labels = JSON.parse(localStorage.getItem('kimo_lb') || '{}'); } catch(e) { labels = {}; }
 
@@ -1184,19 +1189,19 @@ function lMsg(isB){
                 rBlock = `<div class="reply-block" onclick="event.stopPropagation(); scrollToMsg('${m.repId}')"><p class="reply-name">${m.repNm}</p><p class="reply-txt">${m.repTxt}</p></div>`;
             }
 
-            var fwLabel = m.txt.startsWith("➡️ محولة") ? `<div class="forward-label"><i class="fas fa-share"></i> رسالة محولة</div>` : '';
-            var actualTxt = m.txt.startsWith("➡️ محولة\n\n") ? m.txt.substring(10) : m.txt;
+            var fwLabel = m.txt && m.txt.startsWith("➡️ محولة") ? `<div class="forward-label"><i class="fas fa-share"></i> رسالة محولة</div>` : '';
+            var actualTxt = m.txt && m.txt.startsWith("➡️ محولة\n\n") ? m.txt.substring(10) : m.txt;
 
             if(m.deleted) ct = '<p class="msg-deleted"><i class="fas fa-ban ml-1"></i>تم مسح الرسالة</p>';
             else if(m.type === 'voice') ct = '<div class="voice-note" onclick="event.stopPropagation();toggleAudio(this)"><div class="v-icon"><i class="fas fa-play ml-0.5"></i></div><div class="v-wave"><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div></div><audio src="'+m.data+'"></audio></div>';
             else if(m.type === 'image') ct = '<img src="'+m.data+'" class="rounded-xl max-w-[200px] max-h-[250px] mb-1 cursor-pointer shadow-sm border border-black/5" onclick="window.open(this.src)">';
-            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm" dir="auto" style="word-break: normal; overflow-wrap: break-word;">' + actualTxt + '</div>';
-            else ct = '<p class="leading-relaxed text-sm" dir="auto" style="word-break: normal; overflow-wrap: break-word; white-space: pre-wrap;">' + actualTxt + '</p>';
+            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm" dir="auto">' + actualTxt + '</div>';
+            else ct = '<p dir="auto">' + actualTxt + '</p>';
             
             var editTag = m.edited && !m.deleted ? '<span class="msg-edited">(معدلة)</span>' : '';
             var reaction = m.liked && !m.deleted ? '<i class="fas fa-heart liked-heart"></i>' : '';
             
-            h += `<div id="msg-${m._id}" class="flex flex-col ${me2?'items-end':'items-start'} w-full mb-1.5"><div class="flex items-center gap-1.5 ${me2?'flex-row-reverse':''}"><div class="mb ${me2?'mo':'mi'}" onclick="handleMsgClick('${m._id}','${m.txt.replace(/'/g, "\\'")}','${uC[m.s]?uC[m.s].displayName:''}',${me2})" ondblclick="toggleLike('${m._id}', ${!!m.liked})">${fwLabel}${rBlock}${ct}${editTag}<span class="mt">${fts(m.t)} ${me2 && !m.deleted ? '<i class="fas fa-check-double text-[9px]"></i>':''}</span>${reaction}</div></div></div>`;
+            h += `<div id="msg-${m._id}" class="flex flex-col ${me2?'items-end':'items-start'} w-full mb-1.5"><div class="flex items-center gap-1.5 ${me2?'flex-row-reverse':''}"><div class="mb ${me2?'mo':'mi'}" onclick="handleMsgClick('${m._id}','${m.txt ? m.txt.replace(/'/g, "\\'") : ''}','${uC[m.s]?uC[m.s].displayName:''}',${me2})" ondblclick="toggleLike('${m._id}', ${!!m.liked})">${fwLabel}${rBlock}${ct}${editTag}<span class="mt">${fts(m.t)} ${me2 && !m.deleted ? '<i class="fas fa-check-double text-[9px]"></i>':''}</span>${reaction}</div></div></div>`;
         });
         
         el('mw').innerHTML = h;
@@ -1206,7 +1211,7 @@ function lMsg(isB){
 }
 
 function handleMsgClick(id, txt, nm, isMe) {
-    if(txt.includes('تم مسح هذه الرسالة') || txt.includes('🚫')) return;
+    if(!txt || txt.includes('تم مسح هذه الرسالة') || txt.includes('🚫')) return;
     actMsgId = id; actMsgTxt = txt; actMsgNm = nm; actIsMe = isMe;
     
     el('btn-edit-wrap').classList.toggle('hv', !isMe);
@@ -1371,11 +1376,11 @@ function toggleAudio(div){
     if(currentAudio && currentAudio !== audio){
         currentAudio.pause(); currentAudio.currentTime = 0;
         var prev = document.querySelector('.voice-note.playing');
-        if(prev) { prev.classList.remove('playing'); prev.querySelector('.v-icon i').className = 'fas fa-play'; }
+        if(prev) { prev.classList.remove('playing'); prev.querySelector('.v-icon i').className = 'fas fa-play ml-0.5'; }
     }
     if(audio.paused){ audio.play(); currentAudio = audio; icon.className = 'fas fa-pause'; div.classList.add('playing'); } 
-    else { audio.pause(); icon.className = 'fas fa-play'; div.classList.remove('playing'); }
-    audio.onended = function(){ icon.className = 'fas fa-play'; div.classList.remove('playing'); audio.currentTime = 0; }
+    else { audio.pause(); icon.className = 'fas fa-play ml-0.5'; div.classList.remove('playing'); }
+    audio.onended = function(){ icon.className = 'fas fa-play ml-0.5'; div.classList.remove('playing'); audio.currentTime = 0; }
 }
 
 el('ci-in').onchange = function(e){
@@ -1389,8 +1394,63 @@ el('ci-in').onchange = function(e){
     r.readAsDataURL(f); e.target.value = '';
 };
 
-function startV(e){ e.preventDefault(); el('rec-t').classList.remove('hv'); }
-function stopV(e){ e.preventDefault(); el('rec-t').classList.add('hv'); toast("ميزة تسجيل الصوت تتطلب تفعيل WebRTC في هذه البيئة"); }
+// --- Real Voice Recording (MediaRecorder API) ---
+function startV(e){ 
+    e.preventDefault(); 
+    if(isRecording || !aId) return;
+    
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                isRecording = true;
+                audioChunks = [];
+                
+                mediaRecorder.addEventListener("dataavailable", function(event) {
+                    audioChunks.push(event.data);
+                });
+                
+                mediaRecorder.addEventListener("stop", function() {
+                    const audioBlob = new Blob(audioChunks);
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = function() {
+                        const base64Audio = reader.result;
+                        // Limit size to avoid Firestore 1MB document limit
+                        if(base64Audio.length > 900000) {
+                            toast("المقطع الصوتي كبير جداً! الحد الأقصى حوالي 15 ثانية.");
+                        } else {
+                            var c = aTyp === 'group' ? aId : cid(me, aId);
+                            var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
+                            col.add({ s: me, txt: '🎤 مقطع صوتي', data: base64Audio, type: 'voice', t: firebase.firestore.FieldValue.serverTimestamp(), liked: false });
+                            toast("تم إرسال المقطع الصوتي ✅");
+                        }
+                    };
+                    
+                    // Release microphone stream
+                    stream.getTracks().forEach(track => track.stop());
+                });
+                
+                el('rec-t').classList.remove('hv');
+            })
+            .catch(function(err) {
+                console.error("Mic access denied or error:", err);
+                toast("يرجى إعطاء صلاحية استخدام المايكروفون من المتصفح!");
+            });
+    } else {
+        toast("المتصفح لا يدعم تسجيل الصوت!");
+    }
+}
+
+function stopV(e){ 
+    e.preventDefault(); 
+    if(!isRecording || !mediaRecorder) return;
+    
+    mediaRecorder.stop();
+    isRecording = false;
+    el('rec-t').classList.add('hv'); 
+}
 
 // =====================================
 // [6] الألعاب المصغرة (Mini Games V13)
@@ -1858,7 +1918,7 @@ function spyChat(tid){
             if(m.deleted) ct = '<p class="msg-deleted text-[10px]">(رسالة محذوفة)</p>';
             else if(m.type === 'voice') ct = '<audio controls src="' + m.data + '" class="mb-1 h-8 w-48"></audio>';
             else if(m.type === 'image') ct = '<img src="' + m.data + '" class="rounded-lg max-h-[140px] mb-1">';
-            else ct = '<p class="text-xs" dir="auto" style="word-break: normal; overflow-wrap: break-word; white-space: pre-wrap;">' + m.txt + '</p>';
+            else ct = '<p class="text-xs" dir="auto" style="word-break: normal; overflow-wrap: anywhere; white-space: pre-wrap;">' + m.txt + '</p>';
             h += '<div class="flex flex-col ' + (me2 ? 'items-end' : 'items-start') + ' mb-1"><div class="mb ' + (me2 ? 'mo' : 'mi') + ' shadow-sm">' + ct + '</div></div>';
         });
         el('smw').innerHTML = h; el('smc').scrollTop = el('smc').scrollHeight;
