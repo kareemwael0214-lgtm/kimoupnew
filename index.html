@@ -51,7 +51,7 @@
 
         /* Message Bubbles */
         #mc { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; gap: 6px; scroll-behavior: smooth; }
-        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; word-break: break-word; transition: all 0.2s; }
+        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-wrap: break-word; word-break: normal; transition: all 0.2s; }
         .mb:active { transform: scale(0.98); }
         .mo { background: linear-gradient(135deg, #dcf8c6, #c5f0a8); border-top-right-radius: 4px; align-self: flex-end; }
         .mi { background: #fff; border-top-left-radius: 4px; align-self: flex-start; border: 1px solid rgba(0,0,0,0.03); }
