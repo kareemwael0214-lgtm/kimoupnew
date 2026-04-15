@@ -51,7 +51,8 @@
 
         /* Message Bubbles */
         #mc { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; gap: 6px; scroll-behavior: smooth; }
-        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-wrap: break-word; word-break: normal; transition: all 0.2s; }
+        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: break-word; word-break: normal !important; line-break: strict; transition: all 0.2s; }
+        .mb p { word-break: normal !important; overflow-wrap: break-word; white-space: pre-wrap; }
         .mb:active { transform: scale(0.98); }
         .mo { background: linear-gradient(135deg, #dcf8c6, #c5f0a8); border-top-right-radius: 4px; align-self: flex-end; }
         .mi { background: #fff; border-top-left-radius: 4px; align-self: flex-start; border: 1px solid rgba(0,0,0,0.03); }
@@ -1186,8 +1187,8 @@ function lMsg(isB){
             if(m.deleted) ct = '<p class="msg-deleted"><i class="fas fa-ban ml-1"></i>تم مسح الرسالة</p>';
             else if(m.type === 'voice') ct = '<div class="voice-note" onclick="event.stopPropagation();toggleAudio(this)"><div class="v-icon"><i class="fas fa-play ml-0.5"></i></div><div class="v-wave"><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div></div><audio src="'+m.data+'"></audio></div>';
             else if(m.type === 'image') ct = '<img src="'+m.data+'" class="rounded-xl max-w-[200px] max-h-[250px] mb-1 cursor-pointer shadow-sm border border-black/5" onclick="window.open(this.src)">';
-            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm">' + actualTxt + '</div>';
-            else ct = '<p class="whitespace-pre-wrap leading-relaxed text-sm">' + actualTxt + '</p>';
+            else if(m.isCart) ct = '<div class="cb mb-1 shadow-sm" dir="auto">' + actualTxt + '</div>';
+            else ct = '<p class="leading-relaxed text-sm" dir="auto">' + actualTxt + '</p>';
             
             var editTag = m.edited && !m.deleted ? '<span class="msg-edited">(معدلة)</span>' : '';
             var reaction = m.liked && !m.deleted ? '<i class="fas fa-heart liked-heart"></i>' : '';
@@ -1854,7 +1855,7 @@ function spyChat(tid){
             if(m.deleted) ct = '<p class="msg-deleted text-[10px]">(رسالة محذوفة)</p>';
             else if(m.type === 'voice') ct = '<audio controls src="' + m.data + '" class="mb-1 h-8 w-48"></audio>';
             else if(m.type === 'image') ct = '<img src="' + m.data + '" class="rounded-lg max-h-[140px] mb-1">';
-            else ct = '<p class="whitespace-pre-wrap text-xs">' + m.txt + '</p>';
+            else ct = '<p class="text-xs" dir="auto">' + m.txt + '</p>';
             h += '<div class="flex flex-col ' + (me2 ? 'items-end' : 'items-start') + ' mb-1"><div class="mb ' + (me2 ? 'mo' : 'mi') + ' shadow-sm">' + ct + '</div></div>';
         });
         el('smw').innerHTML = h; el('smc').scrollTop = el('smc').scrollHeight;
