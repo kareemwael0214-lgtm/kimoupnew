@@ -859,7 +859,6 @@
         </div>
     </div>
 
-    <!-- بقية الشاشات (الأعمال، المنتجات، الإدارة، التجسس) محفوظة بالأسفل -->
     <!-- أدوات الأعمال -->
     <div id="v-biz" class="hv fixed inset-0 bg-slate-50 z-[110] flex flex-col asu">
         <div class="bg-slate-900 h-[65px] flex items-center justify-between px-5 text-white shrink-0 border-b border-sky-500/30">
@@ -1074,7 +1073,7 @@ var spyId = null, epEmail = null;
 var mProds = [], mQrs = [], cart = [];
 var msgUn = null, spyUn = null;
 var stTmr = null, stData = [], stIdx = 0;
-var initialLoad = true; // لمنع صوت الإشعارات عند فتح التطبيق لأول مرة
+var initialLoad = true; 
 
 var labels = {};
 try { labels = JSON.parse(localStorage.getItem('kimo_lb') || '{}'); } catch(e) { labels = {}; }
@@ -1164,17 +1163,27 @@ function checkEmailFormat() {
 function requestNotificationPermission() {
     if ("Notification" in window) {
         if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-            Notification.requestPermission();
+            Notification.requestPermission().then(function(permission) {
+                if (permission === "granted") {
+                    console.log("تم تفعيل الإشعارات بنجاح");
+                }
+            });
         }
     }
 }
 
 function sendNotification(title, body) {
-    // إشعار المتصفح
+    // إشعار المتصفح الأساسي
     if ("Notification" in window && Notification.permission === "granted") {
-        new Notification(title, { body: body, icon: 'https://ui-avatars.com/api/?name=Kimo' });
+        try {
+            var notif = new Notification(title, { body: body, icon: 'https://ui-avatars.com/api/?name=Kimoup&background=0ea5e9&color=fff' });
+            notif.onclick = function() {
+                window.focus();
+                this.close();
+            };
+        } catch(e) {}
     }
-    // إشعار Median.co
+    // إشعار تطبيق Median.co
     if (window.median && window.median.notification) {
          window.median.notification.send({
             title: title,
@@ -1189,11 +1198,10 @@ function sendNotification(title, body) {
 
 function playNotificationSound() {
     var audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-    audio.play().catch(function(e){ console.log("Audio play blocked by browser."); });
+    audio.play().catch(function(e){ console.log("الصوت محظور من المتصفح"); });
 }
 
 /* ======================== التأكد من إضافة لجهات الاتصال ======================== */
-// هذه الدالة تضمن ظهور المحادثة في القائمة بمجرد إرسال رسالة
 function ensureContact(targetId) {
     if(!targetId || aTyp !== 'direct') return;
     
@@ -1225,7 +1233,6 @@ function refreshChatHeader(){
 
 /* ======================== بدء التطبيق ======================== */
 function bootApp(){
-    requestNotificationPermission();
     try { emailjs.init(EMAIL_JS_PUBLIC_KEY); } catch(e){}
     var sp = el('sp');
     if(sp) {
@@ -1254,6 +1261,7 @@ function sendEmailOTP(email, code, name){
 
 /* ======================== تسجيل الدخول ======================== */
 function chkEmail(){
+    requestNotificationPermission(); // طلب الصلاحية عند تفاعل المستخدم
     if(!uD){ toast("تعذر الاتصال بالخادم!"); return; }
     var nameInput = el('in-name').value.trim();
     var raw = el('in-em').value.trim().toLowerCase();
@@ -1317,6 +1325,7 @@ function chkEmail(){
 }
 
 function verifyPin(){
+    requestNotificationPermission(); // تأكيد طلب الصلاحية 
     if(!uD) return;
     var pin = el('in-pin').value.trim();
     if(!pin || pin.length < 4) return toast("الكود المدخل غير صحيح!");
@@ -1346,21 +1355,17 @@ function verifyPin(){
 function initApp(){
     el('v-auth').classList.add('hv');
     el('v-main').classList.remove('hv');
+    requestNotificationPermission(); // لضمان التفعيل لو كان مسجل دخول مسبقاً
     
     if(me === ADM){
         el('btn-lo').classList.remove('hv');
         el('btn-ad').classList.remove('hv');
     }
 
-    /* استماع للبيانات الشخصية */
     uD.doc(me).onSnapshot(function(s){
         if(!s.exists){ logout(); return; }
         var d = s.data();
-        if(d.status === 'banned') {
-            alert("تم حظر حسابك بقرار من الإدارة!");
-            logout();
-            return;
-        }
+        if(d.status === 'banned') { alert("تم حظر حسابك بقرار من الإدارة!"); logout(); return; }
         pBase = d.avatar || '';
         cBase = d.bizProfile ? d.bizProfile.cover || '' : '';
         
@@ -1378,22 +1383,17 @@ function initApp(){
             el('b-cat').value = d.bizProfile.category || '';
             el('b-add').value = d.bizProfile.address || '';
             if(d.bizProfile.cover) el('bcp').src = d.bizProfile.cover;
-            rPL(); 
-            rQL();
+            rPL(); rQL();
         }
         uC[me] = d;
     });
 
-    /* استماع لبيانات جميع المستخدمين */
     uD.onSnapshot(function(s){
-        s.forEach(function(doc){
-            uC[doc.id] = doc.data();
-        });
-        refreshChatHeader(); // تحديث فوري إذا كنت داخل المحادثة وتغير الاسم
-        rCL(); // تحديث فوري لقائمة المحادثات
+        s.forEach(function(doc){ uC[doc.id] = doc.data(); });
+        refreshChatHeader(); 
+        rCL(); 
     });
 
-    /* استماع لبيانات المجتمعات */
     gD.onSnapshot(function(s){
         s.docChanges().forEach(function(ch){
             var gid = ch.doc.id;
@@ -1420,7 +1420,6 @@ function rCL(){
         if(u.email !== me && u.status !== 'banned') cs.push(u);
     }
     
-    // إذا لم يكن المدير، أظهر فقط من هم في قائمة جهات الاتصال (التي تتحدث معهم)
     if(me !== ADM) {
         cs = cs.filter(function(u){ return mc.indexOf(u.email) !== -1; });
     }
@@ -1484,7 +1483,7 @@ function openChat(id, typ){
         if(!g) { toast("المجتمع غير موجود!"); el('v-chat').classList.add('hv'); aId = null; return; }
         el('cn').innerText = g.name;
         el('cst').innerText = (g.members?g.members.length:0) + ' عضو';
-        el('cv').classList.toggle('hv', !g.isVerified); // توثيق المجتمع فقط للأدمن اللي عمله
+        el('cv').classList.toggle('hv', !g.isVerified);
         el('ci').src = av(g.name) + '&background=0ea5e9&color=fff&bold=true';
         el('btn-grp-info').classList.remove('hv');
         
@@ -1585,14 +1584,12 @@ function lMsg(isB){
             var editTag = m.edited && !m.deleted ? '<span class="msg-edited">(تم التعديل)</span>' : '';
             var actBtn = '';
             
-            // زر التعديل/الحذف يظهر للمرسل في حالة لم تحذف الرسالة
             if(me2 && !m.deleted){
                 actBtn = '<button onclick="event.stopPropagation();showMsgAct(\'' + m._id + '\')" class="msg-act-btn shadow-sm shrink-0"><i class="fas fa-chevron-down"></i></button>';
             }
             
             var reactionHeart = m.liked && !m.deleted ? '<i class="fas fa-heart liked-heart"></i>' : '';
             
-            // تصميم فقاعة الرسالة مع زر الخيارات
             h += '<div class="flex flex-col ' + (me2 ? 'items-end' : 'items-start') + ' w-full mb-1.5"><div class="flex items-center gap-1.5 ' + (me2 ? 'flex-row-reverse' : '') + '"><div class="mb ' + (me2 ? 'mo' : 'mi') + '" ondblclick="toggleLike(\'' + m._id + '\', ' + !!m.liked + ')">' + ct + editTag + '<span class="mt">' + fts(m.t) + '</span>' + reactionHeart + '</div>' + actBtn + '</div></div>';
         });
         
@@ -1617,23 +1614,24 @@ function showMsgAct(mid){
 
 function closeMsgAct(){
     el('v-msgact').classList.add('hv');
-    editMsgId = null;
 }
 
 function editMsg(){
-    closeMsgAct();
     if(!editMsgId || !aId) return;
+    var currentMid = editMsgId; // الحفظ قبل الغلق
+    closeMsgAct();
     
     var c = aTyp === 'group' ? aId : cid(me, aId);
     var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
     
-    col.doc(editMsgId).get().then(function(doc){
+    col.doc(currentMid).get().then(function(doc){
         if(!doc.exists) return;
         var d = doc.data();
         if(d.s !== me){ toast("لا تملك صلاحية التعديل!"); return; }
         if(d.type !== 'text' || d.isCart || d.deleted){ toast("لا يمكن تعديل هذا النوع من الرسائل!"); return; }
         
         editMsgCol = col;
+        editMsgId = currentMid; // إرجاعه للحفظ
         el('edit-msg-txt').value = d.txt;
         el('v-editmsg').classList.remove('hv');
     }).catch(function(){ toast("تعذر جلب الرسالة!"); });
@@ -1657,8 +1655,9 @@ function closeEditMsg(){
 }
 
 function delMsg(){
-    closeMsgAct();
     if(!editMsgId || !aId) return;
+    var currentMid = editMsgId; // الحفظ قبل الغلق
+    closeMsgAct();
     
     var c = aTyp === 'group' ? aId : cid(me, aId);
     var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
@@ -1673,12 +1672,12 @@ function delMsg(){
     
     updateObj.data = firebase.firestore.FieldValue.delete();
     
-    col.doc(editMsgId).update(updateObj).then(function(){
+    col.doc(currentMid).update(updateObj).then(function(){
         toast("تم حذف الرسالة للجميع ✅");
     }).catch(function(){
-        delete updateObj.data; // خيار بديل لو لم يعمل الحذف للحقل
+        delete updateObj.data;
         updateObj.data = "";
-        col.doc(editMsgId).update(updateObj).then(function(){
+        col.doc(currentMid).update(updateObj).then(function(){
             toast("تم حذف الرسالة للجميع ✅");
         }).catch(function(){ toast("حدث خطأ أثناء المسح!"); });
     });
@@ -1693,7 +1692,7 @@ function sendTxt(ct, ic){
     
     el('qr-p').classList.add('hv');
     
-    ensureContact(aId); // حل مشكلة عدم ظهور الأشخاص في الشات
+    ensureContact(aId); 
     
     var c = aTyp === 'group' ? aId : cid(me, aId);
     var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
@@ -1707,7 +1706,6 @@ function sendTxt(ct, ic){
         liked: false
     });
     
-    // المراسلة الآلية
     if(aTyp === 'direct' && !ic){
         try {
             var tg = uC[aId];
@@ -1737,7 +1735,7 @@ el('ci-in').onchange = function(e){
     
     var r = new FileReader();
     r.onload = function(ev){
-        ensureContact(aId); // الإضافة السريعة لجهة الاتصال
+        ensureContact(aId); 
         var c = aTyp === 'group' ? aId : cid(me, aId);
         var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
         col.add({
@@ -1764,7 +1762,7 @@ function startV(e){
             var b = new Blob(aCh, {type:'audio/webm'});
             var r = new FileReader();
             r.onload = function(ev){
-                ensureContact(aId); // الإضافة السريعة
+                ensureContact(aId); 
                 var c = aTyp === 'group' ? aId : cid(me, aId);
                 var col = aTyp === 'group' ? gD.doc(c).collection('messages') : cD.doc(c).collection('messages');
                 col.add({
@@ -1935,7 +1933,6 @@ function lGL(){
     var gs = [];
     for(var k in gC) gs.push(gC[k]);
     
-    // المجموعات تظهر لو كنت أدمن أو عضو فيها أو موثقة (عامة)
     gs = gs.filter(function(g){
         if(!g.id) return false;
         var isM = (g.members && g.members.indexOf(me) !== -1) || g.createdBy === me || me === ADM;
@@ -2452,7 +2449,7 @@ function loadAdminList(){
         l.innerHTML = '';
         s.docs.forEach(function(doc){
             var u = doc.data();
-            if(u.email === ADM) return; // تجاهل المدير نفسه
+            if(u.email === ADM) return; 
             
             l.innerHTML += '<div class="bg-white p-4 rounded-2xl flex flex-col gap-3 shadow-sm border border-gray-100 hover:shadow-md transition"><div class="flex justify-between items-center text-right"><div><p class="font-black text-base text-slate-800">' + u.displayName + (u.isVerified ? ' <span class="vb ml-1"><i class="fas fa-check"></i></span>' : '') + '</p><p class="text-xs text-gray-500 break-all mt-0.5">' + u.email + '</p><p class="text-xs text-sky-600 font-bold mt-1 bg-sky-50 inline-block px-2 py-0.5 rounded">كود: ' + u.loginCode + '</p></div><span class="px-3 py-1 rounded-lg text-white text-[10px] font-black shadow-sm ' + (u.status === 'banned' ? 'bg-red-500' : 'bg-green-500') + '">' + (u.status === 'banned' ? 'محظور' : 'نشط') + '</span></div><div class="flex flex-wrap gap-2 justify-end border-t border-gray-100 pt-3"><button onclick="uUpd(\'' + u.email + '\',{isVerified:' + !u.isVerified + '})" class="text-[10px] font-black bg-gradient-to-r from-sky-500 to-blue-600 text-white px-3 py-2 rounded-xl shadow-sm hover:scale-95 transition">تغيير التوثيق</button><button onclick="openEPin(\'' + u.email + '\')" class="text-[10px] font-black bg-yellow-400 text-yellow-900 px-3 py-2 rounded-xl shadow-sm hover:scale-95 transition">تعديل الكود</button><button onclick="uUpd(\'' + u.email + '\',{status:\'banned\'})" class="text-[10px] font-black bg-red-600 text-white px-3 py-2 rounded-xl shadow-sm hover:scale-95 transition">حظر نهائي</button><button onclick="uUpd(\'' + u.email + '\',{status:\'approved\'})" class="text-[10px] font-black bg-emerald-500 text-white px-3 py-2 rounded-xl shadow-sm hover:scale-95 transition">إلغاء حظر</button><button onclick="openSpy(\'' + u.email + '\',\'' + u.displayName + '\')" class="text-[10px] font-black bg-slate-900 text-white px-3 py-2 rounded-xl shadow-sm hover:scale-95 transition flex items-center gap-1"><i class="fas fa-eye"></i>مراقبة النشاط</button></div></div>';
         });
