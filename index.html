@@ -53,8 +53,8 @@
         #mc { flex: 1; overflow-y: auto; display: flex; flex-direction: column; padding: 12px; gap: 6px; scroll-behavior: smooth; }
         
         /* 🔥 THE FIX FOR TEXT WRAPPING 🔥 */
-        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; overflow-wrap: anywhere; word-break: normal; transition: all 0.2s; }
-        .mb p { word-break: normal; overflow-wrap: anywhere; white-space: pre-wrap; margin: 0; padding: 0; }
+        .mb { max-width: 82%; padding: 8px 12px 6px; font-weight: 700; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,.05); border-radius: 14px; position: relative; word-break: break-word; overflow-wrap: break-word; transition: all 0.2s; }
+        .mb p { word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; margin: 0; padding: 0; max-width: 100%; }
         
         .mb:active { transform: scale(0.98); }
         .mo { background: linear-gradient(135deg, #dcf8c6, #c5f0a8); border-top-right-radius: 4px; align-self: flex-end; }
@@ -73,7 +73,7 @@
         .msg-deleted { color: #8696a0; font-style: italic; font-size: 13px; text-align: center; padding: 4px 0; }
         .vb { background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: #fff; border-radius: 50%; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 7px; margin-right: 3px; box-shadow: 0 0 0 2px #fff; flex-shrink: 0; }
         .sy { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); color: #64748b; font-size: 11px; text-align: center; padding: 6px 16px; border-radius: 20px; margin: 10px auto; font-weight: 800; width: fit-content; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
-        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; word-break: normal; overflow-wrap: anywhere; }
+        .cb { background: #f0f9ff; border: 1.5px solid #0ea5e9; border-radius: 10px; padding: 8px; width: 100%; color: #0c4a6e; font-size: 12px; white-space: pre-line; word-break: break-word; overflow-wrap: break-word; }
         
         .admin-gold-theme { background: linear-gradient(135deg,#1a1a1a,#2d1b4e,#000); border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255,215,0,.3), inset 0 0 20px rgba(255,215,0,.1); color: #fff; }
         .admin-gold-text { color: #ffd700 !important; text-shadow: 0 0 10px rgba(255,215,0,.6); }
@@ -213,6 +213,7 @@
             <div class="flex items-center gap-2">
                 <button id="btn-lo" onclick="logout()" class="hv text-red-500 bg-red-50 p-2 rounded-xl active:scale-90 text-sm shadow-sm hover:bg-red-100 transition"><i class="fas fa-power-off"></i></button>
                 <button id="btn-ad" onclick="openAdmin()" class="hv text-yellow-600 bg-yellow-50 p-2 rounded-xl active:scale-90 text-sm shadow-sm hover:bg-yellow-100 transition"><i class="fas fa-crown"></i></button>
+                <button onclick="openGuide()" class="text-teal-600 bg-teal-50 p-2 rounded-xl active:scale-90 text-sm shadow-sm hover:bg-teal-100 transition" title="شرح البرنامج"><i class="fas fa-info-circle"></i></button>
                 <button onclick="openSettings()" class="text-slate-600 bg-slate-100 p-2 rounded-xl active:scale-90 text-sm shadow-sm hover:bg-slate-200 transition"><i class="fas fa-cog"></i></button>
                 <button id="btn-biz" onclick="openBiz()" class="hv text-sky-600 bg-sky-50 p-2 rounded-xl active:scale-90 text-sm shadow-sm hover:bg-sky-100 transition"><i class="fas fa-store"></i></button>
             </div>
@@ -301,6 +302,47 @@
         </div>
     </div>
 
+    <!-- نافذة شرح البرنامج -->
+    <div id="v-guide" class="hv fixed inset-0 bg-black/70 z-[160] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl apo flex flex-col max-h-[85vh]">
+            <div class="p-5 bg-gradient-to-r from-teal-500 to-emerald-600 text-white flex justify-between items-center shrink-0">
+                <button onclick="closeGuide()" class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition active:scale-90"><i class="fas fa-times"></i></button>
+                <h3 class="font-black text-lg"><i class="fas fa-book-open ml-2"></i>دليل استخدام Kimoup</h3>
+            </div>
+            <div class="p-5 flex-1 overflow-y-auto space-y-4 text-right bg-slate-50">
+                
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-black text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-comment-dots text-sky-500"></i> الدردشات الفردية</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">يمكنك إضافة أصدقاء عبر بريدهم الإلكتروني وبدء محادثة مشفرة فوراً. تدعم الدردشة إرسال النصوص، الصور، والمقاطع الصوتية (المايك)، مع إمكانية الرد والتحويل والتثبيت.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-black text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-shield-halved text-indigo-500"></i> المجتمعات (الجروبات)</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">قم بإنشاء مجتمع خاص وشارك كود الدعوة مع من تحب لينضموا إليك. يمكنك إدارة أعضاء المجتمع وتعديل اسمه متى شئت.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-black text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-circle-notch text-green-500"></i> الحالات (Status)</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">شارك أفكارك ويومياتك مع الأصدقاء. الحالات تختفي تلقائياً بعد 24 ساعة، ولا يراها سوى الأصدقاء المتبادلين لضمان الخصوصية.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-black text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-store text-yellow-500"></i> أدوات الأعمال</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">من الإعدادات، قم بترقية حسابك إلى حساب أعمال مجاناً. يمكنك إضافة متجر، كتالوج منتجات، رسائل ترحيبية، وردود سريعة بكلمات مفتاحية.</p>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h4 class="font-black text-slate-800 flex items-center gap-2 mb-2"><i class="fas fa-gamepad text-purple-500"></i> غرفة الألعاب</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">استمتع بتحدي الروبوت المدمج في ألعاب خفيفة مثل (X-O، الذاكرة، حجر ورقة مقص) في أوقات فراغك.</p>
+                </div>
+
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100 shrink-0">
+                <button onclick="closeGuide()" class="w-full py-3.5 bg-gradient-to-r from-slate-800 to-slate-900 text-white font-black rounded-xl shadow-lg active:scale-95 transition">فهمت، شكراً!</button>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة الدردشة -->
     <div id="v-chat" class="absolute inset-0 bg-[#efeae2] z-[60] flex flex-col hv afi">
         <!-- شريط علوي للدردشة -->
@@ -361,7 +403,7 @@
         <!-- الردود السريعة -->
         <div id="qr-p" class="hv absolute bottom-[70px] left-2 right-2 z-30 max-h-[160px] overflow-y-auto bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 p-2"></div>
         
-        <!-- حقل إدخال الرسالة (مع تعديل أزرار المايك) -->
+        <!-- حقل إدخال الرسالة -->
         <div id="c-ia" class="p-2.5 bg-white/90 backdrop-blur-md flex gap-2 items-end z-30 border-t shadow-[0_-5px_15px_rgba(0,0,0,0.02)]">
             <button id="btn-vc" onmousedown="startV(event)" ontouchstart="startV(event)" onmouseup="stopV(event)" ontouchend="stopV(event)" onmouseleave="stopV(event)" ontouchcancel="stopV(event)" class="w-11 h-11 bg-gradient-to-br from-sky-400 to-sky-600 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition shrink-0"><i class="fas fa-microphone text-lg"></i></button>
             <div class="flex-1 bg-slate-50 rounded-2xl px-4 py-3 flex items-center shadow-inner border border-gray-200 focus-within:border-sky-300 transition-all min-h-[44px]">
@@ -831,6 +873,7 @@ var pinnedMsgId = null;
 var mediaRecorder = null;
 var audioChunks = [];
 var isRecording = false;
+var recordStartTime = 0;
 
 var labels = {};
 try { labels = JSON.parse(localStorage.getItem('kimo_lb') || '{}'); } catch(e) { labels = {}; }
@@ -897,6 +940,10 @@ function checkEmailFormat() {
         w.classList.add('email-ok'); er.innerText = '✓ صحيح'; er.classList.remove('hv'); er.style.color = '#16a34a';
     }
 }
+
+// دالة دليل المستخدم
+function openGuide() { el('v-guide').classList.remove('hv'); }
+function closeGuide() { el('v-guide').classList.add('hv'); }
 
 // =====================================
 // [3] الإشعارات والتسجيل
@@ -1405,6 +1452,7 @@ function startV(e){
                 mediaRecorder = new MediaRecorder(stream);
                 mediaRecorder.start();
                 isRecording = true;
+                recordStartTime = Date.now();
                 audioChunks = [];
                 
                 mediaRecorder.addEventListener("dataavailable", function(event) {
@@ -1412,7 +1460,10 @@ function startV(e){
                 });
                 
                 mediaRecorder.addEventListener("stop", function() {
-                    const audioBlob = new Blob(audioChunks);
+                    if(audioChunks.length === 0) return; // حماية من المقاطع الفارغة
+                    // تحديد صيغة الملف بشكل صريح لضمان عمله على كافة المتصفحات
+                    const mimeType = mediaRecorder.mimeType || 'audio/mp4'; 
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
                     const reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = function() {
@@ -1447,6 +1498,15 @@ function stopV(e){
     e.preventDefault(); 
     if(!isRecording || !mediaRecorder) return;
     
+    // منع إرسال الفويس لو الضغطة أقل من نصف ثانية (ميكروفون ضغطة خطأ)
+    if(Date.now() - recordStartTime < 500) {
+        mediaRecorder.stop();
+        isRecording = false;
+        el('rec-t').classList.add('hv'); 
+        audioChunks = []; // مسح البيانات حتى لا ترسل
+        return;
+    }
+
     mediaRecorder.stop();
     isRecording = false;
     el('rec-t').classList.add('hv'); 
